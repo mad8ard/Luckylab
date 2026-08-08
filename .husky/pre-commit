@@ -1,0 +1,7 @@
+pnpm exec lint-staged
+# prettier 可能把长行折成多行，导致文件物理行数膨胀。
+# 在 lint-staged 之后再跑 check:size，阻断 >500 行的 commit。
+pnpm run check:size
+# prettier 可能把长行折成多行，导致文件物理行数膨胀。
+# 在 lint-staged 之后再跑 check:size，阻断 >500 行的 commit。
+pnpm run check:size

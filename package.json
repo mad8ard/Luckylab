@@ -1,0 +1,76 @@
+{
+  "name": "market-lab",
+  "private": true,
+  "version": "0.0.0",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "engines": {
+    "node": ">=20.10",
+    "pnpm": ">=11.1.2"
+  },
+  "packageManager": "pnpm@11.1.2",
+  "scripts": {
+    "dev": "pnpm run generate:data && pnpm run generate:recommended-pool && vite",
+    "build": "pnpm run generate:data && pnpm run generate:recommended-pool && pnpm run check:size && pnpm run check:domain-boundary && pnpm run check:data && pnpm run check:generated-data && pnpm run verify:domain && vite build",
+    "generate:data": "node scripts/csv2js.mjs",
+    "generate:recommended-pool": "node scripts/generate-recommended-pool.mjs && node scripts/render-recommended-pool-page.mjs",
+    "fetch:market-data": "python3 scripts/fetch-market-data.py --output data/workbooks/stocks_latest.xlsx",
+    "fetch:lp-data": "node scripts/fetch-lp-pool-aggregate.mjs",
+    "fetch:lp-uniswap-rpc": "node scripts/fetch-lp-onchain-data.mjs",
+    "plan:market-data": "python3 scripts/fetch-market-data.py --plan",
+    "refresh:market-data": "pnpm run fetch:market-data && node scripts/convert-stocks-xlsx.mjs data/workbooks/stocks_latest.xlsx && pnpm run fetch:lp-data && pnpm run generate:data && pnpm run generate:recommended-pool && pnpm run check:data && pnpm run check:generated-data",
+    "verify:domain": "node scripts/verify-domain.mjs",
+    "audit:formulas": "uv run --no-project --with poetry poetry check && uv run --no-project python scripts/source_coverage_audit.py && uv run --no-project python scripts/formula_inventory_audit.py && uv run --no-project python scripts/formula_wiring_audit.py && uv run --no-project python scripts/chart_formula_audit.py && uv run --no-project python scripts/formula_audit.py",
+    "verify:pine": "node scripts/verify-pine.mjs && pnpm run verify:pine-equivalence",
+    "verify:pine-equivalence": "vitest run src/test/pine-equivalence.test.js",
+    "check:data": "node scripts/check-data-index.mjs",
+    "check:generated-data": "node scripts/check-generated-data.mjs",
+    "check:size": "node scripts/check-file-size.mjs",
+    "check:domain-boundary": "node scripts/check-domain-boundaries.mjs",
+    "test": "pnpm run generate:data && vitest run",
+    "test:watch": "pnpm run generate:data && vitest",
+    "test:cov": "pnpm run generate:data && vitest run --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "preview": "vite preview",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,mjs,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,html,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "d3-dsv": "^3.0.1",
+    "lightweight-charts": "^5.2.0",
+    "lucide-vue-next": "^1.0.0",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.34"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@vitest/coverage-v8": "^4.1.7",
+    "@vue/test-utils": "^2.4.10",
+    "eslint": "^10.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-vue": "^10.9.1",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "jsdom": "^29.1.1",
+    "lint-staged": "^17.0.5",
+    "prettier": "^3.8.3",
+    "rolldown": "1.0.0",
+    "vite": "^8.0.12",
+    "vitest": "^4.1.6",
+    "vue-eslint-parser": "^10.4.0",
+    "xlsx": "^0.18.5"
+  }
+}

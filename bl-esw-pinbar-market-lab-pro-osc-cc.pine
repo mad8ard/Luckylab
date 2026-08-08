@@ -1,0 +1,646 @@
+//@version=6
+indicator(title="BL-ESW Pinbar Market Lab Pro OSC", shorttitle="BLEMBIPO", overlay=true, max_labels_count=500)
+
+// ============================================================
+// 说明
+// 本文件在对齐基线 bl-esw-pinbar-market-lab.pine 之上做信号优化：
+//   1. 数学层（成本锚 / 成本带 / GetDelta 带 / 波动率 / z-score）逐行照搬，可信
+//   2. 信号分强弱两级、买卖对称（强卖补动量+量能确认，治卖飞）
+//   3. 触线独立成层：收盘穿越=强触线，影线触及被拒=弱触线
+//   4. 趋势降级为背景参考，不压制任何信号
+//   5. 防闪烁冷却 + 全量告警
+// ============================================================
+
+// ============================================================
+// Inputs
+// ============================================================
+price_src = input.source(close, "Source")
+exponential = input.bool(true, "Exponential MA")
+
+// Pinbar
+grp_pin = "Pinbar"
+show_pinbar = input.bool(true, "Show Pinbar Black", group=grp_pin)
+pin_ratio = input.float(2.0, "Wick Body Ratio", minval=1.0, step=0.1, group=grp_pin)
+
+// Market Lab
+grp_lab = "Market Lab"
+show_lab = input.bool(true, "Enable Cost Strategy", group=grp_lab)
+show_cost_band = input.bool(true, "Show Cost Band", group=grp_lab)
+show_delta_band = input.bool(true, "Show GetDelta Band", group=grp_lab)
+show_lab_bg = input.bool(true, "Show Discount Premium BG", group=grp_lab)
+show_lab_panel = input.bool(true, "Show Status Panel", group=grp_lab)
+show_legend = input.bool(true, "Show Legend", group=grp_lab)
+
+cost_len = input.int(60, "Cost Window", minval=10, group=grp_lab)
+recent_len = input.int(20, "Recent Window", minval=5, group=grp_lab)
+vol_len = input.int(60, "Vol Window", minval=10, group=grp_lab)
+holding_days = input.int(30, "Holding Days", minval=1, group=grp_lab)
+trading_days = input.int(365, "Year Basis", options=[365, 252, 242, 179], group=grp_lab)
+target_return_pct = input.float(30.0, "Target Return %", minval=0.0, step=1.0, group=grp_lab)
+iv_override = input.float(0.0, "IV Override (0=use realized vol)", minval=0.0, step=0.01, group=grp_lab)
+lp_range_width = input.float(0.10, "LP Range Width", minval=0.001, maxval=0.95, step=0.01, group=grp_lab)
+lp_skew = input.float(1.0, "LP Skew", minval=0.01, step=0.05, group=grp_lab)
+show_lp_band = input.bool(true, "Show LP Range", group=grp_lab)
+show_position_row = input.bool(true, "Show Position Row", group=grp_lab)
+show_match_row = input.bool(true, "Show Match Row", group=grp_lab)
+profile = input.string("Balanced", "Profile", options=["Conservative", "Balanced", "Aggressive"], group=grp_lab)
+
+// Pro 信号控制
+grp_sig = "Pro Signals"
+cooldown_bars = input.int(3, "Signal Cooldown (bars)", minval=0, group=grp_sig, tooltip="同类信号在 N 根 K 线内不重复触发，防闪烁。日线建议 3")
+vol_ma_len = input.int(20, "Volume MA Length", minval=2, group=grp_sig)
+show_touch = input.bool(true, "Show Line Touch Signals", group=grp_sig)
+touch_alert_on = input.bool(true, "Enable Line Touch Alerts", group=grp_sig)
+show_ma = input.bool(false, "Show MA Cross (legacy, default off)", group=grp_sig)
+show_trend_ma = input.bool(true, "Show Trend MA (faint background)", group=grp_sig)
+panel_size_opt = input.string("Small", "Panel Font Size", options=["Tiny", "Small", "Normal"], group=grp_sig)
+panel_size = panel_size_opt == "Tiny" ? size.tiny : panel_size_opt == "Normal" ? size.normal : size.small
+
+// Oscillator Buy（KDJ-J + RSI 超卖买入助攻，公式复刻自副图）
+grp_osc = "Oscillator Buy"
+enable_osc_buy = input.bool(true, "Enable Oscillator Buy", group=grp_osc, tooltip="J/RSI 超卖时独立标记买点，纠正牛市买少卖多")
+kdj_len = input.int(9, "KDJ Period", minval=2, group=grp_osc)
+kdj_sig = input.int(3, "KDJ Signal", minval=1, group=grp_osc)
+osc_rsi_len = input.int(14, "RSI Period", minval=2, group=grp_osc)
+j_weak_th = input.float(20, "J Weak Oversold", step=1, group=grp_osc, tooltip="J 跌破此值=弱买助攻")
+j_deep_th = input.float(0, "J Deep Oversold", step=1, group=grp_osc, tooltip="J 跌破此值=强买助攻（副图绿色点）")
+rsi_weak_th = input.float(30, "RSI Weak Oversold", step=1, group=grp_osc)
+rsi_deep_th = input.float(20, "RSI Deep Oversold", step=1, group=grp_osc)
+j_top_th = input.float(100, "J Overbought", step=1, group=grp_osc, tooltip="J 升破此值=卖出确认（副图红色点）")
+rsi_top_th = input.float(70, "RSI Overbought", step=1, group=grp_osc)
+sell_need_overbought = input.bool(false, "Strong Sell Needs Overbought (2A)", group=grp_osc, tooltip="默认关：强卖与原版一致。开启后强卖必须 J 或 RSI 超买，牛市少卖飞")
+enable_osc_sell = input.bool(true, "Enable Oscillator Sell", group=grp_osc, tooltip="J/RSI 超买时独立标记卖点，对称于超卖买点")
+
+// ============================================================
+// MA / BBI（降级为背景参考）
+// ============================================================
+ema_10 = ta.ema(price_src, 10)
+sma_10 = ta.sma(price_src, 10)
+ema_20 = ta.ema(price_src, 20)
+sma_20 = ta.sma(price_src, 20)
+ema_200 = ta.ema(price_src, 200)
+sma_200 = ta.sma(price_src, 200)
+ema_55 = ta.ema(price_src, 55)
+sma_55 = ta.sma(price_src, 55)
+
+ma8 = exponential ? ema_10 : sma_10
+ma13 = exponential ? ema_20 : sma_20
+ma21 = exponential ? ema_200 : sma_200
+ma55 = exponential ? ema_55 : sma_55
+
+M1 = ta.sma(close, 6)
+M2 = ta.sma(close, 12)
+M3 = ta.sma(close, 24)
+BBI = (M1 + M2 + M3) / 3
+
+// MA 金叉死叉：降级为默认关闭的可选项
+buy_cond = ta.cross(ma21, ma55) and ma8 > ma13 and ma21 > ma55
+sell_cond = ta.cross(ma21, ma55) and ma8 < ma13 and ma21 < ma55
+
+// 趋势环境（仅展示，不压制信号）
+regime_long = close > ma21
+regime_label = regime_long ? "多头环境" : "空头环境"
+
+// ============================================================
+// Cost anchor（照搬：成交量加权 typical price）
+// ============================================================
+typical_price = (high + low + close) / 3.0
+cost_main_vol_sum = math.sum(volume, cost_len)
+cost_main_weighted_sum = math.sum(typical_price * volume, cost_len)
+cost_main_sma = ta.sma(typical_price, cost_len)
+cost_main_has_volume = not na(cost_main_vol_sum) and cost_main_vol_sum > 0
+cost_anchor = cost_main_has_volume ? cost_main_weighted_sum / cost_main_vol_sum : cost_main_sma
+
+// ============================================================
+// Volatility / band（照搬）
+// ============================================================
+log_ret = close[1] > 0 ? math.log(close / close[1]) : 0.0
+annual_vol_raw = ta.stdev(log_ret, vol_len, false) * math.sqrt(trading_days)
+annual_vol = na(annual_vol_raw) or annual_vol_raw <= 0 ? 0.01 : annual_vol_raw
+
+true_range = math.max(high - low, math.max(math.abs(high - close[1]), math.abs(low - close[1])))
+atr_14 = ta.sma(true_range, 14)
+atr_pct = close > 0 ? atr_14 / close : 0.0
+
+vol_estimate = ta.stdev(log_ret, cost_len, false) * math.sqrt(math.min(recent_len, cost_len))
+min_band = math.max(vol_estimate * 0.25, 0.005)
+band_width = math.max(vol_estimate, min_band)
+
+cost_low = cost_anchor * (1 - band_width)
+cost_high = cost_anchor * (1 + band_width)
+lp_lower = cost_anchor * math.max(1 - lp_range_width, 0.001)
+lp_upper = cost_anchor * (1 + lp_range_width * lp_skew)
+position_label = close > cost_high ? "高于成本带" : close < cost_low ? "低于成本带" : "成本带内"
+cost_distance = cost_anchor > 0 ? close / cost_anchor - 1 : 0.0
+
+momentum5 = close[5] > 0 ? close / close[5] - 1 : 0.0
+cost_slope5 = not na(cost_anchor[5]) and cost_anchor[5] > 0 ? cost_anchor / cost_anchor[5] - 1 : 0.0
+
+// ============================================================
+// GetDelta band（照搬）
+// ============================================================
+target_return = target_return_pct / 100.0
+effective_iv = iv_override > 0 ? iv_override : annual_vol
+wave_raw = effective_iv * math.sqrt(holding_days / (trading_days * 2.0 * math.pi))
+wave = math.min(wave_raw, 0.99)
+delta_ok = show_lab and close > 0 and effective_iv > 0 and wave > 0 and wave < 1
+
+entry_price = cost_anchor
+raw_ratio = delta_ok ? math.pow((1 + wave) / (1 - wave), 2) : na
+long_ratio = raw_ratio
+long_cost = delta_ok ? entry_price * math.pow(target_return * long_ratio - target_return + 1, 2) / long_ratio : na
+long_high = delta_ok ? long_cost * long_ratio : na
+long_low = delta_ok ? long_cost / long_ratio : na
+
+short_ratio = delta_ok ? 1 / long_ratio : na
+short_cost = delta_ok ? entry_price * math.pow(target_return * short_ratio - target_return + 1, 2) / short_ratio : na
+short_high = delta_ok ? short_cost / short_ratio : na
+
+// ============================================================
+// Profile（照搬 JS 数值）
+// ============================================================
+edge_sigma = profile == "Conservative" ? 1.15 : profile == "Balanced" ? 1.00 : 0.75
+momentum_sigma = profile == "Conservative" ? 0.50 : profile == "Balanced" ? 0.25 : 0.00
+cost_slope_sigma = profile == "Conservative" ? 0.75 : profile == "Balanced" ? 0.60 : 0.45
+
+daily_vol = annual_vol / math.sqrt(trading_days)
+vol_ratio = daily_vol / 0.02
+
+js_min_edge = math.max(edge_sigma * atr_pct * 0.3, 0.005)
+min_edge = math.max(atr_pct * edge_sigma, js_min_edge)
+trim_edge = min_edge
+
+momentum_min = momentum_sigma * daily_vol
+cost_slope_threshold = math.max(atr_pct * cost_slope_sigma * vol_ratio, math.max(cost_slope_sigma * daily_vol * 0.3, 0.003))
+
+buy_edge = cost_anchor > close ? (cost_anchor - close) / close : 0.0
+sell_edge = close > cost_anchor ? (close - cost_anchor) / close : 0.0
+
+// ============================================================
+// 新增确认量（量能 / 动量方向）
+// ============================================================
+vol_ma = ta.sma(volume, vol_ma_len)
+vol_expand = not na(vol_ma) and vol_ma > 0 and volume > vol_ma
+momentum_falling = momentum5 < 0
+
+// 面板用：布尔转勾叉（顶层声明，Pine 禁止在 if block 内定义函数）
+yes_no(b) => b ? "✓" : "·"
+
+// ============================================================
+// 振荡器：KDJ-J + RSI（公式复刻自副图，只算数值不画线）
+// ============================================================
+osc_hi = ta.highest(high, kdj_len)
+osc_lo = ta.lowest(low, kdj_len)
+osc_div = osc_hi - osc_lo
+osc_kraw = osc_div == 0 ? 50.0 : 100.0 * ((close - osc_lo) / osc_div)
+osc_k = ta.rma(osc_kraw, kdj_sig)
+osc_d = ta.rma(osc_k, kdj_sig)
+osc_j = 3.0 * osc_k - 2.0 * osc_d
+osc_rsi = ta.rsi(close, osc_rsi_len)
+
+// 超卖（买入助攻）/ 超买（卖出确认）
+j_oversold_deep = osc_j < j_deep_th
+j_oversold_weak = osc_j < j_weak_th
+rsi_oversold_deep = osc_rsi < rsi_deep_th
+rsi_oversold_weak = osc_rsi < rsi_weak_th
+osc_overbought = osc_j > j_top_th or osc_rsi > rsi_top_th
+
+osc_deep = enable_osc_buy and (j_oversold_deep or rsi_oversold_deep)
+osc_mild = enable_osc_buy and (j_oversold_weak or rsi_oversold_weak)
+osc_both_deep = enable_osc_buy and j_oversold_deep and rsi_oversold_deep
+
+// 超买分级（对称买入侧：单指标触发=强卖点，J与RSI双超买=共振卖点）
+j_overbought = osc_j > j_top_th
+rsi_overbought = osc_rsi > rsi_top_th
+osc_top = enable_osc_sell and (j_overbought or rsi_overbought)
+osc_both_top = enable_osc_sell and j_overbought and rsi_overbought
+
+// ============================================================
+// 信号判定（强弱两级，买卖对称）
+// ============================================================
+below_cost = show_lab and close < cost_low
+above_cost = show_lab and close > cost_high
+inside_long_band = not delta_ok or close >= long_low
+inside_short_band = not delta_ok or close <= short_high
+
+cost_still_falling = cost_slope5 < -cost_slope_threshold
+momentum_rising = momentum5 > momentum_min
+
+// 买入侧
+buy_base = below_cost and inside_long_band and not cost_still_falling and momentum_rising and buy_edge >= min_edge
+lab_buy_strong = buy_base and vol_expand
+lab_buy_weak = below_cost and inside_long_band and not buy_base
+lab_deep_discount = below_cost and not inside_long_band
+
+// 卖出侧（强卖补动量转跌 + 放量；2A：再加超买门槛，牛市少卖飞）
+sell_base = above_cost and inside_short_band and sell_edge >= trim_edge
+lab_sell_strong = sell_base and momentum_falling and vol_expand and (not sell_need_overbought or osc_overbought)
+lab_sell_weak = sell_base and not lab_sell_strong
+lab_overheat = above_cost and not inside_short_band
+
+// 振荡器买入（1A：超卖独立成点，不要求价格在成本带；深超卖+折价=最强）
+osc_strong_buy = osc_deep and not (lab_buy_strong)
+osc_weak_buy = osc_mild and not osc_deep and not lab_buy_strong and not lab_buy_weak
+osc_confluence_buy = osc_both_deep and below_cost
+
+// 振荡器卖出（对称超买侧：超买独立成点，不要求价格在成本带；双超买+溢价=最强）
+osc_strong_sell = osc_top and not (lab_sell_strong)
+osc_confluence_sell = osc_both_top and above_cost
+
+// ============================================================
+// 冷却：同类信号 N 根内不重复（首根 + 冷却闸）
+// ============================================================
+cooled(cond, lastBarIdx) =>
+    edge = cond and not cond[1]
+    edge and (na(lastBarIdx) or (bar_index - lastBarIdx) > cooldown_bars)
+
+var int buy_strong_last = na
+var int buy_weak_last = na
+var int deep_last = na
+var int sell_strong_last = na
+var int sell_weak_last = na
+var int overheat_last = na
+var int osc_strong_last = na
+var int osc_weak_last = na
+var int osc_conf_last = na
+var int osc_sell_strong_last = na
+var int osc_sell_conf_last = na
+
+buy_strong_sig = cooled(lab_buy_strong, buy_strong_last)
+buy_weak_sig = cooled(lab_buy_weak, buy_weak_last)
+deep_sig = cooled(lab_deep_discount, deep_last)
+sell_strong_sig = cooled(lab_sell_strong, sell_strong_last)
+sell_weak_sig = cooled(lab_sell_weak, sell_weak_last)
+overheat_sig = cooled(lab_overheat, overheat_last)
+osc_strong_sig = cooled(osc_strong_buy, osc_strong_last)
+osc_weak_sig = cooled(osc_weak_buy, osc_weak_last)
+osc_conf_sig = cooled(osc_confluence_buy, osc_conf_last)
+osc_sell_strong_sig = cooled(osc_strong_sell, osc_sell_strong_last)
+osc_sell_conf_sig = cooled(osc_confluence_sell, osc_sell_conf_last)
+
+if buy_strong_sig
+    buy_strong_last := bar_index
+if buy_weak_sig
+    buy_weak_last := bar_index
+if deep_sig
+    deep_last := bar_index
+if sell_strong_sig
+    sell_strong_last := bar_index
+if sell_weak_sig
+    sell_weak_last := bar_index
+if overheat_sig
+    overheat_last := bar_index
+if osc_strong_sig
+    osc_strong_last := bar_index
+if osc_weak_sig
+    osc_weak_last := bar_index
+if osc_conf_sig
+    osc_conf_last := bar_index
+if osc_sell_strong_sig
+    osc_sell_strong_last := bar_index
+if osc_sell_conf_sig
+    osc_sell_conf_last := bar_index
+
+// ============================================================
+// 触线引擎（强=收盘穿越，弱=影线触及被拒）
+// ============================================================
+// 弱触线：当根 high-low 跨过该线（触及），但收盘与前收都在线同侧（未穿越，插针被拒）
+touched_weak(line) =>
+    not na(line) and low <= line and high >= line and ((close - line) * (close[1] - line) > 0)
+
+// 强触线：收盘上穿 / 下穿
+cross_up(line) => not na(line) and close > line and close[1] <= line
+cross_dn(line) => not na(line) and close < line and close[1] >= line
+
+touch_enabled = show_lab and show_touch
+
+// cost_low
+tl_costlow_up = touch_enabled and cross_up(cost_low)
+tl_costlow_dn = touch_enabled and cross_dn(cost_low)
+tl_costlow_weak = touch_enabled and touched_weak(cost_low)
+// cost_high
+tl_costhigh_up = touch_enabled and cross_up(cost_high)
+tl_costhigh_dn = touch_enabled and cross_dn(cost_high)
+tl_costhigh_weak = touch_enabled and touched_weak(cost_high)
+// cost_anchor
+tl_anchor_up = touch_enabled and cross_up(cost_anchor)
+tl_anchor_dn = touch_enabled and cross_dn(cost_anchor)
+tl_anchor_weak = touch_enabled and touched_weak(cost_anchor)
+// GetDelta long_low
+tl_longlow_up = touch_enabled and cross_up(long_low)
+tl_longlow_dn = touch_enabled and cross_dn(long_low)
+tl_longlow_weak = touch_enabled and touched_weak(long_low)
+// GetDelta long_high
+tl_longhigh_up = touch_enabled and cross_up(long_high)
+tl_longhigh_dn = touch_enabled and cross_dn(long_high)
+tl_longhigh_weak = touch_enabled and touched_weak(long_high)
+// GetDelta short_high
+tl_shorthigh_up = touch_enabled and cross_up(short_high)
+tl_shorthigh_dn = touch_enabled and cross_dn(short_high)
+tl_shorthigh_weak = touch_enabled and touched_weak(short_high)
+
+// 聚合：任一线强触 / 弱触（用于状态面板和总告警）
+any_touch_strong = tl_costlow_up or tl_costlow_dn or tl_costhigh_up or tl_costhigh_dn or tl_anchor_up or tl_anchor_dn or tl_longlow_up or tl_longlow_dn or tl_longhigh_up or tl_longhigh_dn or tl_shorthigh_up or tl_shorthigh_dn
+any_touch_weak = tl_costlow_weak or tl_costhigh_weak or tl_anchor_weak or tl_longlow_weak or tl_longhigh_weak or tl_shorthigh_weak
+
+touch_line_name = tl_anchor_up or tl_anchor_dn or tl_anchor_weak ? "Cost Anchor" : tl_costlow_up or tl_costlow_dn or tl_costlow_weak ? "Cost Low" : tl_costhigh_up or tl_costhigh_dn or tl_costhigh_weak ? "Cost High" : tl_longlow_up or tl_longlow_dn or tl_longlow_weak ? "GD Long Low" : tl_longhigh_up or tl_longhigh_dn or tl_longhigh_weak ? "GD Long High" : tl_shorthigh_up or tl_shorthigh_dn or tl_shorthigh_weak ? "GD Short High" : "-"
+touch_kind = any_touch_strong ? "强" : any_touch_weak ? "弱" : "-"
+
+// ============================================================
+// z-score / match（照搬）
+// ============================================================
+period_vol = annual_vol > 0 ? annual_vol * math.sqrt(holding_days / trading_days) : 0.01
+z_score = period_vol > 0 ? cost_distance / period_vol : 0.0
+z_abs = math.abs(z_score)
+z_strength = z_abs < 0.5 ? "弱" : z_abs < 1.5 ? "中" : "强"
+
+norm_cdf_abs(x) =>
+    a1 =  0.254829592
+    a2 = -0.284496736
+    a3 =  1.421413741
+    a4 = -1.453152027
+    a5 =  1.061405429
+    p  =  0.3275911
+    sign_x = x >= 0 ? 1.0 : -1.0
+    abs_x = math.abs(x)
+    t = 1.0 / (1.0 + p * abs_x)
+    y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * math.exp(-abs_x * abs_x)
+    0.5 * (1.0 + sign_x * y)
+
+phi_z = norm_cdf_abs(z_abs / math.sqrt(2.0))
+match_pct = z_abs >= 8.0 ? 1.0 : math.max(0.0, math.min(1.0, 2.0 * phi_z - 1.0))
+
+// 状态文字（强弱分级）
+lab_state = lab_buy_strong ? "强买" : lab_sell_strong ? "强卖" : lab_deep_discount ? "深度折价" : lab_overheat ? "过热别追" : lab_buy_weak ? "弱买/观察" : lab_sell_weak ? "弱卖/减仓" : z_abs < 0.5 ? "中性" : "等待"
+
+// ============================================================
+// Plots：趋势 MA（淡背景参考）
+// ============================================================
+plot(show_trend_ma ? ma21 : na, color=color.new(#f47608, 55), title="EMA200", linewidth=1)
+plot(show_trend_ma ? ma55 : na, color=color.new(#e49b13, 55), title="EMA55", linewidth=1)
+plot(show_trend_ma ? BBI : na, color=color.new(#000000, 65), linewidth=1, title="BBI")
+
+// legacy MA 交叉（默认关闭）
+plotshape(show_ma and buy_cond, title="MA Buy", style=shape.triangleup, location=location.belowbar, color=color.new(color.lime, 35), text="MA Buy", textcolor=color.new(color.lime, 35), size=size.small)
+plotshape(show_ma and sell_cond, title="MA Sell", style=shape.triangledown, location=location.abovebar, color=color.new(color.red, 35), text="MA Sell", textcolor=color.new(color.red, 35), size=size.small)
+
+// ============================================================
+// Plots：关键线（加粗，便于看触碰）
+// ============================================================
+// 第一梯队（核心，加深加粗）：成本锚 + 成本带上下沿，是信号判定与碰线提示的核心
+plot(show_lab and show_cost_band ? cost_low : na, title="Cost Low", color=color.new(#059669, 0), linewidth=2)
+plot(show_lab and show_cost_band ? cost_high : na, title="Cost High", color=color.new(#dc2626, 0), linewidth=2)
+plot(show_lab and show_cost_band ? cost_anchor : na, title="Cost Anchor", color=color.new(#7c3aed, 0), linewidth=3)
+
+// 第二梯队（淡化变细）：GetDelta 三条线，参考用，不抢 K 线
+plot(show_lab and show_delta_band ? long_low : na, title="GD Long Low", color=color.new(#0891b2, 72), linewidth=1)
+plot(show_lab and show_delta_band ? long_high : na, title="GD Long High", color=color.new(#f97316, 72), linewidth=1)
+plot(show_lab and show_delta_band ? short_high : na, title="GD Short High", color=color.new(#dc2626, 72), linewidth=1)
+// 第三梯队（最淡）：LP 区间，几乎只作边界提示
+plot(show_lab and show_lp_band ? lp_lower : na, title="LP Low", color=color.new(#a855f7, 82), linewidth=1, style=plot.style_circles)
+plot(show_lab and show_lp_band ? lp_upper : na, title="LP High", color=color.new(#a855f7, 82), linewidth=1, style=plot.style_circles)
+
+// 折扣 / 溢价背景
+bgcolor(show_lab and show_lab_bg and below_cost ? color.new(#10b981, 92) : na, title="Discount BG")
+bgcolor(show_lab and show_lab_bg and above_cost ? color.new(#dc2626, 92) : na, title="Premium BG")
+
+// ============================================================
+// Plots：信号（强=大实心+文字，弱=小空心）
+// ============================================================
+plotshape(buy_strong_sig, title="Strong Buy", style=shape.triangleup, location=location.belowbar, color=color.new(#10b981, 0), text="BUY", textcolor=color.new(#10b981, 0), size=size.normal)
+plotshape(buy_weak_sig, title="Weak Buy", style=shape.circle, location=location.belowbar, color=color.new(#10b981, 55), size=size.tiny)
+plotshape(deep_sig, title="Deep Discount", style=shape.diamond, location=location.belowbar, color=color.new(#7c3aed, 15), size=size.small)
+
+plotshape(sell_strong_sig, title="Strong Sell", style=shape.triangledown, location=location.abovebar, color=color.new(#dc2626, 0), text="SELL", textcolor=color.new(#dc2626, 0), size=size.normal)
+plotshape(sell_weak_sig, title="Weak Sell", style=shape.circle, location=location.abovebar, color=color.new(#f97316, 45), size=size.tiny)
+plotshape(overheat_sig, title="Overheat", style=shape.xcross, location=location.abovebar, color=color.new(#dc2626, 15), size=size.small)
+
+// 振荡器买点（独立 lime/青样式，与成本带 BUY 区分；不透明度调高到 80%=transp 20）
+plotshape(osc_conf_sig, title="OSC Confluence Buy", style=shape.triangleup, location=location.belowbar, color=color.new(#00e676, 0), text="J/R", textcolor=color.new(#00e676, 0), size=size.small)
+plotshape(osc_strong_sig, title="OSC Strong Buy", style=shape.triangleup, location=location.belowbar, color=color.new(#1de9b6, 0), text="OR", textcolor=color.new(#1de9b6, 0), size=size.tiny)
+plotshape(osc_weak_sig, title="OSC Weak Buy", style=shape.circle, location=location.belowbar, color=color.new(#1de9b6, 20), size=size.tiny)
+
+// 振荡器卖点（对称超买侧，紫红/品红系，放 abovebar，与成本带 SELL 区分）
+plotshape(osc_sell_conf_sig, title="OSC Confluence Sell", style=shape.triangledown, location=location.abovebar, color=color.new(#d500f9, 0), text="J/R", textcolor=color.new(#d500f9, 0), size=size.small)
+plotshape(osc_sell_strong_sig, title="OSC Strong Sell", style=shape.triangledown, location=location.abovebar, color=color.new(#e040fb, 0), text="OR", textcolor=color.new(#e040fb, 0), size=size.tiny)
+
+// ============================================================
+// Plots：触线提示（强=箭头，弱=圆点）
+// ============================================================
+plotshape(tl_costlow_up or tl_costhigh_up or tl_anchor_up or tl_longlow_up or tl_longhigh_up or tl_shorthigh_up, title="Touch Strong Up", style=shape.arrowup, location=location.belowbar, color=color.new(#0284c7, 0), size=size.tiny)
+plotshape(tl_costlow_dn or tl_costhigh_dn or tl_anchor_dn or tl_longlow_dn or tl_longhigh_dn or tl_shorthigh_dn, title="Touch Strong Down", style=shape.arrowdown, location=location.abovebar, color=color.new(#ea580c, 0), size=size.tiny)
+
+// ============================================================
+// Pinbar
+// ============================================================
+body_size = math.abs(close - open)
+upper_wick = high - math.max(close, open)
+lower_wick = math.min(close, open) - low
+
+is_bull_pin = lower_wick > body_size * pin_ratio and lower_wick > upper_wick
+is_bear_pin = upper_wick > body_size * pin_ratio and upper_wick > lower_wick
+is_pinbar = show_pinbar and (is_bull_pin or is_bear_pin)
+
+p_open = is_pinbar ? open : na
+pin_high = is_pinbar ? high : na
+p_low_candle = is_pinbar ? low : na
+p_close = is_pinbar ? close : na
+
+barcolor(is_pinbar ? color.black : na, title="Pinbar Body Color")
+plotcandle(p_open, pin_high, p_low_candle, p_close, title="Pinbar Black Overlay", color=color.black, wickcolor=color.black, bordercolor=color.black)
+
+// ============================================================
+// Status Panel
+// ============================================================
+var table lab_table = table.new(position.top_right, 2, 14, border_width=1)
+
+if barstate.islast
+    table.clear(lab_table, 0, 0, 1, 13)
+
+if barstate.islast and show_lab and show_lab_panel
+    state_color = lab_buy_strong ? color.new(#10b981, 0) : lab_sell_strong ? color.new(#dc2626, 0) : lab_deep_discount ? color.new(#7c3aed, 60) : lab_overheat ? color.new(#dc2626, 60) : lab_buy_weak ? color.new(#10b981, 70) : lab_sell_weak ? color.new(#f97316, 60) : color.new(color.gray, 88)
+    table.cell(lab_table, 0, 0, "Market Lab Pro", text_color=color.white, bgcolor=color.black, text_size=panel_size)
+    table.cell(lab_table, 1, 0, profile + " · " + regime_label, text_color=color.white, bgcolor=color.black, text_size=panel_size)
+    table.cell(lab_table, 0, 1, "State", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 1, 1, lab_state, text_color=color.white, bgcolor=state_color, text_size=panel_size)
+    if show_position_row
+        table.cell(lab_table, 0, 2, "Position", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+        table.cell(lab_table, 1, 2, position_label, text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    if show_match_row
+        table.cell(lab_table, 0, 3, "Match", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+        table.cell(lab_table, 1, 3, str.tostring(match_pct * 100, "#") + "%", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 0, 4, "确认 止跌/动量", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 1, 4, yes_no(not cost_still_falling) + " 止跌  " + yes_no(momentum_rising) + " 动量", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 0, 5, "确认 放量/边际", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 1, 5, yes_no(vol_expand) + " 放量  " + yes_no(buy_edge >= min_edge or sell_edge >= trim_edge) + " 边际", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 0, 6, "Last Touch", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 1, 6, touch_line_name + " (" + touch_kind + ")", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 0, 7, "Cost Dev", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 1, 7, str.tostring(cost_distance * 100, "#.##") + "%", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 0, 8, "Z (T=" + str.tostring(holding_days) + "d)", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 1, 8, str.tostring(z_score, "#.##") + "σ · " + z_strength, text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 0, 9, "Ann Vol", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 1, 9, str.tostring(annual_vol * 100, "#.##") + "%", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 0, 10, "ATR%", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 1, 10, str.tostring(atr_pct * 100, "#.##") + "%", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 0, 11, "Cost", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 1, 11, str.tostring(cost_anchor, "#.##"), text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 0, 12, "Close", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 1, 12, str.tostring(close, "#.##"), text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    osc_tag = osc_overbought ? " 超买" : osc_deep ? " 深超卖" : osc_mild ? " 超卖" : ""
+    osc_bg = osc_overbought ? color.new(#dc2626, 30) : osc_deep ? color.new(#00e676, 20) : osc_mild ? color.new(#1de9b6, 55) : color.white
+    table.cell(lab_table, 0, 13, "J / RSI", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(lab_table, 1, 13, str.tostring(osc_j, "#") + " / " + str.tostring(osc_rsi, "#") + osc_tag, text_color=color.black, bgcolor=osc_bg, text_size=panel_size)
+
+// ============================================================
+// Legend
+// ============================================================
+var table legend_table = table.new(position.bottom_right, 2, 13, border_width=1)
+if barstate.islast
+    table.clear(legend_table, 0, 0, 1, 12)
+
+if barstate.islast and show_lab and show_legend
+    table.cell(legend_table, 0, 0, "Symbol", text_color=color.white, bgcolor=color.black, text_size=panel_size)
+    table.cell(legend_table, 1, 0, "Meaning", text_color=color.white, bgcolor=color.black, text_size=panel_size)
+    table.cell(legend_table, 0, 1, "▲ BUY", text_color=#10b981, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 1, 1, "强买（折价+止跌+动量+放量）", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 0, 2, "● 绿", text_color=#10b981, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 1, 2, "弱买/观察", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 0, 3, "◆", text_color=#7c3aed, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 1, 3, "深度折价（破 GD 下沿）", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 0, 4, "▼ SELL", text_color=#dc2626, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 1, 4, "强卖（溢价+动量转跌+放量）", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 0, 5, "● 橙", text_color=#f97316, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 1, 5, "弱卖/减仓", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 0, 6, "✕", text_color=#dc2626, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 1, 6, "过热别追（破 GD 上沿）", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 0, 7, "↑↓", text_color=#0284c7, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 1, 7, "强触线（收盘穿越）", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 0, 8, "▲ J/R", text_color=#00e676, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 1, 8, "买：J与RSI双深超卖+折价（最强）", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 0, 9, "▲ OR", text_color=#1de9b6, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 1, 9, "买：深超卖（J<0 或 RSI<20）", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 0, 10, "● 青", text_color=#1de9b6, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 1, 10, "买：浅超卖（J<20 或 RSI<30）", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 0, 11, "▼ J/R", text_color=#d500f9, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 1, 11, "卖：J与RSI双超买+溢价（最强）", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 0, 12, "▼ OR", text_color=#e040fb, bgcolor=color.white, text_size=panel_size)
+    table.cell(legend_table, 1, 12, "卖：超买（J>100 或 RSI>70）", text_color=color.black, bgcolor=color.white, text_size=panel_size)
+
+// ============================================================
+// Alerts：信号（强弱分级）
+// ============================================================
+alertcondition(buy_strong_sig, title="Pro Strong Buy", message="Market Lab Pro 强买：折价+止跌+动量+放量")
+alertcondition(buy_weak_sig, title="Pro Weak Buy", message="Market Lab Pro 弱买/观察")
+alertcondition(deep_sig, title="Pro Deep Discount", message="Market Lab Pro 深度折价：跌破 GetDelta 多头下沿")
+alertcondition(sell_strong_sig, title="Pro Strong Sell", message="Market Lab Pro 强卖：溢价+动量转跌+放量")
+alertcondition(sell_weak_sig, title="Pro Weak Sell", message="Market Lab Pro 弱卖/减仓")
+alertcondition(overheat_sig, title="Pro Overheat", message="Market Lab Pro 过热别追：突破 GetDelta 空头上沿")
+alertcondition(osc_conf_sig, title="Pro OSC Confluence Buy", message="Market Lab Pro 振荡共振买：J与RSI双深超卖+折价")
+alertcondition(osc_strong_sig, title="Pro OSC Strong Buy", message="Market Lab Pro 超卖强买：J<0 或 RSI<20")
+alertcondition(osc_weak_sig, title="Pro OSC Weak Buy", message="Market Lab Pro 超卖弱买：J<20 或 RSI<30")
+alertcondition(osc_sell_conf_sig, title="Pro OSC Confluence Sell", message="Market Lab Pro 振荡共振卖：J与RSI双超买+溢价")
+alertcondition(osc_sell_strong_sig, title="Pro OSC Strong Sell", message="Market Lab Pro 超买强卖：J>100 或 RSI>70")
+
+// ============================================================
+// Alerts：触线（6 条线全开，强=穿越 弱=触及）
+// ============================================================
+alertcondition(touch_alert_on and tl_costlow_up, title="Touch Cost Low Up", message="触线：收盘上穿 Cost Low（成本下沿）")
+alertcondition(touch_alert_on and tl_costlow_dn, title="Touch Cost Low Down", message="触线：收盘下穿 Cost Low（成本下沿）")
+alertcondition(touch_alert_on and tl_costlow_weak, title="Touch Cost Low Weak", message="弱触线：影线测试 Cost Low 后被拒")
+alertcondition(touch_alert_on and tl_costhigh_up, title="Touch Cost High Up", message="触线：收盘上穿 Cost High（成本上沿）")
+alertcondition(touch_alert_on and tl_costhigh_dn, title="Touch Cost High Down", message="触线：收盘下穿 Cost High（成本上沿）")
+alertcondition(touch_alert_on and tl_costhigh_weak, title="Touch Cost High Weak", message="弱触线：影线测试 Cost High 后被拒")
+alertcondition(touch_alert_on and tl_anchor_up, title="Touch Anchor Up", message="触线：收盘上穿 Cost Anchor（成本锚）")
+alertcondition(touch_alert_on and tl_anchor_dn, title="Touch Anchor Down", message="触线：收盘下穿 Cost Anchor（成本锚）")
+alertcondition(touch_alert_on and tl_anchor_weak, title="Touch Anchor Weak", message="弱触线：影线测试 Cost Anchor 后被拒")
+alertcondition(touch_alert_on and tl_longlow_up, title="Touch GD Long Low Up", message="触线：收盘上穿 GetDelta Long Low")
+alertcondition(touch_alert_on and tl_longlow_dn, title="Touch GD Long Low Down", message="触线：收盘下穿 GetDelta Long Low")
+alertcondition(touch_alert_on and tl_longlow_weak, title="Touch GD Long Low Weak", message="弱触线：影线测试 GetDelta Long Low 后被拒")
+alertcondition(touch_alert_on and tl_longhigh_up, title="Touch GD Long High Up", message="触线：收盘上穿 GetDelta Long High")
+alertcondition(touch_alert_on and tl_longhigh_dn, title="Touch GD Long High Down", message="触线：收盘下穿 GetDelta Long High")
+alertcondition(touch_alert_on and tl_longhigh_weak, title="Touch GD Long High Weak", message="弱触线：影线测试 GetDelta Long High 后被拒")
+alertcondition(touch_alert_on and tl_shorthigh_up, title="Touch GD Short High Up", message="触线：收盘上穿 GetDelta Short High")
+alertcondition(touch_alert_on and tl_shorthigh_dn, title="Touch GD Short High Down", message="触线：收盘下穿 GetDelta Short High")
+alertcondition(touch_alert_on and tl_shorthigh_weak, title="Touch GD Short High Weak", message="弱触线：影线测试 GetDelta Short High 后被拒")
+
+// 聚合告警（任一触线，适合只想要一条统配告警的场景）
+alertcondition(touch_alert_on and any_touch_strong, title="Any Strong Touch", message="强触线：价格收盘穿越关键线")
+alertcondition(touch_alert_on and any_touch_weak, title="Any Weak Touch", message="弱触线：影线测试关键线后被拒")
+
+// ============================================================
+// 使用说明（脚本含义 + 所有开关/设置项作用）
+// ============================================================
+//
+// 【脚本是什么】
+//   成本带 + GetDelta 价格带 + 触线 的多周期工作台，主用日线、主做美股。
+//   核心思路：以"成交量加权成本锚"为中心展开成本带与 GetDelta 带，价格
+//   相对这些带的位置 + 动量 + 量能，决定强弱两级、买卖对称的信号；价格
+//   触碰每条关键线本身就是独立提示（强=收盘穿越，弱=影线触及被拒）。
+//   数学层与配套网站口径一致，信号层在其上做了买卖对称与质量增强。
+//
+// 【图上元素】
+//   关键线（粗）：Cost Anchor 成本锚（紫，最粗）/ Cost Low 成本下沿（绿）
+//                / Cost High 成本上沿（红）/ GD Long Low·High 多头带（青/橙）
+//                / GD Short High 空头上沿（红）/ LP Low·High 流动性区间（紫点）
+//   信号：▲BUY 大绿三角=强买 / ●绿点=弱买观察 / ◆=深度折价
+//        ▼SELL 大红三角=强卖 / ●橙点=弱卖减仓 / ✕=过热别追
+//   触线：↑↓ 蓝/橙箭头=强触线（收盘穿越）/ ●灰点=弱触线（影线被拒）
+//   趋势 MA（EMA200/55/BBI）画得很淡，仅背景参考，不压制任何信号。
+//
+// 【信号判定（强弱两级，买卖对称）】
+//   强买 = 跌破成本下沿 + 在 GD 多头带内 + 成本止跌 + 动量上升 + 折扣达标 + 放量
+//   弱买 = 跌破成本下沿、在带内，但上述条件未全满足（观察）
+//   深度折价 = 跌破成本下沿且跌穿 GD 多头下沿（超出默认入场带）
+//   强卖 = 升破成本上沿 + 在 GD 空头带内 + 溢价达标 + 动量转跌 + 放量（治卖飞）
+//   弱卖 = 升破成本上沿、溢价达标，但动量仍在上（减仓提示）
+//   过热 = 升破成本上沿且突破 GD 空头上沿（别追高）
+//   防闪烁：同类信号在 Signal Cooldown 根 K 线内不重复触发。
+//
+// 【Inputs 开关与设置项】
+//   ── 基础 ──
+//   Source            计算用价格源，默认 close
+//   Exponential MA    趋势均线用 EMA(开)还是 SMA(关)
+//   ── Pinbar ──
+//   Show Pinbar Black 是否高亮 Pinbar（针线形态）K 线为黑色
+//   Wick Body Ratio   判定 Pinbar 的"影线/实体"最小比值，越大越严格
+//   ── Market Lab ──
+//   Enable Cost Strategy   成本带策略总开关（关闭则不出 ML 信号与带）
+//   Show Cost Band         显示成本锚 / 上沿 / 下沿
+//   Show GetDelta Band     显示 GetDelta 多头/空头价格带
+//   Show Discount Premium BG 折扣区(绿)/溢价区(红)淡背景
+//   Show Status Panel      右上角状态面板
+//   Show Legend            右下角图例
+//   Cost Window            成本锚回看窗口（默认 60）
+//   Recent Window          近端波动估计窗口（默认 20）
+//   Vol Window             年化波动率窗口（默认 60）
+//   Holding Days           持仓天数 T，影响 GetDelta 带宽与 z 周期化（默认 30）
+//   Year Basis             年化基准天数 365/252/242/179
+//   Target Return %        GetDelta 目标收益率（默认 30%）
+//   IV Override            手填隐含波动率；0=用实际年化波动率
+//   LP Range Width         LP 流动性区间宽度
+//   LP Skew                LP 区间上沿偏移系数（>1 上沿更宽）
+//   Show LP Range          显示 LP 区间
+//   Show Position Row      面板显示"价格相对成本带位置"行
+//   Show Match Row         面板显示"偏离匹配度 %"行
+//   Profile                风险档：Conservative/Balanced/Aggressive，
+//                          越保守门槛越高、信号越少越稳
+//   ── Pro Signals ──
+//   Signal Cooldown        同类信号冷却根数，防闪烁（日线建议 3）
+//   Volume MA Length       放量判定的量能均线长度（默认 20）
+//   Show Line Touch Signals 显示触线箭头/圆点
+//   Enable Line Touch Alerts 触线告警总开关（关掉可消除"太吵"）
+//   Show MA Cross          显示旧版均线金叉死叉（默认关）
+//   Show Trend MA          显示淡色趋势 MA 背景参考（默认开）
+//   Panel Font Size        面板字号 Tiny/Small/Normal（默认 Small）
+//
+// 【告警】
+//   信号类 6 条：强买/弱买/深度折价/强卖/弱卖/过热
+//   触线类：6 条关键线 ×（强上穿/强下穿/弱触及），受 Enable Line Touch Alerts 控制
+//   聚合 2 条：Any Strong Touch / Any Weak Touch（只想要一条统配告警时用）
+//
+// 【实测建议】
+//   日线挂 AAPL/NVDA/GOOG 核对：箭头位置是否合理、有无满屏乱跳
+//   （乱跳就调大 Signal Cooldown）；告警太多就关 Enable Line Touch Alerts
+//   或只用 Any Strong/Weak Touch 两条聚合告警。
+// ============================================================

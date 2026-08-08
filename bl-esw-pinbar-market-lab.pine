@@ -1,0 +1,364 @@
+//@version=6
+indicator(title="BL-ESW Pinbar Market Lab", shorttitle="BLEMBI", overlay=true, max_labels_count=500)
+
+// ============================================================
+// Inputs
+// ============================================================
+price_src = input.source(close, "Source")
+exponential = input.bool(true, "Exponential MA")
+
+// Pinbar
+grp_pin = "Pinbar"
+show_pinbar = input.bool(true, "Show Pinbar Black", group=grp_pin)
+pin_ratio = input.float(2.0, "Wick Body Ratio", minval=1.0, step=0.1, group=grp_pin)
+
+// Market Lab（与 marketlab 项目 JS 口径同步）
+grp_lab = "Market Lab"
+show_lab = input.bool(true, "Enable Cost Strategy", group=grp_lab)
+show_cost_band = input.bool(true, "Show Cost Band", group=grp_lab)
+show_delta_band = input.bool(true, "Show GetDelta Band", group=grp_lab)
+show_lab_bg = input.bool(true, "Show Discount Premium BG", group=grp_lab)
+show_lab_panel = input.bool(true, "Show Status Panel", group=grp_lab)
+show_legend = input.bool(true, "Show Legend", group=grp_lab)
+// 扩展开关，开启后会偏离 JS 网站；默认 OFF
+adaptive_cost = input.bool(false, "Adaptive Cost (extension, OFF=site aligned)", group=grp_lab)
+auto_adapt = input.bool(false, "Auto Adapt Profile (extension, OFF=site aligned)", group=grp_lab)
+relax_mode = input.bool(false, "Relax Mode (extension, OFF=site aligned)", group=grp_lab)
+
+fast_cost_len = input.int(20, "Fast Cost Window", minval=5, group=grp_lab)
+cost_len = input.int(60, "Cost Window", minval=10, group=grp_lab)
+slow_cost_len = input.int(120, "Slow Cost Window", minval=30, group=grp_lab)
+recent_len = input.int(20, "Recent Window", minval=5, group=grp_lab)
+vol_len = input.int(60, "Vol Window", minval=10, group=grp_lab)
+holding_days = input.int(30, "Holding Days", minval=1, group=grp_lab)
+trading_days = input.int(365, "Year Basis", options=[365, 252, 242, 179], group=grp_lab)
+target_return_pct = input.float(30.0, "Target Return %", minval=0.0, step=1.0, group=grp_lab)
+iv_override = input.float(0.0, "IV Override (0=use realized vol)", minval=0.0, step=0.01, group=grp_lab)
+lp_range_width = input.float(0.10, "LP Range Width", minval=0.001, maxval=0.95, step=0.01, group=grp_lab)
+lp_skew = input.float(1.0, "LP Skew", minval=0.01, step=0.05, group=grp_lab)
+show_lp_band = input.bool(true, "Show LP Range", group=grp_lab)
+show_position_row = input.bool(true, "Show Position Row", group=grp_lab)
+show_match_row = input.bool(true, "Show Match Row", group=grp_lab)
+profile = input.string("Balanced", "Profile", options=["Conservative", "Balanced", "Aggressive"], group=grp_lab)
+
+// ============================================================
+// MA / BBI
+// ============================================================
+ema_10 = ta.ema(price_src, 10)
+sma_10 = ta.sma(price_src, 10)
+ema_20 = ta.ema(price_src, 20)
+sma_20 = ta.sma(price_src, 20)
+ema_200 = ta.ema(price_src, 200)
+sma_200 = ta.sma(price_src, 200)
+ema_55 = ta.ema(price_src, 55)
+sma_55 = ta.sma(price_src, 55)
+
+ma8 = exponential ? ema_10 : sma_10
+ma13 = exponential ? ema_20 : sma_20
+ma21 = exponential ? ema_200 : sma_200
+ma55 = exponential ? ema_55 : sma_55
+
+M1 = ta.sma(close, 6)
+M2 = ta.sma(close, 12)
+M3 = ta.sma(close, 24)
+BBI = (M1 + M2 + M3) / 3
+
+buy_cond = ta.cross(ma21, ma55) and ma8 > ma13 and ma21 > ma55
+sell_cond = ta.cross(ma21, ma55) and ma8 < ma13 and ma21 < ma55
+
+// ============================================================
+// Cost anchor（同步 JS rollingCost：成交量加权 typical price）
+// ============================================================
+typical_price = (high + low + close) / 3.0
+cost_fast_vol_sum = math.sum(volume, fast_cost_len)
+cost_main_vol_sum = math.sum(volume, cost_len)
+cost_slow_vol_sum = math.sum(volume, slow_cost_len)
+cost_fast_weighted_sum = math.sum(typical_price * volume, fast_cost_len)
+cost_main_weighted_sum = math.sum(typical_price * volume, cost_len)
+cost_slow_weighted_sum = math.sum(typical_price * volume, slow_cost_len)
+cost_fast_sma = ta.sma(typical_price, fast_cost_len)
+cost_main_sma = ta.sma(typical_price, cost_len)
+cost_slow_sma = ta.sma(typical_price, slow_cost_len)
+
+cost_fast_has_volume = not na(cost_fast_vol_sum) and cost_fast_vol_sum > 0
+cost_main_has_volume = not na(cost_main_vol_sum) and cost_main_vol_sum > 0
+cost_slow_has_volume = not na(cost_slow_vol_sum) and cost_slow_vol_sum > 0
+
+cost_fast_anchor_raw = cost_fast_has_volume ? cost_fast_weighted_sum / cost_fast_vol_sum : cost_fast_sma
+cost_main_anchor_raw = cost_main_has_volume ? cost_main_weighted_sum / cost_main_vol_sum : cost_main_sma
+cost_slow_anchor_raw = cost_slow_has_volume ? cost_slow_weighted_sum / cost_slow_vol_sum : cost_slow_sma
+
+cost_main_anchor = nz(cost_main_anchor_raw, cost_fast_anchor_raw)
+cost_fast_anchor = nz(cost_fast_anchor_raw, cost_main_anchor)
+cost_slow_anchor = nz(cost_slow_anchor_raw, cost_main_anchor)
+// JS 默认只用 cost_main_anchor；adaptive_cost 开启时使用 pine 私有的混合
+cost_anchor = adaptive_cost ? cost_fast_anchor * 0.35 + cost_main_anchor * 0.45 + cost_slow_anchor * 0.20 : cost_main_anchor
+
+// ============================================================
+// Volatility / band（对齐 JS rollingCost 的 bandWidth）
+// ============================================================
+log_ret = close[1] > 0 ? math.log(close / close[1]) : 0.0
+annual_vol_raw = ta.stdev(log_ret, vol_len, false) * math.sqrt(trading_days)
+annual_vol = na(annual_vol_raw) or annual_vol_raw <= 0 ? 0.01 : annual_vol_raw
+
+true_range = math.max(high - low, math.max(math.abs(high - close[1]), math.abs(low - close[1])))
+atr_14 = ta.sma(true_range, 14)
+atr_pct = close > 0 ? atr_14 / close : 0.0
+
+// JS: volEstimate = stdev(returns over band rows) * sqrt(min(recent, returns.length))
+//     bandWidth = max(volEstimate, max(volEstimate*0.25, 0.005))
+vol_estimate = ta.stdev(log_ret, cost_len, false) * math.sqrt(math.min(recent_len, cost_len))
+min_band = math.max(vol_estimate * 0.25, 0.005)
+band_width = math.max(vol_estimate, min_band)
+// 删除 atr_regime 调节：JS 没有该项
+
+cost_low = cost_anchor * (1 - band_width)
+cost_high = cost_anchor * (1 + band_width)
+lp_lower = cost_anchor * math.max(1 - lp_range_width, 0.001)
+lp_upper = cost_anchor * (1 + lp_range_width * lp_skew)
+position_label = close > cost_high ? "高于成本带" : close < cost_low ? "低于成本带" : "成本带内"
+cost_distance = cost_anchor > 0 ? close / cost_anchor - 1 : 0.0
+
+momentum5 = close[5] > 0 ? close / close[5] - 1 : 0.0
+cost_slope5 = not na(cost_anchor[5]) and cost_anchor[5] > 0 ? cost_anchor / cost_anchor[5] - 1 : 0.0
+
+// ============================================================
+// GetDelta band（同步 JS getDeltaBands：P=入场价/现价；删除 wave_cap）
+// JS: timeScale = sqrt(T/(N·2π)); wave = s·timeScale; r_T = ((1+wave)/(1-wave))²
+//     longCost = P·(d·r_T - d + 1)²/r_T；high = longCost·r_T；low = longCost/r_T
+// ============================================================
+target_return = target_return_pct / 100.0
+// 同步网站 IV 输入框：iv_override > 0 时用用户填值，否则退化到 annual_vol
+effective_iv = iv_override > 0 ? iv_override : annual_vol
+wave_raw = effective_iv * math.sqrt(holding_days / (trading_days * 2.0 * math.pi))
+// 仅保留 wave < 0.99 安全检查（JS 只检查 wave < 1）
+wave = math.min(wave_raw, 0.99)
+delta_ok = show_lab and close > 0 and effective_iv > 0 and wave > 0 and wave < 1
+
+// 网站 formulaPath.js: entryPrice = costPath[index].anchor，不是 close
+// 这意味着 GetDelta 上下沿是围绕成本锚展开的价格带，不是围绕现价
+entry_price = cost_anchor
+raw_ratio = delta_ok ? math.pow((1 + wave) / (1 - wave), 2) : na
+long_ratio = raw_ratio
+long_cost = delta_ok ? entry_price * math.pow(target_return * long_ratio - target_return + 1, 2) / long_ratio : na
+long_high = delta_ok ? long_cost * long_ratio : na
+long_low = delta_ok ? long_cost / long_ratio : na
+
+short_ratio = delta_ok ? 1 / long_ratio : na
+short_cost = delta_ok ? entry_price * math.pow(target_return * short_ratio - target_return + 1, 2) / short_ratio : na
+short_high = delta_ok ? short_cost / short_ratio : na
+
+// ============================================================
+// Profile（数值同步 JS strategyProfile.js）
+// ============================================================
+// auto_profile 是 pine 私有：高波动期偏保守，低波动期偏激进
+annual_vol_ma = ta.sma(annual_vol, 200)
+annual_vol_ratio = annual_vol_ma > 0 ? annual_vol / annual_vol_ma : 1.0
+auto_profile = annual_vol_ratio > 1.25 ? "Conservative" : annual_vol_ratio < 0.80 ? "Aggressive" : "Balanced"
+active_profile = auto_adapt ? auto_profile : profile
+
+// JS 数值：Conservative(1.15/0.5/0.75) Balanced(1.0/0.25/0.6) Aggressive(0.75/0/0.45)
+edge_sigma_base = active_profile == "Conservative" ? 1.15 : active_profile == "Balanced" ? 1.00 : 0.75
+momentum_sigma_base = active_profile == "Conservative" ? 0.50 : active_profile == "Balanced" ? 0.25 : 0.00
+cost_slope_sigma_base = active_profile == "Conservative" ? 0.75 : active_profile == "Balanced" ? 0.60 : 0.45
+
+// Relax Mode 下统一放宽门槛（pine 私有；默认 false 保持 JS 口径）
+edge_sigma = relax_mode ? edge_sigma_base * 0.65 : edge_sigma_base
+momentum_sigma = relax_mode ? momentum_sigma_base - 0.30 : momentum_sigma_base
+cost_slope_sigma = relax_mode ? cost_slope_sigma_base * 0.75 : cost_slope_sigma_base
+
+daily_vol = annual_vol / math.sqrt(trading_days)
+vol_ratio = daily_vol / 0.02
+
+// JS scaleProfileToMarket：minEdge = max(edgeSigma * atr * 0.3, 0.005)
+//                          buildEntryTiming: minEdge_used = max(atr * edgeAtr, profile.minEdge)
+js_min_edge = math.max(edge_sigma * atr_pct * 0.3, 0.005)
+min_edge = math.max(atr_pct * edge_sigma, js_min_edge)
+trim_edge = min_edge
+
+momentum_min = momentum_sigma * daily_vol
+// JS: costStillFalling = costSlope5 < -max(atr * costSlopeAtr, costSlopeMin)
+//     costSlopeAtr = costSlopeSigma * volRatio
+//     costSlopeMin = max(costSlopeSigma * dailyVol * 0.3, 0.003)
+cost_slope_threshold = math.max(atr_pct * cost_slope_sigma * vol_ratio, math.max(cost_slope_sigma * daily_vol * 0.3, 0.003))
+
+buy_edge = cost_anchor > close ? (cost_anchor - close) / close : 0.0
+sell_edge = close > cost_anchor ? (close - cost_anchor) / close : 0.0
+
+// ============================================================
+// Signals（按 JS buildEntryTiming 的 5 个核心分支）
+// ============================================================
+below_cost = show_lab and close < cost_low
+above_cost = show_lab and close > cost_high
+inside_long_band = not delta_ok or close >= long_low
+inside_short_band = not delta_ok or close <= short_high
+
+cost_still_falling = cost_slope5 < -cost_slope_threshold
+momentum_rising = momentum5 > momentum_min
+
+// 1) Deep Discount: 低于成本下沿 且 低于 GetDelta 长仓下沿（超出默认入场带）
+lab_deep_discount = below_cost and not inside_long_band
+// 2) Wait Stop: 低于成本下沿 但止跌条件未同时满足
+lab_wait_stop = below_cost and inside_long_band and (cost_still_falling or not momentum_rising)
+// 3) Low Buy: 低于成本下沿 且条件全部满足
+lab_buy = below_cost and inside_long_band and not cost_still_falling and momentum_rising and buy_edge >= min_edge
+// 4) No Chase: 高于成本上沿 且 高于 GetDelta 空仓上沿
+lab_overheat = above_cost and not inside_short_band
+// 5) Trim: 高于成本上沿 且溢价幅度达到阈值
+lab_sell = above_cost and inside_short_band and sell_edge >= trim_edge
+
+// 状态切换（首根触发）
+lab_buy_sig = lab_buy and not lab_buy[1]
+lab_sell_sig = lab_sell and not lab_sell[1]
+lab_wait_sig = lab_wait_stop and not lab_wait_stop[1]
+lab_deep_sig = lab_deep_discount and not lab_deep_discount[1]
+lab_overheat_sig = lab_overheat and not lab_overheat[1]
+
+// ============================================================
+// z-score（同步 JS deviationScore：周期化用 holding_days / trading_days）
+// ============================================================
+period_vol = annual_vol > 0 ? annual_vol * math.sqrt(holding_days / trading_days) : 0.01
+z_score = period_vol > 0 ? cost_distance / period_vol : 0.0
+z_abs = math.abs(z_score)
+z_strength = z_abs < 0.5 ? "弱" : z_abs < 1.5 ? "中" : "强"
+
+norm_cdf_abs(x) =>
+    a1 =  0.254829592
+    a2 = -0.284496736
+    a3 =  1.421413741
+    a4 = -1.453152027
+    a5 =  1.061405429
+    p  =  0.3275911
+    sign_x = x >= 0 ? 1.0 : -1.0
+    abs_x = math.abs(x)
+    t = 1.0 / (1.0 + p * abs_x)
+    y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * math.exp(-abs_x * abs_x)
+    0.5 * (1.0 + sign_x * y)
+
+phi_z = norm_cdf_abs(z_abs / math.sqrt(2.0))
+match_pct = z_abs >= 8.0 ? 1.0 : math.max(0.0, math.min(1.0, 2.0 * phi_z - 1.0))
+
+// 状态文字
+lab_state = lab_buy ? "Low Buy" : lab_sell ? "Trim" : lab_deep_discount ? "Deep Discount" : lab_overheat ? "No Chase" : lab_wait_stop ? "Wait Stop" : z_abs < 0.5 ? "Neutral" : "Wait"
+lab_reason = lab_buy ? "Discount + 止跌 + 折扣边际达标" : lab_sell ? "Premium + 溢价边际达标" : lab_deep_discount ? "Below GetDelta lower band" : lab_overheat ? "Above GetDelta upper band" : lab_wait_stop ? "Discount but 成本仍跌或动量未起" : z_abs < 0.5 ? "偏离 < 0.5σ，等待" : "未达到信号条件"
+
+// ============================================================
+// Plots（极简单色：黑/灰/蓝/橙）
+// ============================================================
+// MA / BBI 主线：保留辨识度高的暖色调
+plot(ma21, color=color.new(#f47608, 0), title="200", linewidth=2)
+plot(ma55, color=color.new(#e49b13, 0), title="55", linewidth=2)
+plot(BBI, color=color.new(#000000, 50), linewidth=2, title="BBI")
+
+plotshape(buy_cond, title="MA Buy", style=shape.triangleup, location=location.belowbar, color=color.new(color.lime, 35), text="Buy", textcolor=color.new(color.lime, 35), size=size.normal)
+plotshape(sell_cond, title="MA Sell", style=shape.triangledown, location=location.abovebar, color=color.new(color.red, 35), text="Sell", textcolor=color.new(color.red, 35), size=size.normal)
+
+// Cost band：紫罗兰主锚 + 红/绿上下沿（白底优化，下冷上暖）
+cost_low_plot = plot(show_lab and show_cost_band ? cost_low : na, title="ML Cost Low", color=color.new(#059669, 15), linewidth=2)
+cost_high_plot = plot(show_lab and show_cost_band ? cost_high : na, title="ML Cost High", color=color.new(#dc2626, 15), linewidth=2)
+plot(show_lab and show_cost_band ? cost_anchor : na, title="ML Cost", color=color.new(#7c3aed, 0), linewidth=3)
+// 不填充 cost zone（极简风格）
+fill(cost_low_plot, cost_high_plot, color=na, title="ML Cost Zone")
+
+// GetDelta band：与成本沿同色系但更淡（下青上橙，与短头红区分层级）
+plot(show_lab and show_delta_band ? long_low : na, title="GetDelta Long Low", color=color.new(#0891b2, 55), linewidth=1)
+plot(show_lab and show_delta_band ? long_high : na, title="GetDelta Long High", color=color.new(#f97316, 55), linewidth=1)
+plot(show_lab and show_delta_band ? short_high : na, title="GetDelta Short High", color=color.new(#dc2626, 50), linewidth=1)
+plot(show_lab and show_lp_band ? lp_lower : na, title="LP Range Low", color=color.new(#a855f7, 40), linewidth=1, style=plot.style_circles)
+plot(show_lab and show_lp_band ? lp_upper : na, title="LP Range High", color=color.new(#a855f7, 40), linewidth=1, style=plot.style_circles)
+
+// 折扣 / 溢价区背景：极淡（绿冷红暖）
+bgcolor(show_lab and show_lab_bg and below_cost ? color.new(#10b981, 95) : na, title="Discount BG")
+bgcolor(show_lab and show_lab_bg and above_cost ? color.new(#dc2626, 95) : na, title="Premium BG")
+
+// 信号 plotshape（5 类核心信号，下冷上暖）
+plotshape(lab_buy_sig, title="ML Low Buy", style=shape.triangleup, location=location.belowbar, color=color.new(#10b981, 15), size=size.small)
+plotshape(lab_wait_sig, title="ML Wait Stop", style=shape.circle, location=location.belowbar, color=color.new(#0891b2, 50), size=size.tiny)
+plotshape(lab_deep_sig, title="ML Deep Discount", style=shape.diamond, location=location.belowbar, color=color.new(#7c3aed, 25), size=size.tiny)
+plotshape(lab_sell_sig, title="ML Trim", style=shape.triangledown, location=location.abovebar, color=color.new(#f97316, 15), size=size.small)
+plotshape(lab_overheat_sig, title="ML No Chase", style=shape.xcross, location=location.abovebar, color=color.new(#dc2626, 25), size=size.tiny)
+
+// ============================================================
+// Pinbar
+// ============================================================
+body_size = math.abs(close - open)
+upper_wick = high - math.max(close, open)
+lower_wick = math.min(close, open) - low
+
+is_bull_pin = lower_wick > body_size * pin_ratio and lower_wick > upper_wick
+is_bear_pin = upper_wick > body_size * pin_ratio and upper_wick > lower_wick
+is_pinbar = show_pinbar and (is_bull_pin or is_bear_pin)
+
+p_open = is_pinbar ? open : na
+pin_high = is_pinbar ? high : na
+p_low_candle = is_pinbar ? low : na
+p_close = is_pinbar ? close : na
+
+barcolor(is_pinbar ? color.black : na, title="Pinbar Body Color")
+plotcandle(p_open, pin_high, p_low_candle, p_close, title="Pinbar Black Overlay", color=color.black, wickcolor=color.black, bordercolor=color.black)
+
+// ============================================================
+// Status Panel
+// ============================================================
+var table lab_table = table.new(position.top_right, 2, 10, border_width=1)
+
+if barstate.islast
+    table.clear(lab_table, 0, 0, 1, 9)
+
+if barstate.islast and show_lab and show_lab_panel
+    state_color = lab_buy ? color.new(#10b981, 15) : lab_sell ? color.new(#f97316, 15) : lab_deep_discount ? color.new(#7c3aed, 75) : lab_overheat ? color.new(#dc2626, 75) : lab_wait_stop ? color.new(#0891b2, 75) : color.new(color.gray, 88)
+    table.cell(lab_table, 0, 0, "Market Lab", text_color=color.white, bgcolor=color.black)
+    profile_label = active_profile + " (auto: " + (auto_adapt ? "on" : "off") + (relax_mode ? ", relax" : "") + ")"
+    table.cell(lab_table, 1, 0, profile_label, text_color=color.white, bgcolor=color.black)
+    if show_position_row
+        table.cell(lab_table, 0, 1, "Position", text_color=color.black, bgcolor=color.white)
+        table.cell(lab_table, 1, 1, position_label, text_color=color.black, bgcolor=color.white)
+    if show_match_row
+        table.cell(lab_table, 0, 2, "Match", text_color=color.black, bgcolor=color.white)
+        table.cell(lab_table, 1, 2, str.tostring(match_pct * 100, "#") + "%", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 0, 3, "State", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 3, lab_state, text_color=color.black, bgcolor=state_color)
+    table.cell(lab_table, 0, 4, "Cost Dev", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 4, str.tostring(cost_distance * 100, "#.##") + "%", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 0, 5, "Z (T=" + str.tostring(holding_days) + "d)", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 5, str.tostring(z_score, "#.##") + "σ · " + z_strength, text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 0, 6, "Ann Vol", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 6, str.tostring(annual_vol * 100, "#.##") + "%", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 0, 7, "ATR%", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 7, str.tostring(atr_pct * 100, "#.##") + "%", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 0, 8, "Cost", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 8, str.tostring(cost_anchor, "#.##"), text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 0, 9, "Reason", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 9, lab_reason, text_color=color.black, bgcolor=color.white)
+
+// ============================================================
+// Legend（5 类核心信号）
+// ============================================================
+var table legend_table = table.new(position.bottom_right, 2, 6, border_width=1)
+if barstate.islast
+    table.clear(legend_table, 0, 0, 1, 5)
+
+if barstate.islast and show_lab and show_legend
+    table.cell(legend_table, 0, 0, "Symbol", text_color=color.white, bgcolor=color.black)
+    table.cell(legend_table, 1, 0, "Meaning", text_color=color.white, bgcolor=color.black)
+    table.cell(legend_table, 0, 1, "▲", text_color=#10b981, bgcolor=color.white)
+    table.cell(legend_table, 1, 1, "Low Buy", text_color=color.black, bgcolor=color.white)
+    table.cell(legend_table, 0, 2, "●", text_color=#0891b2, bgcolor=color.white)
+    table.cell(legend_table, 1, 2, "Wait Stop", text_color=color.black, bgcolor=color.white)
+    table.cell(legend_table, 0, 3, "◆", text_color=#7c3aed, bgcolor=color.white)
+    table.cell(legend_table, 1, 3, "Deep Discount", text_color=color.black, bgcolor=color.white)
+    table.cell(legend_table, 0, 4, "▼", text_color=#f97316, bgcolor=color.white)
+    table.cell(legend_table, 1, 4, "Trim", text_color=color.black, bgcolor=color.white)
+    table.cell(legend_table, 0, 5, "✕", text_color=#dc2626, bgcolor=color.white)
+    table.cell(legend_table, 1, 5, "No Chase", text_color=color.black, bgcolor=color.white)
+
+// ============================================================
+// Alerts
+// ============================================================
+alertcondition(buy_cond, title="MA Buy Condition", message="MA Buy Condition Alert")
+alertcondition(sell_cond, title="MA Sell Condition", message="MA Sell Condition Alert")
+alertcondition(lab_buy_sig, title="ML Low Buy", message="Market Lab Low Buy")
+alertcondition(lab_sell_sig, title="ML Trim", message="Market Lab Premium Trim")
+alertcondition(lab_wait_sig, title="ML Wait Stop", message="Market Lab Discount But Wait")
+alertcondition(lab_deep_sig, title="ML Deep Discount", message="Market Lab Below GetDelta Lower Band")
+alertcondition(lab_overheat_sig, title="ML No Chase", message="Market Lab Above GetDelta Upper Band")

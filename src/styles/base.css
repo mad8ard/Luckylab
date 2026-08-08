@@ -1,0 +1,487 @@
+:root {
+  color: #11120f;
+  background: #f2f0e8;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bg: #f2f0e8;
+  --panel: #fbfaf4;
+  --ink: #11120f;
+  --muted: #68665d;
+  --line: #d7d1c2;
+  --green: #0e7558;
+  --blue: #274f9f;
+  --red: #a93226;
+  --green-dim: rgba(14,117,88,0.12);
+  --blue-dim: rgba(39,79,159,0.10);
+  --red-dim: rgba(169,50,38,0.10);
+  --surface: #f7f5ee;
+  --surface-alt: #f6f4ec;
+  --surface-active: #eef4ea;
+  /* 断点 token：仅供 JS 端 matchMedia 与文档使用，CSS @media 直接写 768px / 1024px */
+  --bp-mobile: 768px;
+  --bp-tablet: 1024px;
+  --bp-desktop: 1280px;
+}
+
+html.dark {
+  color: #e2e0d8;
+  background: #1a1b17;
+  --bg: #1a1b17;
+  --panel: #22241f;
+  --ink: #e2e0d8;
+  --muted: #96958b;
+  --line: #3d3c34;
+  --green: #4ec99f;
+  --blue: #6b8fd4;
+  --red: #e0554b;
+  --green-dim: rgba(78,201,159,0.10);
+  --blue-dim: rgba(107,143,212,0.08);
+  --red-dim: rgba(224,85,75,0.10);
+  --surface: #2a2b25;
+  --surface-alt: #262722;
+  --surface-active: #29352b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--bg);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 8px 12px;
+  color: var(--ink);
+  background: var(--panel);
+  font-weight: 800;
+}
+
+button.active,
+button:hover {
+  border-color: var(--green);
+}
+
+button:disabled {
+  opacity: 0.55;
+}
+
+.terminal-shell {
+  display: grid;
+  gap: 14px;
+  min-height: 100vh;
+  padding: 18px;
+}
+
+.app-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 14px;
+}
+
+.app-bar span,
+.metric-strip span,
+.control-panel span,
+.risk-box span,
+.decision-panel span,
+.replay-panel span,
+.formula-graph span {
+  color: var(--green);
+  font-size: 0.73rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.app-bar h1 {
+  margin: 4px 0 0;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  line-height: 0.98;
+}
+
+.sample-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.metric-strip article,
+.control-panel,
+.chart-panel,
+.result-panel,
+.order-table,
+.risk-box,
+.decision-hero,
+.decision-grid article,
+.decision-list,
+.replay-panel,
+.replay-grid article,
+.formula-node,
+.capability-node,
+.formula-detail {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.metric-strip article {
+  display: grid;
+  gap: 4px;
+  padding: 11px;
+  min-width: 0;
+}
+
+.metric-strip strong {
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.metric-strip small,
+.formula-graph small {
+  color: var(--muted);
+}
+
+.workbench-grid {
+  display: grid;
+  grid-template-columns: minmax(200px, 0.68fr) minmax(380px, 2fr) minmax(240px, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.control-panel,
+.result-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.mode-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.control-panel label {
+  display: grid;
+  gap: 6px;
+}
+
+.control-panel input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 9px 10px;
+  color: var(--ink);
+  background: var(--bg);
+  font-variant-numeric: tabular-nums;
+}
+
+.secondary {
+  background: var(--ink);
+  color: var(--panel);
+}
+
+.theme-toggle {
+  min-height: 38px;
+  min-width: 38px;
+  padding: 6px;
+  border-radius: 999px;
+}
+
+.chart-panel {
+  min-height: 620px;
+  overflow: hidden;
+}
+
+.market-chart {
+  width: 100%;
+  height: 620px;
+}
+
+.chart-tip {
+  display: grid;
+  gap: 5px;
+  min-width: 250px;
+  color: var(--ink);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.chart-tip hr {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 3px 0;
+}
+
+.chart-tip div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.chart-tip span,
+.chart-tip small {
+  color: var(--muted);
+}
+
+.chart-tip strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-tip small {
+  display: block;
+  max-width: 260px;
+}
+
+.empty-panel {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  min-height: 620px;
+  color: var(--muted);
+}
+
+.order-table {
+  /* 不再强制横向滚动；表格 fixed 布局后让列折行而非溢出 */
+  overflow: hidden;
+}
+
+.order-table header {
+  padding: 10px 10px 0;
+  color: var(--green);
+  font-weight: 900;
+}
+
+.order-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  table-layout: fixed;
+}
+
+.order-table th,
+.order-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 5px 4px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.order-table th:first-child,
+.order-table td:first-child {
+  text-align: left;
+}
+
+.risk-box {
+  display: grid;
+  gap: 5px;
+  padding: 11px;
+}
+
+.decision-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.decision-hero,
+.decision-list {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+}
+
+.decision-hero strong {
+  font-size: 1.45rem;
+}
+
+.decision-hero small,
+.decision-list p {
+  color: var(--muted);
+}
+
+.decision-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: min-content;
+  gap: 8px;
+}
+
+.decision-grid article {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px;
+}
+
+.decision-grid strong {
+  overflow-wrap: anywhere;
+}
+
+.decision-list p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.positive {
+  color: var(--green);
+}
+
+.negative {
+  color: var(--red);
+}
+
+.capability-graph {
+  display: grid;
+  gap: 8px;
+}
+
+.formula-graph {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: min-content;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.formula-node,
+.capability-node {
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+  padding: 10px;
+  text-align: left;
+}
+
+.capability-node {
+  background: var(--surface-alt);
+}
+
+.capability-node.active,
+.formula-node.active {
+  border-color: var(--green);
+  background: var(--surface-active);
+}
+
+.capability-node strong {
+  font-size: 1rem;
+}
+
+.capability-node small,
+.formula-node small {
+  line-height: 1.35;
+}
+
+.formula-node.mapped strong::after {
+  content: "映射";
+  margin-left: 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 5px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.formula-detail {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+}
+
+.formula-detail header {
+  display: grid;
+  gap: 4px;
+}
+
+.formula-detail header strong {
+  font-size: 1.12rem;
+}
+
+.formula-detail header small,
+.formula-role,
+.formula-detail p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.formula-role {
+  color: var(--ink);
+  font-weight: 750;
+}
+
+.io-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.io-grid b {
+  display: block;
+  color: var(--ink);
+}
+
+.formula-detail code {
+  display: block;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 8px;
+  color: var(--blue);
+  background: var(--bg);
+  white-space: nowrap;
+}
+
+.formula-detail footer {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.formula-detail footer span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 7px;
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+@media (max-width: 1024px) {
+  .metric-strip,
+  .workbench-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-panel,
+  .market-chart,
+  .empty-panel {
+    min-height: 460px;
+    height: 460px;
+  }
+}

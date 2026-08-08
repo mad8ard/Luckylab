@@ -1,0 +1,14 @@
+[project]
+name = "market-lab-formula-audit"
+version = "0.1.0"
+description = "Offline formula audit scripts for Market Lab."
+authors = [{ name = "Market Lab" }]
+requires-python = ">=3.11,<4.0"
+dependencies = []
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

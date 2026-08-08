@@ -1,0 +1,260 @@
+//@version=6
+indicator(title="BL-ESW Pinbar Market Lab", shorttitle="BLEMBI", overlay=true, max_labels_count=500)
+
+// Inputs
+price_src = input.source(close, "Source")
+exponential = input.bool(true, "Exponential MA")
+
+// Pinbar
+grp_pin = "Pinbar"
+show_pinbar = input.bool(true, "Show Pinbar Black", group=grp_pin)
+pin_ratio = input.float(2.0, "Wick Body Ratio", minval=1.0, step=0.1, group=grp_pin)
+
+// Market Lab
+grp_lab = "Market Lab"
+show_lab = input.bool(true, "Enable Cost Strategy", group=grp_lab)
+show_cost_band = input.bool(true, "Show Cost Band", group=grp_lab)
+show_delta_band = input.bool(true, "Show GetDelta Band", group=grp_lab)
+show_lab_bg = input.bool(true, "Show Discount Premium BG", group=grp_lab)
+show_lab_panel = input.bool(true, "Show Status Panel", group=grp_lab)
+adaptive_cost = input.bool(true, "Adaptive Cost Anchor", group=grp_lab)
+
+fast_cost_len = input.int(20, "Fast Cost Window", minval=5, group=grp_lab)
+cost_len = input.int(60, "Cost Window", minval=10, group=grp_lab)
+slow_cost_len = input.int(120, "Slow Cost Window", minval=30, group=grp_lab)
+recent_len = input.int(20, "Recent Window", minval=5, group=grp_lab)
+vol_len = input.int(60, "Vol Window", minval=10, group=grp_lab)
+holding_days = input.int(30, "Holding Days", minval=1, group=grp_lab)
+trading_days = input.int(365, "Year Basis", options=[365, 252, 242, 179], group=grp_lab)
+target_return_pct = input.float(30.0, "Target Return %", minval=0.0, step=1.0, group=grp_lab)
+profile = input.string("Balanced", "Profile", options=["Conservative", "Balanced", "Aggressive"], group=grp_lab)
+
+// MA
+ema_10 = ta.ema(price_src, 10)
+sma_10 = ta.sma(price_src, 10)
+ema_20 = ta.ema(price_src, 20)
+sma_20 = ta.sma(price_src, 20)
+ema_200 = ta.ema(price_src, 200)
+sma_200 = ta.sma(price_src, 200)
+ema_55 = ta.ema(price_src, 55)
+sma_55 = ta.sma(price_src, 55)
+
+ma8 = exponential ? ema_10 : sma_10
+ma13 = exponential ? ema_20 : sma_20
+ma21 = exponential ? ema_200 : sma_200
+ma55 = exponential ? ema_55 : sma_55
+
+// BBI
+M1 = ta.sma(close, 6)
+M2 = ta.sma(close, 12)
+M3 = ta.sma(close, 24)
+BBI = (M1 + M2 + M3) / 3
+
+// Original signals
+buy_cond = ta.cross(ma21, ma55) and ma8 > ma13 and ma21 > ma55
+sell_cond = ta.cross(ma21, ma55) and ma8 < ma13 and ma21 < ma55
+
+// Cost anchor
+typical_price = (high + low + close) / 3.0
+cost_fast_vol_sum = math.sum(volume, fast_cost_len)
+cost_main_vol_sum = math.sum(volume, cost_len)
+cost_slow_vol_sum = math.sum(volume, slow_cost_len)
+cost_fast_weighted_sum = math.sum(typical_price * volume, fast_cost_len)
+cost_main_weighted_sum = math.sum(typical_price * volume, cost_len)
+cost_slow_weighted_sum = math.sum(typical_price * volume, slow_cost_len)
+cost_fast_sma = ta.sma(typical_price, fast_cost_len)
+cost_main_sma = ta.sma(typical_price, cost_len)
+cost_slow_sma = ta.sma(typical_price, slow_cost_len)
+
+cost_fast_has_volume = not na(cost_fast_vol_sum) and cost_fast_vol_sum > 0
+cost_main_has_volume = not na(cost_main_vol_sum) and cost_main_vol_sum > 0
+cost_slow_has_volume = not na(cost_slow_vol_sum) and cost_slow_vol_sum > 0
+
+cost_fast_anchor_raw = cost_fast_has_volume ? cost_fast_weighted_sum / cost_fast_vol_sum : cost_fast_sma
+cost_main_anchor_raw = cost_main_has_volume ? cost_main_weighted_sum / cost_main_vol_sum : cost_main_sma
+cost_slow_anchor_raw = cost_slow_has_volume ? cost_slow_weighted_sum / cost_slow_vol_sum : cost_slow_sma
+
+cost_main_anchor = nz(cost_main_anchor_raw, cost_fast_anchor_raw)
+cost_fast_anchor = nz(cost_fast_anchor_raw, cost_main_anchor)
+cost_slow_anchor = nz(cost_slow_anchor_raw, cost_main_anchor)
+cost_anchor = adaptive_cost ? cost_fast_anchor * 0.35 + cost_main_anchor * 0.45 + cost_slow_anchor * 0.20 : cost_main_anchor
+
+log_ret = close[1] > 0 ? math.log(close / close[1]) : 0.0
+annual_vol_raw = ta.stdev(log_ret, vol_len) * math.sqrt(trading_days)
+annual_vol = na(annual_vol_raw) or annual_vol_raw <= 0 ? 0.01 : annual_vol_raw
+
+atr_14 = ta.atr(14)
+atr_pct_raw = close > 0 ? atr_14 / close : 0.0
+atr_pct_avg = ta.sma(atr_pct_raw, 100)
+atr_ratio = atr_pct_avg > 0 ? atr_pct_raw / atr_pct_avg : 1.0
+atr_regime = math.max(0.75, math.min(1.45, atr_ratio))
+atr_pct = atr_pct_raw
+vol_estimate = ta.stdev(log_ret, cost_len) * math.sqrt(math.min(recent_len, cost_len))
+min_band = math.max(vol_estimate * 0.25, 0.005)
+base_band_width = math.max(vol_estimate, min_band)
+band_width = base_band_width * math.max(0.85, math.min(1.25, atr_regime))
+
+cost_low = cost_anchor * (1 - band_width)
+cost_high = cost_anchor * (1 + band_width)
+cost_distance = cost_anchor > 0 ? close / cost_anchor - 1 : 0.0
+
+momentum5 = close[5] > 0 ? close / close[5] - 1 : 0.0
+cost_slope5 = not na(cost_anchor[5]) and cost_anchor[5] > 0 ? cost_anchor / cost_anchor[5] - 1 : 0.0
+
+// GetDelta band
+target_return = target_return_pct / 100.0
+wave = annual_vol * math.sqrt(holding_days / (trading_days * 2.0 * math.pi))
+delta_ok = show_lab and cost_anchor > 0 and annual_vol > 0 and wave > 0 and wave < 1
+
+raw_ratio = delta_ok ? math.pow((1 + wave) / (1 - wave), 2) : na
+long_ratio = raw_ratio
+long_cost = delta_ok ? cost_anchor * math.pow(target_return * long_ratio - target_return + 1, 2) / long_ratio : na
+long_high = delta_ok ? long_cost * long_ratio : na
+long_low = delta_ok ? long_cost / long_ratio : na
+
+short_ratio = delta_ok ? 1 / long_ratio : na
+short_cost = delta_ok ? cost_anchor * math.pow(target_return * short_ratio - target_return + 1, 2) / short_ratio : na
+short_high = delta_ok ? short_cost / short_ratio : na
+
+// Profile
+edge_sigma = profile == "Conservative" ? 1.15 : profile == "Balanced" ? 0.80 : 0.55
+momentum_sigma = profile == "Conservative" ? 0.60 : profile == "Balanced" ? 0.00 : -0.50
+cost_slope_sigma = profile == "Conservative" ? 0.75 : profile == "Balanced" ? 0.60 : 0.45
+
+daily_vol = annual_vol / math.sqrt(trading_days)
+vol_ratio = daily_vol / 0.02
+
+min_edge = math.max(atr_pct * edge_sigma, 0.005)
+probe_edge = min_edge * 0.65
+trim_edge = min_edge * 0.65
+momentum_min = momentum_sigma * daily_vol
+cost_slope_threshold = math.max(atr_pct * cost_slope_sigma * vol_ratio, math.max(cost_slope_sigma * daily_vol * 0.3, 0.003))
+
+buy_edge = cost_anchor > close ? (cost_anchor - close) / close : 0.0
+sell_edge = close > cost_anchor ? (close - cost_anchor) / close : 0.0
+
+below_cost = show_lab and close < cost_low
+above_cost = show_lab and close > cost_high
+inside_long_band = not delta_ok or close >= long_low
+inside_short_band = not delta_ok or close <= short_high
+
+cost_still_falling = cost_slope5 < -cost_slope_threshold
+cost_not_falling_hard = cost_slope5 > -cost_slope_threshold * 1.6
+momentum_rising = momentum5 > momentum_min
+soft_momentum_rising = momentum5 > momentum_min - daily_vol * 0.35
+fast_cost_turning = cost_fast_anchor >= cost_fast_anchor[1] or close >= close[1]
+cross_fast_cost_up = ta.crossover(close, cost_fast_anchor)
+cross_ma8_down = ta.crossunder(close, ma8)
+discount_flag = close < cost_low ? 1.0 : 0.0
+had_discount_recently = ta.highest(discount_flag, 8) > 0
+trend_up = show_lab and close > cost_main_anchor and cost_fast_anchor >= cost_main_anchor and ma8 > ma13 and close > ma55
+pullback_level = math.max(cost_fast_anchor, ma13)
+pullback_touch = low <= pullback_level * (1 + atr_pct * 0.80) and close >= pullback_level * (1 - atr_pct * 0.20)
+trend_not_too_hot = cost_distance < math.max(base_band_width * 4.0, atr_pct * 5.0)
+bounce_confirm = close > open or close > close[1] or momentum5 > 0
+trim_trigger = cross_ma8_down or close < open or ma8 < ma8[1]
+
+period_vol = annual_vol > 0 ? annual_vol * math.sqrt(1.0 / trading_days) : 0.01
+z_score = period_vol > 0 ? cost_distance / period_vol : 0.0
+z_abs = math.abs(z_score)
+
+// Market Lab signals
+lab_deep_discount = below_cost and not inside_long_band
+lab_buy = below_cost and inside_long_band and not cost_still_falling and (momentum_rising or fast_cost_turning) and buy_edge >= min_edge
+lab_overheat = above_cost and not inside_short_band
+lab_pull_buy = trend_up and not below_cost and not lab_overheat and pullback_touch and bounce_confirm and trend_not_too_hot
+lab_reclaim_buy = show_lab and had_discount_recently and cross_fast_cost_up and cost_not_falling_hard and bounce_confirm
+lab_try_buy = below_cost and inside_long_band and not lab_buy and not lab_pull_buy and not lab_reclaim_buy and cost_not_falling_hard and soft_momentum_rising and buy_edge >= probe_edge
+lab_wait_stop = below_cost and inside_long_band and not lab_buy and not lab_pull_buy and not lab_reclaim_buy and not lab_try_buy
+lab_sell = above_cost and sell_edge >= trim_edge and (lab_overheat or trim_trigger)
+
+lab_buy_sig = lab_buy and not lab_buy[1]
+lab_pull_sig = lab_pull_buy and not lab_pull_buy[1]
+lab_reclaim_sig = lab_reclaim_buy and not lab_reclaim_buy[1]
+lab_try_sig = lab_try_buy and not lab_try_buy[1]
+lab_sell_sig = lab_sell and not lab_sell[1]
+lab_wait_sig = lab_wait_stop and not lab_wait_stop[1]
+lab_deep_sig = lab_deep_discount and not lab_deep_discount[1]
+lab_overheat_sig = lab_overheat and not lab_overheat[1]
+
+// Text
+lab_state = lab_buy ? "Low Buy" : lab_pull_buy ? "Pull Buy" : lab_reclaim_buy ? "Reclaim" : lab_try_buy ? "Try" : lab_wait_stop ? "Wait Stop" : lab_deep_discount ? "Deep Discount" : lab_sell and lab_overheat ? "Trim Hot" : lab_sell ? "Trim Only" : lab_overheat ? "No Chase" : z_abs < 0.5 ? "Neutral" : "Wait"
+lab_reason = lab_buy ? "Strict discount buy" : lab_pull_buy ? "Trend pullback bounce" : lab_reclaim_buy ? "Reclaim fast cost after discount" : lab_try_buy ? "Probe only, lighter size" : lab_wait_stop ? "Discount but weak momentum" : lab_deep_discount ? "Below GetDelta lower band" : lab_sell and lab_overheat ? "Trim into overheat, no chase" : lab_sell ? "Premium trim only" : lab_overheat ? "Above upper vol band" : "No enough edge"
+
+// Plots
+plot(ma21, color=color.new(#f47608, 0), title="200", linewidth=2)
+plot(ma55, color=color.new(#e49b13, 0), title="55", linewidth=2)
+plot(BBI, color=color.new(#000000, 50), linewidth=2, title="BBI")
+
+plotshape(buy_cond, title="MA Buy", style=shape.triangleup, location=location.belowbar, color=color.new(color.lime, 35), text="Buy", textcolor=color.new(color.lime, 35), size=size.normal)
+plotshape(sell_cond, title="MA Sell", style=shape.triangledown, location=location.abovebar, color=color.new(color.red, 35), text="Sell", textcolor=color.new(color.red, 35), size=size.normal)
+
+cost_low_plot = plot(show_lab and show_cost_band ? cost_low : na, title="ML Cost Low", color=color.new(color.blue, 65), linewidth=1)
+cost_high_plot = plot(show_lab and show_cost_band ? cost_high : na, title="ML Cost High", color=color.new(color.red, 65), linewidth=1)
+plot(show_lab and show_cost_band ? cost_anchor : na, title="ML Cost", color=color.new(color.blue, 0), linewidth=2)
+fill(cost_low_plot, cost_high_plot, color=show_lab and show_cost_band ? color.new(color.gray, 92) : na, title="ML Cost Zone")
+
+plot(show_lab and show_delta_band ? long_low : na, title="GetDelta Long Low", color=color.new(color.teal, 35), linewidth=1)
+plot(show_lab and show_delta_band ? long_high : na, title="GetDelta Long High", color=color.new(color.teal, 65), linewidth=1)
+plot(show_lab and show_delta_band ? short_high : na, title="GetDelta Short High", color=color.new(color.orange, 45), linewidth=1)
+
+bgcolor(show_lab and show_lab_bg and below_cost ? color.new(color.blue, 92) : na, title="Discount BG")
+bgcolor(show_lab and show_lab_bg and above_cost ? color.new(color.red, 92) : na, title="Premium BG")
+
+plotshape(lab_buy_sig, title="ML Low Buy", style=shape.labelup, location=location.belowbar, color=color.new(color.lime, 0), text="LowBuy", textcolor=color.black, size=size.small)
+plotshape(lab_pull_sig, title="ML Pull Buy", style=shape.labelup, location=location.belowbar, color=color.new(color.aqua, 0), text="PullBuy", textcolor=color.black, size=size.small)
+plotshape(lab_reclaim_sig, title="ML Reclaim Buy", style=shape.labelup, location=location.belowbar, color=color.new(color.teal, 0), text="Reclaim", textcolor=color.white, size=size.small)
+plotshape(lab_try_sig, title="ML Try Buy", style=shape.labelup, location=location.belowbar, color=color.new(color.green, 55), text="Try", textcolor=color.black, size=size.tiny)
+plotshape(lab_wait_sig, title="ML Wait Stop", style=shape.circle, location=location.belowbar, color=color.new(color.blue, 20), text="Wait", textcolor=color.blue, size=size.tiny)
+plotshape(lab_deep_sig, title="ML Deep Discount", style=shape.diamond, location=location.belowbar, color=color.new(color.purple, 10), text="Deep", textcolor=color.purple, size=size.tiny)
+plotshape(lab_sell_sig, title="ML Trim", style=shape.labeldown, location=location.abovebar, color=color.new(color.orange, 0), text="Trim", textcolor=color.black, size=size.small)
+plotshape(lab_overheat_sig, title="ML No Chase", style=shape.xcross, location=location.abovebar, color=color.new(color.red, 0), text="NoChase", textcolor=color.red, size=size.tiny)
+
+// Pinbar
+body_size = math.abs(close - open)
+upper_wick = high - math.max(close, open)
+lower_wick = math.min(close, open) - low
+
+is_bull_pin = lower_wick > body_size * pin_ratio and lower_wick > upper_wick
+is_bear_pin = upper_wick > body_size * pin_ratio and upper_wick > lower_wick
+is_pinbar = show_pinbar and (is_bull_pin or is_bear_pin)
+
+p_open = is_pinbar ? open : na
+pin_high = is_pinbar ? high : na
+p_low_candle = is_pinbar ? low : na
+p_close = is_pinbar ? close : na
+
+barcolor(is_pinbar ? color.black : na, title="Pinbar Body Color")
+plotcandle(p_open, pin_high, p_low_candle, p_close, title="Pinbar Black Overlay", color=color.black, wickcolor=color.black, bordercolor=color.black)
+
+// Panel
+var table lab_table = table.new(position.top_right, 2, 7, border_width=1)
+
+if barstate.islast and show_lab and show_lab_panel
+    state_color = lab_buy ? color.new(color.lime, 10) : lab_pull_buy ? color.new(color.aqua, 10) : lab_reclaim_buy ? color.new(color.teal, 20) : lab_try_buy ? color.new(color.green, 70) : lab_sell ? color.new(color.orange, 10) : lab_wait_stop ? color.new(color.blue, 85) : lab_deep_discount ? color.new(color.purple, 85) : lab_overheat ? color.new(color.red, 85) : color.new(color.gray, 88)
+    table.cell(lab_table, 0, 0, "Market Lab", text_color=color.white, bgcolor=color.black)
+    table.cell(lab_table, 1, 0, profile, text_color=color.white, bgcolor=color.black)
+    table.cell(lab_table, 0, 1, "State", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 1, lab_state, text_color=color.black, bgcolor=state_color)
+    table.cell(lab_table, 0, 2, "Cost Dev", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 2, str.tostring(cost_distance * 100, "#.##") + "%", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 0, 3, "Z Score", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 3, str.tostring(z_score, "#.##") + "x", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 0, 4, "Ann Vol", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 4, str.tostring(annual_vol * 100, "#.##") + "%", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 0, 5, "Cost", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 5, str.tostring(cost_anchor, "#.##"), text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 0, 6, "Reason", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 1, 6, lab_reason, text_color=color.black, bgcolor=color.white)
+
+// Alerts
+alertcondition(buy_cond, title="MA Buy Condition", message="MA Buy Condition Alert")
+alertcondition(sell_cond, title="MA Sell Condition", message="MA Sell Condition Alert")
+alertcondition(lab_buy_sig, title="ML Low Buy", message="Market Lab Low Buy")
+alertcondition(lab_pull_sig, title="ML Pull Buy", message="Market Lab Trend Pullback Buy")
+alertcondition(lab_reclaim_sig, title="ML Reclaim Buy", message="Market Lab Reclaim Fast Cost Buy")
+alertcondition(lab_try_sig, title="ML Try Buy", message="Market Lab Try Buy")
+alertcondition(lab_sell_sig, title="ML Trim", message="Market Lab Premium Trim Only")
+alertcondition(lab_wait_sig, title="ML Wait Stop", message="Market Lab Discount But Wait")
+alertcondition(lab_deep_sig, title="ML Deep Discount", message="Market Lab Below GetDelta Lower Band")
+alertcondition(lab_overheat_sig, title="ML No Chase", message="Market Lab Overheat No Chase")

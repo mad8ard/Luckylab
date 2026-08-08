@@ -1,0 +1,18 @@
+.sample-button[aria-pressed='true'] {
+  background: #e6efe8;
+  box-shadow: inset 0 0 0 1px var(--green);
+}
+
+.sample-button.loading {
+  cursor: progress;
+}
+
+.inline-error {
+  margin: -6px 0 0;
+  border: 1px solid rgba(169, 50, 38, 0.35);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--red);
+  background: rgba(169, 50, 38, 0.06);
+  font-weight: 800;
+}

@@ -1,0 +1,74 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+coverage/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment / local secrets
+.env
+.env.*
+!.env.example
+*.local
+.venv/
+.agents/
+
+# Vite / test caches
+.vite/
+.vitest/
+.cache/
+__pycache__/
+*.pyc
+
+# Browser and Playwright artifacts
+.playwright-mcp/
+playwright-report/
+test-results/
+
+# Local verification artifacts
+data/workbooks/
+src/data/generated/
+src/data/.generated-*/
+src/data/recommended-pool-latest.json
+src/data/recommended-pools/
+public/recommended-pool/
+page-snapshot*.md
+*-snapshot.md
+*-check.md
+*-loaded.md
+*-screenshot.png
+*-loaded.png
+fullpage-*.png
+result-panel-*.png
+
+# AI 工作流过程产物（plan/spec/draft），不进仓库
+docs/superpowers/
+market-lab-*.png
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 项目用 pnpm，不接受 npm 产出的 lockfile
+package-lock.json
+
+# Claude Code 本机设置
+.claude/

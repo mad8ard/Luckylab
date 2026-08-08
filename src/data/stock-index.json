@@ -1,0 +1,3372 @@
+[
+  {
+    "id": "auto-000001-1d",
+    "symbol": "000001",
+    "label": "平安银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000001-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000002-1d",
+    "symbol": "000002",
+    "label": "万科A",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000002-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000063-1d",
+    "symbol": "000063",
+    "label": "中兴通讯",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000063-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000100-1d",
+    "symbol": "000100",
+    "label": "TCL科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000100-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000157-1d",
+    "symbol": "000157",
+    "label": "中联重科",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000157-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000166-1d",
+    "symbol": "000166",
+    "label": "申万宏源",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000166-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000301-1d",
+    "symbol": "000301",
+    "label": "东方盛虹",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000301-1d.csv",
+    "rows": 1354
+  },
+  {
+    "id": "auto-000333-1d",
+    "symbol": "000333",
+    "label": "美的集团",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000333-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000338-1d",
+    "symbol": "000338",
+    "label": "潍柴动力",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000338-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000408-1d",
+    "symbol": "000408",
+    "label": "藏格矿业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000408-1d.csv",
+    "rows": 1350
+  },
+  {
+    "id": "auto-000425-1d",
+    "symbol": "000425",
+    "label": "徐工机械",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000425-1d.csv",
+    "rows": 1342
+  },
+  {
+    "id": "auto-000538-1d",
+    "symbol": "000538",
+    "label": "云南白药",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000538-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000568-1d",
+    "symbol": "000568",
+    "label": "泸州老窖",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000568-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000596-1d",
+    "symbol": "000596",
+    "label": "古井贡酒",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000596-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000617-1d",
+    "symbol": "000617",
+    "label": "中油资本",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000617-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000625-1d",
+    "symbol": "000625",
+    "label": "长安汽车",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000625-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000630-1d",
+    "symbol": "000630",
+    "label": "铜陵有色",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000630-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-000651-1d",
+    "symbol": "000651",
+    "label": "格力电器",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000651-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000661-1d",
+    "symbol": "000661",
+    "label": "长春高新",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000661-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000708-1d",
+    "symbol": "000708",
+    "label": "中信特钢",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000708-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000725-1d",
+    "symbol": "000725",
+    "label": "京东方A",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000725-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000768-1d",
+    "symbol": "000768",
+    "label": "中航西飞",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000768-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000776-1d",
+    "symbol": "000776",
+    "label": "广发证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000776-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000786-1d",
+    "symbol": "000786",
+    "label": "北新建材",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000786-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000792-1d",
+    "symbol": "000792",
+    "label": "盐湖股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000792-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000799-1d",
+    "symbol": "000799",
+    "label": "酒鬼酒",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000799-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000807-1d",
+    "symbol": "000807",
+    "label": "云铝股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000807-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000858-1d",
+    "symbol": "000858",
+    "label": "五粮液",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000858-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000876-1d",
+    "symbol": "000876",
+    "label": "新希望",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000876-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000895-1d",
+    "symbol": "000895",
+    "label": "双汇发展",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000895-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000938-1d",
+    "symbol": "000938",
+    "label": "紫光股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000938-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000963-1d",
+    "symbol": "000963",
+    "label": "华东医药",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000963-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000975-1d",
+    "symbol": "000975",
+    "label": "山金国际",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000975-1d.csv",
+    "rows": 1350
+  },
+  {
+    "id": "auto-000977-1d",
+    "symbol": "000977",
+    "label": "浪潮信息",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000977-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000983-1d",
+    "symbol": "000983",
+    "label": "山西焦煤",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000983-1d.csv",
+    "rows": 1354
+  },
+  {
+    "id": "auto-000988-1d",
+    "symbol": "000988",
+    "label": "华工科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000988-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-000999-1d",
+    "symbol": "000999",
+    "label": "华润三九",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/000999-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-001391-1d",
+    "symbol": "001391",
+    "label": "国货航",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/001391-1d.csv",
+    "rows": 388
+  },
+  {
+    "id": "auto-001965-1d",
+    "symbol": "001965",
+    "label": "招商公路",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/001965-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-001979-1d",
+    "symbol": "001979",
+    "label": "招商蛇口",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/001979-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-002001-1d",
+    "symbol": "002001",
+    "label": "新和成",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002001-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002027-1d",
+    "symbol": "002027",
+    "label": "分众传媒",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002027-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002028-1d",
+    "symbol": "002028",
+    "label": "思源电气",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002028-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002049-1d",
+    "symbol": "002049",
+    "label": "紫光国微",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002049-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-002050-1d",
+    "symbol": "002050",
+    "label": "三花智控",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002050-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002074-1d",
+    "symbol": "002074",
+    "label": "国轩高科",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002074-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002142-1d",
+    "symbol": "002142",
+    "label": "宁波银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002142-1d.csv",
+    "rows": 1349
+  },
+  {
+    "id": "auto-002179-1d",
+    "symbol": "002179",
+    "label": "中航光电",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002179-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002230-1d",
+    "symbol": "002230",
+    "label": "科大讯飞",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002230-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002236-1d",
+    "symbol": "002236",
+    "label": "大华股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002236-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002241-1d",
+    "symbol": "002241",
+    "label": "歌尔股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002241-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002252-1d",
+    "symbol": "002252",
+    "label": "上海莱士",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002252-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-002261-1d",
+    "symbol": "002261",
+    "label": "拓维信息",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002261-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002281-1d",
+    "symbol": "002281",
+    "label": "光迅科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002281-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002304-1d",
+    "symbol": "002304",
+    "label": "洋河股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002304-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002311-1d",
+    "symbol": "002311",
+    "label": "海大集团",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002311-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002352-1d",
+    "symbol": "002352",
+    "label": "顺丰控股",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002352-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002371-1d",
+    "symbol": "002371",
+    "label": "北方华创",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002371-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002384-1d",
+    "symbol": "002384",
+    "label": "东山精密",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002384-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002415-1d",
+    "symbol": "002415",
+    "label": "海康威视",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002415-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002422-1d",
+    "symbol": "002422",
+    "label": "科伦药业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002422-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002456-1d",
+    "symbol": "002456",
+    "label": "欧菲光",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002456-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-002459-1d",
+    "symbol": "002459",
+    "label": "晶澳科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002459-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002460-1d",
+    "symbol": "002460",
+    "label": "赣锋锂业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002460-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002463-1d",
+    "symbol": "002463",
+    "label": "沪电股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002463-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002466-1d",
+    "symbol": "002466",
+    "label": "天齐锂业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002466-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002475-1d",
+    "symbol": "002475",
+    "label": "立讯精密",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002475-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002493-1d",
+    "symbol": "002493",
+    "label": "荣盛石化",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002493-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002594-1d",
+    "symbol": "002594",
+    "label": "比亚迪",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002594-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002600-1d",
+    "symbol": "002600",
+    "label": "领益智造",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002600-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002601-1d",
+    "symbol": "002601",
+    "label": "龙佰集团",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002601-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002625-1d",
+    "symbol": "002625",
+    "label": "光启技术",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002625-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002645-1d",
+    "symbol": "002645",
+    "label": "华宏科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002645-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002648-1d",
+    "symbol": "002648",
+    "label": "卫星化学",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002648-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002709-1d",
+    "symbol": "002709",
+    "label": "天赐材料",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002709-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002714-1d",
+    "symbol": "002714",
+    "label": "牧原股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002714-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002736-1d",
+    "symbol": "002736",
+    "label": "国信证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002736-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-002837-1d",
+    "symbol": "002837",
+    "label": "英维克",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002837-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002891-1d",
+    "symbol": "002891",
+    "label": "中宠股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002891-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002916-1d",
+    "symbol": "002916",
+    "label": "深南电路",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002916-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002920-1d",
+    "symbol": "002920",
+    "label": "德赛西威",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002920-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-002938-1d",
+    "symbol": "002938",
+    "label": "鹏鼎控股",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/002938-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-003816-1d",
+    "symbol": "003816",
+    "label": "中国广核",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/003816-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-0175_HK-1d",
+    "symbol": "0175.HK",
+    "label": "吉利汽车",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/0175_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-0522_HK-1d",
+    "symbol": "0522.HK",
+    "label": "ASMPT",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/0522_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-0700_HK-1d",
+    "symbol": "0700.HK",
+    "label": "腾讯控股",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/0700_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-0916_HK-1d",
+    "symbol": "0916.HK",
+    "label": "龙源电力",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/0916_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-0981_HK-1d",
+    "symbol": "0981.HK",
+    "label": "中芯国际",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/0981_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-0992_HK-1d",
+    "symbol": "0992.HK",
+    "label": "联想集团",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/0992_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-1211_HK-1d",
+    "symbol": "1211.HK",
+    "label": "比亚迪股份",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/1211_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-1810_HK-1d",
+    "symbol": "1810.HK",
+    "label": "小米集团-W",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/1810_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-1816_HK-1d",
+    "symbol": "1816.HK",
+    "label": "中广核电力",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/1816_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-2015_HK-1d",
+    "symbol": "2015.HK",
+    "label": "理想汽车-W",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/2015_HK-1d.csv",
+    "rows": 490
+  },
+  {
+    "id": "auto-2380_HK-1d",
+    "symbol": "2380.HK",
+    "label": "中国电力",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/2380_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-2899_HK-1d",
+    "symbol": "2899.HK",
+    "label": "紫金矿业",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/2899_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-300014-1d",
+    "symbol": "300014",
+    "label": "亿纬锂能",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300014-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300015-1d",
+    "symbol": "300015",
+    "label": "爱尔眼科",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300015-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300033-1d",
+    "symbol": "300033",
+    "label": "同花顺",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300033-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300059-1d",
+    "symbol": "300059",
+    "label": "东方财富",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300059-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300122-1d",
+    "symbol": "300122",
+    "label": "智飞生物",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300122-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300124-1d",
+    "symbol": "300124",
+    "label": "汇川技术",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300124-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300251-1d",
+    "symbol": "300251",
+    "label": "光线传媒",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300251-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300274-1d",
+    "symbol": "300274",
+    "label": "阳光电源",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300274-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300308-1d",
+    "symbol": "300308",
+    "label": "中际旭创",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300308-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300316-1d",
+    "symbol": "300316",
+    "label": "晶盛机电",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300316-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300347-1d",
+    "symbol": "300347",
+    "label": "泰格医药",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300347-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300394-1d",
+    "symbol": "300394",
+    "label": "天孚通信",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300394-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300408-1d",
+    "symbol": "300408",
+    "label": "三环集团",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300408-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300413-1d",
+    "symbol": "300413",
+    "label": "芒果超媒",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300413-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300418-1d",
+    "symbol": "300418",
+    "label": "昆仑万维",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300418-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300433-1d",
+    "symbol": "300433",
+    "label": "蓝思科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300433-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300442-1d",
+    "symbol": "300442",
+    "label": "润泽科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300442-1d.csv",
+    "rows": 1349
+  },
+  {
+    "id": "auto-300476-1d",
+    "symbol": "300476",
+    "label": "胜宏科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300476-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300498-1d",
+    "symbol": "300498",
+    "label": "温氏股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300498-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300502-1d",
+    "symbol": "300502",
+    "label": "新易盛",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300502-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300602-1d",
+    "symbol": "300602",
+    "label": "飞荣达",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300602-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300628-1d",
+    "symbol": "300628",
+    "label": "亿联网络",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300628-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300661-1d",
+    "symbol": "300661",
+    "label": "圣邦股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300661-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300718-1d",
+    "symbol": "300718",
+    "label": "长盛轴承",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300718-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300750-1d",
+    "symbol": "300750",
+    "label": "宁德时代",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300750-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300759-1d",
+    "symbol": "300759",
+    "label": "康龙化成",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300759-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300760-1d",
+    "symbol": "300760",
+    "label": "迈瑞医疗",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300760-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300782-1d",
+    "symbol": "300782",
+    "label": "卓胜微",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300782-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300803-1d",
+    "symbol": "300803",
+    "label": "指南针",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300803-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300832-1d",
+    "symbol": "300832",
+    "label": "新产业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300832-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300866-1d",
+    "symbol": "300866",
+    "label": "安克创新",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300866-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300896-1d",
+    "symbol": "300896",
+    "label": "爱美客",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300896-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-300979-1d",
+    "symbol": "300979",
+    "label": "华利集团",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300979-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-300999-1d",
+    "symbol": "300999",
+    "label": "金龙鱼",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/300999-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-301071-1d",
+    "symbol": "301071",
+    "label": "力量钻石",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/301071-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-301236-1d",
+    "symbol": "301236",
+    "label": "软通动力",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/301236-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-301269-1d",
+    "symbol": "301269",
+    "label": "华大九天",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/301269-1d.csv",
+    "rows": 474
+  },
+  {
+    "id": "auto-301308-1d",
+    "symbol": "301308",
+    "label": "江波龙",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/301308-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-302132-1d",
+    "symbol": "302132",
+    "label": "中航成飞",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/302132-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-3690_HK-1d",
+    "symbol": "3690.HK",
+    "label": "美团-W",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/3690_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-3888_HK-1d",
+    "symbol": "3888.HK",
+    "label": "金山软件",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/3888_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-600000-1d",
+    "symbol": "600000",
+    "label": "浦发银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600000-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600009-1d",
+    "symbol": "600009",
+    "label": "上海机场",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600009-1d.csv",
+    "rows": 1354
+  },
+  {
+    "id": "auto-600010-1d",
+    "symbol": "600010",
+    "label": "包钢股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600010-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600011-1d",
+    "symbol": "600011",
+    "label": "华能国际",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600011-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600015-1d",
+    "symbol": "600015",
+    "label": "华夏银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600015-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600016-1d",
+    "symbol": "600016",
+    "label": "民生银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600016-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600018-1d",
+    "symbol": "600018",
+    "label": "上港集团",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600018-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600019-1d",
+    "symbol": "600019",
+    "label": "宝钢股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600019-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600023-1d",
+    "symbol": "600023",
+    "label": "浙能电力",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600023-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600025-1d",
+    "symbol": "600025",
+    "label": "华能水电",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600025-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600026-1d",
+    "symbol": "600026",
+    "label": "中远海能",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600026-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600027-1d",
+    "symbol": "600027",
+    "label": "华电国际",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600027-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-600028-1d",
+    "symbol": "600028",
+    "label": "中国石化",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600028-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600029-1d",
+    "symbol": "600029",
+    "label": "南方航空",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600029-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600030-1d",
+    "symbol": "600030",
+    "label": "中信证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600030-1d.csv",
+    "rows": 1349
+  },
+  {
+    "id": "auto-600031-1d",
+    "symbol": "600031",
+    "label": "三一重工",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600031-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600036-1d",
+    "symbol": "600036",
+    "label": "招商银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600036-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600039-1d",
+    "symbol": "600039",
+    "label": "四川路桥",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600039-1d.csv",
+    "rows": 1354
+  },
+  {
+    "id": "auto-600048-1d",
+    "symbol": "600048",
+    "label": "保利发展",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600048-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600050-1d",
+    "symbol": "600050",
+    "label": "中国联通",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600050-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600061-1d",
+    "symbol": "600061",
+    "label": "国投资本",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600061-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600066-1d",
+    "symbol": "600066",
+    "label": "宇通客车",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600066-1d.csv",
+    "rows": 1354
+  },
+  {
+    "id": "auto-600085-1d",
+    "symbol": "600085",
+    "label": "同仁堂",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600085-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600089-1d",
+    "symbol": "600089",
+    "label": "特变电工",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600089-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600104-1d",
+    "symbol": "600104",
+    "label": "上汽集团",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600104-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600111-1d",
+    "symbol": "600111",
+    "label": "北方稀土",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600111-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600115-1d",
+    "symbol": "600115",
+    "label": "中国东航",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600115-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600150-1d",
+    "symbol": "600150",
+    "label": "中国船舶",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600150-1d.csv",
+    "rows": 1341
+  },
+  {
+    "id": "auto-600160-1d",
+    "symbol": "600160",
+    "label": "巨化股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600160-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600161-1d",
+    "symbol": "600161",
+    "label": "天坛生物",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600161-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600176-1d",
+    "symbol": "600176",
+    "label": "中国巨石",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600176-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600183-1d",
+    "symbol": "600183",
+    "label": "生益科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600183-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600188-1d",
+    "symbol": "600188",
+    "label": "兖矿能源",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600188-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600196-1d",
+    "symbol": "600196",
+    "label": "复星医药",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600196-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600219-1d",
+    "symbol": "600219",
+    "label": "南山铝业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600219-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600233-1d",
+    "symbol": "600233",
+    "label": "圆通速递",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600233-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600276-1d",
+    "symbol": "600276",
+    "label": "恒瑞医药",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600276-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600309-1d",
+    "symbol": "600309",
+    "label": "万华化学",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600309-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600346-1d",
+    "symbol": "600346",
+    "label": "恒力石化",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600346-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600362-1d",
+    "symbol": "600362",
+    "label": "江西铜业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600362-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600372-1d",
+    "symbol": "600372",
+    "label": "中航机载",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600372-1d.csv",
+    "rows": 1337
+  },
+  {
+    "id": "auto-600377-1d",
+    "symbol": "600377",
+    "label": "宁沪高速",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600377-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600406-1d",
+    "symbol": "600406",
+    "label": "国电南瑞",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600406-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600415-1d",
+    "symbol": "600415",
+    "label": "小商品城",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600415-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600426-1d",
+    "symbol": "600426",
+    "label": "华鲁恒升",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600426-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600436-1d",
+    "symbol": "600436",
+    "label": "片仔癀",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600436-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600438-1d",
+    "symbol": "600438",
+    "label": "通威股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600438-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-600460-1d",
+    "symbol": "600460",
+    "label": "士兰微",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600460-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600482-1d",
+    "symbol": "600482",
+    "label": "中国动力",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600482-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-600489-1d",
+    "symbol": "600489",
+    "label": "中金黄金",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600489-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600515-1d",
+    "symbol": "600515",
+    "label": "海南机场",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600515-1d.csv",
+    "rows": 1352
+  },
+  {
+    "id": "auto-600519-1d",
+    "symbol": "600519",
+    "label": "贵州茅台",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600519-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600522-1d",
+    "symbol": "600522",
+    "label": "中天科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600522-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600547-1d",
+    "symbol": "600547",
+    "label": "山东黄金",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600547-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600570-1d",
+    "symbol": "600570",
+    "label": "恒生电子",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600570-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600580-1d",
+    "symbol": "600580",
+    "label": "卧龙电驱",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600580-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600584-1d",
+    "symbol": "600584",
+    "label": "长电科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600584-1d.csv",
+    "rows": 1350
+  },
+  {
+    "id": "auto-600585-1d",
+    "symbol": "600585",
+    "label": "海螺水泥",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600585-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600588-1d",
+    "symbol": "600588",
+    "label": "用友网络",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600588-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600600-1d",
+    "symbol": "600600",
+    "label": "青岛啤酒",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600600-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600660-1d",
+    "symbol": "600660",
+    "label": "福耀玻璃",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600660-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600674-1d",
+    "symbol": "600674",
+    "label": "川投能源",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600674-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600690-1d",
+    "symbol": "600690",
+    "label": "海尔智家",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600690-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600741-1d",
+    "symbol": "600741",
+    "label": "华域汽车",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600741-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600760-1d",
+    "symbol": "600760",
+    "label": "中航沈飞",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600760-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600779-1d",
+    "symbol": "600779",
+    "label": "水井坊",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600779-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600795-1d",
+    "symbol": "600795",
+    "label": "国电电力",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600795-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600803-1d",
+    "symbol": "600803",
+    "label": "新奥股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600803-1d.csv",
+    "rows": 1348
+  },
+  {
+    "id": "auto-600809-1d",
+    "symbol": "600809",
+    "label": "山西汾酒",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600809-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600845-1d",
+    "symbol": "600845",
+    "label": "宝信软件",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600845-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600875-1d",
+    "symbol": "600875",
+    "label": "东方电气",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600875-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600886-1d",
+    "symbol": "600886",
+    "label": "国投电力",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600886-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600887-1d",
+    "symbol": "600887",
+    "label": "伊利股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600887-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600893-1d",
+    "symbol": "600893",
+    "label": "航发动力",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600893-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600900-1d",
+    "symbol": "600900",
+    "label": "长江电力",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600900-1d.csv",
+    "rows": 1344
+  },
+  {
+    "id": "auto-600905-1d",
+    "symbol": "600905",
+    "label": "三峡能源",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600905-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-600918-1d",
+    "symbol": "600918",
+    "label": "中泰证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600918-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600919-1d",
+    "symbol": "600919",
+    "label": "江苏银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600919-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600926-1d",
+    "symbol": "600926",
+    "label": "杭州银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600926-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600930-1d",
+    "symbol": "600930",
+    "label": "华电新能",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600930-1d.csv",
+    "rows": 258
+  },
+  {
+    "id": "auto-600938-1d",
+    "symbol": "600938",
+    "label": "中国海油",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600938-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-600941-1d",
+    "symbol": "600941",
+    "label": "中国移动",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600941-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-600958-1d",
+    "symbol": "600958",
+    "label": "东方证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600958-1d.csv",
+    "rows": 1339
+  },
+  {
+    "id": "auto-600989-1d",
+    "symbol": "600989",
+    "label": "宝丰能源",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600989-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-600999-1d",
+    "symbol": "600999",
+    "label": "招商证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/600999-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601006-1d",
+    "symbol": "601006",
+    "label": "大秦铁路",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601006-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601009-1d",
+    "symbol": "601009",
+    "label": "南京银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601009-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601012-1d",
+    "symbol": "601012",
+    "label": "隆基绿能",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601012-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601018-1d",
+    "symbol": "601018",
+    "label": "宁波港",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601018-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601021-1d",
+    "symbol": "601021",
+    "label": "春秋航空",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601021-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601058-1d",
+    "symbol": "601058",
+    "label": "赛轮轮胎",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601058-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601059-1d",
+    "symbol": "601059",
+    "label": "信达证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601059-1d.csv",
+    "rows": 464
+  },
+  {
+    "id": "auto-601066-1d",
+    "symbol": "601066",
+    "label": "中信建投",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601066-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601077-1d",
+    "symbol": "601077",
+    "label": "渝农商行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601077-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601088-1d",
+    "symbol": "601088",
+    "label": "中国神华",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601088-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-601100-1d",
+    "symbol": "601100",
+    "label": "恒立液压",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601100-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601111-1d",
+    "symbol": "601111",
+    "label": "中国国航",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601111-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601117-1d",
+    "symbol": "601117",
+    "label": "中国化学",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601117-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601127-1d",
+    "symbol": "601127",
+    "label": "赛力斯",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601127-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601136-1d",
+    "symbol": "601136",
+    "label": "首创证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601136-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-601138-1d",
+    "symbol": "601138",
+    "label": "工业富联",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601138-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601166-1d",
+    "symbol": "601166",
+    "label": "兴业银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601166-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601169-1d",
+    "symbol": "601169",
+    "label": "北京银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601169-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601186-1d",
+    "symbol": "601186",
+    "label": "中国铁建",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601186-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601211-1d",
+    "symbol": "601211",
+    "label": "国泰海通",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601211-1d.csv",
+    "rows": 1336
+  },
+  {
+    "id": "auto-601225-1d",
+    "symbol": "601225",
+    "label": "陕西煤业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601225-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601229-1d",
+    "symbol": "601229",
+    "label": "上海银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601229-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601236-1d",
+    "symbol": "601236",
+    "label": "红塔证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601236-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601238-1d",
+    "symbol": "601238",
+    "label": "广汽集团",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601238-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601288-1d",
+    "symbol": "601288",
+    "label": "农业银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601288-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601298-1d",
+    "symbol": "601298",
+    "label": "青岛港",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601298-1d.csv",
+    "rows": 1349
+  },
+  {
+    "id": "auto-601318-1d",
+    "symbol": "601318",
+    "label": "中国平安",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601318-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601319-1d",
+    "symbol": "601319",
+    "label": "中国人保",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601319-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601328-1d",
+    "symbol": "601328",
+    "label": "交通银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601328-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601336-1d",
+    "symbol": "601336",
+    "label": "新华保险",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601336-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601360-1d",
+    "symbol": "601360",
+    "label": "三六零",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601360-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601377-1d",
+    "symbol": "601377",
+    "label": "兴业证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601377-1d.csv",
+    "rows": 1349
+  },
+  {
+    "id": "auto-601390-1d",
+    "symbol": "601390",
+    "label": "中国中铁",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601390-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601398-1d",
+    "symbol": "601398",
+    "label": "工商银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601398-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601456-1d",
+    "symbol": "601456",
+    "label": "国联民生",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601456-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-601600-1d",
+    "symbol": "601600",
+    "label": "中国铝业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601600-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601601-1d",
+    "symbol": "601601",
+    "label": "中国太保",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601601-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601607-1d",
+    "symbol": "601607",
+    "label": "上海医药",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601607-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601618-1d",
+    "symbol": "601618",
+    "label": "中国中冶",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601618-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601628-1d",
+    "symbol": "601628",
+    "label": "中国人寿",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601628-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601633-1d",
+    "symbol": "601633",
+    "label": "长城汽车",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601633-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601658-1d",
+    "symbol": "601658",
+    "label": "邮储银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601658-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601668-1d",
+    "symbol": "601668",
+    "label": "中国建筑",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601668-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601669-1d",
+    "symbol": "601669",
+    "label": "中国电建",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601669-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601688-1d",
+    "symbol": "601688",
+    "label": "华泰证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601688-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601689-1d",
+    "symbol": "601689",
+    "label": "拓普集团",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601689-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601698-1d",
+    "symbol": "601698",
+    "label": "中国卫通",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601698-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601728-1d",
+    "symbol": "601728",
+    "label": "中国电信",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601728-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-601766-1d",
+    "symbol": "601766",
+    "label": "中国中车",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601766-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601788-1d",
+    "symbol": "601788",
+    "label": "光大证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601788-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601800-1d",
+    "symbol": "601800",
+    "label": "中国交建",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601800-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601808-1d",
+    "symbol": "601808",
+    "label": "中海油服",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601808-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601816-1d",
+    "symbol": "601816",
+    "label": "京沪高铁",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601816-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601818-1d",
+    "symbol": "601818",
+    "label": "光大银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601818-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601825-1d",
+    "symbol": "601825",
+    "label": "沪农商行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601825-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-601838-1d",
+    "symbol": "601838",
+    "label": "成都银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601838-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601857-1d",
+    "symbol": "601857",
+    "label": "中国石油",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601857-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601868-1d",
+    "symbol": "601868",
+    "label": "中国能建",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601868-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-601872-1d",
+    "symbol": "601872",
+    "label": "招商轮船",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601872-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601877-1d",
+    "symbol": "601877",
+    "label": "正泰电器",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601877-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601878-1d",
+    "symbol": "601878",
+    "label": "浙商证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601878-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601881-1d",
+    "symbol": "601881",
+    "label": "中国银河",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601881-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601888-1d",
+    "symbol": "601888",
+    "label": "中国中免",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601888-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601898-1d",
+    "symbol": "601898",
+    "label": "中煤能源",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601898-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601899-1d",
+    "symbol": "601899",
+    "label": "紫金矿业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601899-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601901-1d",
+    "symbol": "601901",
+    "label": "方正证券",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601901-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601916-1d",
+    "symbol": "601916",
+    "label": "浙商银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601916-1d.csv",
+    "rows": 1349
+  },
+  {
+    "id": "auto-601919-1d",
+    "symbol": "601919",
+    "label": "中远海控",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601919-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601939-1d",
+    "symbol": "601939",
+    "label": "建设银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601939-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601985-1d",
+    "symbol": "601985",
+    "label": "中国核电",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601985-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601988-1d",
+    "symbol": "601988",
+    "label": "中国银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601988-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-601995-1d",
+    "symbol": "601995",
+    "label": "中金公司",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601995-1d.csv",
+    "rows": 1335
+  },
+  {
+    "id": "auto-601998-1d",
+    "symbol": "601998",
+    "label": "中信银行",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/601998-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-603019-1d",
+    "symbol": "603019",
+    "label": "中科曙光",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603019-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-603195-1d",
+    "symbol": "603195",
+    "label": "公牛集团",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603195-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-603259-1d",
+    "symbol": "603259",
+    "label": "药明康德",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603259-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-603260-1d",
+    "symbol": "603260",
+    "label": "合盛硅业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603260-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-603288-1d",
+    "symbol": "603288",
+    "label": "海天味业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603288-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-603296-1d",
+    "symbol": "603296",
+    "label": "华勤技术",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603296-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-603369-1d",
+    "symbol": "603369",
+    "label": "今世缘",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603369-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-603392-1d",
+    "symbol": "603392",
+    "label": "万泰生物",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603392-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-603501-1d",
+    "symbol": "603501",
+    "label": "豪威集团",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603501-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-603799-1d",
+    "symbol": "603799",
+    "label": "华友钴业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603799-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-603893-1d",
+    "symbol": "603893",
+    "label": "瑞芯微",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603893-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-603986-1d",
+    "symbol": "603986",
+    "label": "兆易创新",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603986-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-603993-1d",
+    "symbol": "603993",
+    "label": "洛阳钼业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/603993-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-605117-1d",
+    "symbol": "605117",
+    "label": "德业股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/605117-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-605499-1d",
+    "symbol": "605499",
+    "label": "东鹏饮料",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/605499-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-688008-1d",
+    "symbol": "688008",
+    "label": "澜起科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688008-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-688009-1d",
+    "symbol": "688009",
+    "label": "中国通号",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688009-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-688012-1d",
+    "symbol": "688012",
+    "label": "中微公司",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688012-1d.csv",
+    "rows": 1346
+  },
+  {
+    "id": "auto-688017-1d",
+    "symbol": "688017",
+    "label": "绿的谐波",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688017-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-688036-1d",
+    "symbol": "688036",
+    "label": "传音控股",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688036-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-688041-1d",
+    "symbol": "688041",
+    "label": "海光信息",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688041-1d.csv",
+    "rows": 474
+  },
+  {
+    "id": "auto-688047-1d",
+    "symbol": "688047",
+    "label": "龙芯中科",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688047-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-688082-1d",
+    "symbol": "688082",
+    "label": "盛美上海",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688082-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-688111-1d",
+    "symbol": "688111",
+    "label": "金山办公",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688111-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-688126-1d",
+    "symbol": "688126",
+    "label": "沪硅产业",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688126-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-688169-1d",
+    "symbol": "688169",
+    "label": "石头科技",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688169-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-688187-1d",
+    "symbol": "688187",
+    "label": "时代电气",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688187-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-688223-1d",
+    "symbol": "688223",
+    "label": "晶科能源",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688223-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-688256-1d",
+    "symbol": "688256",
+    "label": "寒武纪",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688256-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-688271-1d",
+    "symbol": "688271",
+    "label": "联影医疗",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688271-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-688303-1d",
+    "symbol": "688303",
+    "label": "大全能源",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688303-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-688396-1d",
+    "symbol": "688396",
+    "label": "华润微",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688396-1d.csv",
+    "rows": 1355
+  },
+  {
+    "id": "auto-688472-1d",
+    "symbol": "688472",
+    "label": "阿特斯",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688472-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-688506-1d",
+    "symbol": "688506",
+    "label": "百利天恒",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688506-1d.csv",
+    "rows": 484
+  },
+  {
+    "id": "auto-688521-1d",
+    "symbol": "688521",
+    "label": "芯原股份",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688521-1d.csv",
+    "rows": 1345
+  },
+  {
+    "id": "auto-688981-1d",
+    "symbol": "688981",
+    "label": "中芯国际",
+    "market": "A股",
+    "interval": "1日",
+    "source": "BaoStock / akshare / yfinance",
+    "url": "/data/688981-1d.csv",
+    "rows": 1349
+  },
+  {
+    "id": "auto-9698_HK-1d",
+    "symbol": "9698.HK",
+    "label": "万国数据-SW",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/9698_HK-1d.csv",
+    "rows": 1374
+  },
+  {
+    "id": "auto-9863_HK-1d",
+    "symbol": "9863.HK",
+    "label": "零跑汽车",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/9863_HK-1d.csv",
+    "rows": 490
+  },
+  {
+    "id": "auto-9866_HK-1d",
+    "symbol": "9866.HK",
+    "label": "蔚来-SW",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/9866_HK-1d.csv",
+    "rows": 490
+  },
+  {
+    "id": "auto-9868_HK-1d",
+    "symbol": "9868.HK",
+    "label": "小鹏汽车-W",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/9868_HK-1d.csv",
+    "rows": 490
+  },
+  {
+    "id": "auto-9880_HK-1d",
+    "symbol": "9880.HK",
+    "label": "优必选",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/9880_HK-1d.csv",
+    "rows": 490
+  },
+  {
+    "id": "auto-9888_HK-1d",
+    "symbol": "9888.HK",
+    "label": "百度集团-SW",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/9888_HK-1d.csv",
+    "rows": 490
+  },
+  {
+    "id": "auto-9988_HK-1d",
+    "symbol": "9988.HK",
+    "label": "阿里巴巴-SW",
+    "market": "港股",
+    "interval": "1日",
+    "source": "yfinance / akshare",
+    "url": "/data/9988_HK-1d.csv",
+    "rows": 1374
+  }
+]
