@@ -20,6 +20,12 @@ export function resolveLpOnchainSnapshot(source, snapshots) {
   const positions = Array.isArray(snapshots?.positions)
     ? snapshots.positions.filter((item) => routePools.some((routePool) => positionMatchesPool(item, routePool)))
     : []
+  const realPositions = positions.filter((position) => completePosition(position, snapshots))
+  const matchedTicks = resolveTickLiquidity(routePools, snapshots)
+  const hasSnapshotProvenance =
+    Boolean(snapshots?.fetchedAt) && snapshots?.blockNumber !== null && snapshots?.blockNumber !== undefined
+  const hasTickLiquidity = matchedTicks.length > 0 && hasSnapshotProvenance
+  const ticks = hasTickLiquidity ? matchedTicks : []
   return {
     schemaVersion: snapshots?.schemaVersion ?? null,
     source: snapshots?.source ?? '',
@@ -29,12 +35,37 @@ export function resolveLpOnchainSnapshot(source, snapshots) {
     pools: routePools,
     quoteRoutes,
     positions,
+    realPositions,
+    ticks,
+    matchedTicks,
     hasPool: quoteRoutes.length > 0,
-    hasPosition: positions.length > 0,
+    hasPosition: realPositions.length > 0,
+    hasMatchedPosition: positions.length > 0,
+    hasTickLiquidity,
+    poolEvidence: quoteRoutes.length ? 'aggregate-snapshot' : 'missing',
+    positionEvidence: realPositions.length ? 'position-real' : positions.length ? 'matched-incomplete' : 'missing',
+    tickEvidence: hasTickLiquidity ? 'tick-real' : matchedTicks.length ? 'matched-incomplete' : 'missing',
     quotePrice: primaryQuotePrice(quoteRoutes),
     quoteSymbol: primaryQuoteSymbol(symbol, quoteRoutes),
     poolCoverage: buildPoolCoverage({ quoteRoutes, routePools }),
   }
+}
+
+function resolveTickLiquidity(routePools, snapshots) {
+  const raw = Array.isArray(snapshots?.ticks)
+    ? snapshots.ticks
+    : Array.isArray(snapshots?.tickLiquidity)
+      ? snapshots.tickLiquidity
+      : []
+  const poolIds = new Set(routePools.map((pool) => String(pool?.id ?? '').toLowerCase()).filter(Boolean))
+  return raw.filter((tick) => {
+    const poolId = String(tick?.poolId ?? tick?.pool ?? '').toLowerCase()
+    const matchesPool = !poolId || poolIds.has(poolId)
+    const lower = Number(tick?.lowerPrice)
+    const upper = Number(tick?.upperPrice)
+    const liquidity = positiveLiquidity(tick?.liquidityGross ?? tick?.liquidityNet ?? tick?.liquidity)
+    return matchesPool && Number.isFinite(lower) && lower > 0 && Number.isFinite(upper) && upper > lower && liquidity
+  })
 }
 
 function buildQuoteRoutes(symbol, pools) {
@@ -88,8 +119,10 @@ function routePoolStat(legs, key) {
 }
 
 function poolHasPair(pool, base, quote) {
-  return (pool.token0Symbol === base && pool.token1Symbol === quote) ||
+  return (
+    (pool.token0Symbol === base && pool.token1Symbol === quote) ||
     (pool.token0Symbol === quote && pool.token1Symbol === base)
+  )
 }
 
 function cartesian(groups) {
@@ -150,11 +183,11 @@ function compareRoutes(left, right) {
 }
 
 function quoteRank(symbol) {
-  return ({ USDT: 0, USDC: 1, DAI: 2 })[symbol] ?? 9
+  return { USDT: 0, USDC: 1, DAI: 2 }[symbol] ?? 9
 }
 
 function routeTypeRank(type) {
-  return ({ direct: 0, 'via-weth': 1 })[type] ?? 9
+  return { direct: 0, 'via-weth': 1 }[type] ?? 9
 }
 
 function uniquePools(pools) {
@@ -235,9 +268,35 @@ function humanPrice1Per0(pool) {
 
 function positionMatchesPool(position, pool) {
   if (!pool || position?.status !== 'ok') return false
-  return sameAddress(position.token0, pool.token0) &&
+  return (
+    sameAddress(position.token0, pool.token0) &&
     sameAddress(position.token1, pool.token1) &&
     Number(position.fee) === Number(pool.fee)
+  )
+}
+
+function completePosition(position, snapshot) {
+  const tickLower = Number(position?.tickLower)
+  const tickUpper = Number(position?.tickUpper)
+  return (
+    Boolean(position?.tokenId ?? position?.id) &&
+    Number.isFinite(tickLower) &&
+    Number.isFinite(tickUpper) &&
+    tickUpper > tickLower &&
+    positiveLiquidity(position?.liquidity) &&
+    Boolean(snapshot?.fetchedAt) &&
+    snapshot?.blockNumber !== null &&
+    snapshot?.blockNumber !== undefined
+  )
+}
+
+function positiveLiquidity(value) {
+  try {
+    return BigInt(value ?? 0) > 0n
+  } catch {
+    const next = Number(value)
+    return Number.isFinite(next) && next > 0
+  }
 }
 
 function sameAddress(left, right) {
@@ -250,12 +309,42 @@ export function buildLpDataState(snapshot) {
       inputMode: 'fallback',
       missingInputs: ['real-lp-pool'],
       isSynthetic: true,
+      poolEvidence: 'missing',
+      positionEvidence: 'missing',
+      tickEvidence: 'missing',
+      capabilities: {
+        canValuePosition: false,
+        canCompareTickDistribution: false,
+        canEmitLiquidityOpportunity: false,
+      },
     }
   }
+  const canValuePosition = snapshot.positionEvidence === 'position-real'
+  const canCompareTickDistribution = snapshot.tickEvidence === 'tick-real'
+  const missingInputs = [
+    canValuePosition
+      ? null
+      : snapshot.positionEvidence === 'matched-incomplete'
+        ? 'complete-position-nft'
+        : 'position-nft',
+    canCompareTickDistribution
+      ? null
+      : snapshot.tickEvidence === 'matched-incomplete'
+        ? 'timestamped-tick-liquidity'
+        : 'tick-liquidity',
+  ].filter(Boolean)
   return {
-    inputMode: snapshot.hasPosition ? 'real' : 'pool-real',
-    missingInputs: snapshot.hasPosition ? [] : ['position-nft'],
-    isSynthetic: !snapshot.hasPosition,
+    inputMode: canValuePosition ? 'real' : 'pool-real',
+    missingInputs,
+    isSynthetic: !canValuePosition,
+    poolEvidence: snapshot.poolEvidence ?? 'aggregate-snapshot',
+    positionEvidence: snapshot.positionEvidence ?? 'missing',
+    tickEvidence: snapshot.tickEvidence ?? 'missing',
+    capabilities: {
+      canValuePosition,
+      canCompareTickDistribution,
+      canEmitLiquidityOpportunity: canCompareTickDistribution,
+    },
     pool: snapshot.pool,
     pools: snapshot.pools ?? [],
     quoteRoutes: snapshot.quoteRoutes ?? [],
@@ -264,5 +353,9 @@ export function buildLpDataState(snapshot) {
     fetchedAt: snapshot.fetchedAt,
     quotePrice: snapshot.quotePrice,
     quoteSymbol: snapshot.quoteSymbol,
+    positions: snapshot.realPositions ?? [],
+    matchedPositions: snapshot.positions ?? [],
+    ticks: snapshot.ticks ?? [],
+    matchedTicks: snapshot.matchedTicks ?? [],
   }
 }

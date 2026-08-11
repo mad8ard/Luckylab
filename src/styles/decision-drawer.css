@@ -1,0 +1,236 @@
+.dd-drawer {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+.dd-drawer > * {
+  min-width: 0;
+}
+.dd-reason-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.dd-action-card {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface-alt);
+  min-width: 0;
+}
+.dd-context-card {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface-alt);
+  min-width: 0;
+}
+.dd-context-card header {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+  min-width: 0;
+}
+.dd-context-card header strong {
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dd-context-card header em {
+  flex-shrink: 0;
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+}
+.dd-context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.dd-context-grid div {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+.dd-context-grid span {
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.dd-context-grid strong {
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dd-account-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.dd-account-inputs label {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.dd-account-inputs span {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.dd-account-inputs input {
+  min-width: 0;
+  min-height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 3px 7px;
+  background: var(--bg);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.dd-action-card header {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.dd-action-card header strong {
+  font-size: 1rem;
+}
+.dd-action-card header em {
+  font-style: normal;
+  color: var(--muted);
+  font-size: 0.72rem;
+  padding: 1px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.dd-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.dd-action-grid div {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+.dd-action-grid span {
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.dd-action-grid strong {
+  font-size: 0.84rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.dd-empty-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+.dd-risk-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel);
+  min-width: 0;
+}
+.dd-risk-row span {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.dd-risk-row strong {
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.dd-risk-row strong.green {
+  color: var(--green);
+}
+.dd-risk-row strong.red {
+  color: var(--red);
+}
+.dd-profile-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3px;
+}
+.dd-profile-tabs button {
+  min-width: 0;
+  min-height: 28px;
+  padding: 3px 4px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dd-profile-tabs button.active {
+  border-color: var(--green);
+  background: var(--surface-active);
+}
+.dd-profile-grid {
+  display: grid;
+  gap: 4px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.dd-profile-grid li {
+  display: grid;
+  grid-template-columns: minmax(40px, auto) 1fr minmax(0, 1.4fr);
+  gap: 6px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--bg);
+  font-size: 0.72rem;
+  align-items: baseline;
+  min-width: 0;
+}
+.dd-profile-grid li.active {
+  border-color: var(--green);
+  background: var(--surface-active);
+}
+.dd-profile-grid span {
+  color: var(--muted);
+  font-weight: 800;
+}
+.dd-profile-grid strong {
+  font-variant-numeric: tabular-nums;
+}
+.dd-profile-grid em {
+  font-style: normal;
+  color: var(--muted);
+  font-size: 0.64rem;
+  overflow-wrap: anywhere;
+}

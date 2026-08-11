@@ -1,0 +1,154 @@
+.app-root :where(button, input, select, summary, [tabindex]):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--green) 70%, transparent);
+  outline-offset: 2px;
+}
+
+.app-root {
+  width: 100%;
+  max-width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.app-root.left-collapsed {
+  --left-w: 36px !important;
+}
+.app-root.right-collapsed {
+  --right-w: 36px !important;
+}
+
+.cols {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: var(--left-w) auto minmax(0, 1fr) auto var(--right-w);
+  transition: grid-template-columns 200ms ease;
+}
+
+.app-root.left-collapsed .cols {
+  grid-template-columns: 36px minmax(0, 1fr) auto var(--right-w);
+}
+.app-root.right-collapsed .cols {
+  grid-template-columns: var(--left-w) auto minmax(0, 1fr) 36px;
+}
+.app-root.left-collapsed.right-collapsed .cols {
+  grid-template-columns: 36px minmax(0, 1fr) 36px;
+}
+
+.resizer {
+  width: 4px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background 100ms;
+  user-select: none;
+}
+
+.resizer:hover,
+.resizer:active {
+  background: var(--green);
+}
+
+.app-main {
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.err-bar {
+  flex-shrink: 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 0;
+  padding: 5px 12px;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.76rem;
+}
+
+.err-bar.kind-empty {
+  background: #b8860b;
+}
+.err-bar.kind-parse {
+  background: #884d22;
+}
+.err-bar.kind-network {
+  background: var(--red);
+}
+.err-msg {
+  flex: 1;
+}
+
+.err-btn {
+  min-height: 28px;
+  padding: 2px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  background: transparent;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.err-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+}
+.err-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.err-dismiss {
+  opacity: 0.8;
+}
+
+.empty-state {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  color: var(--muted);
+}
+
+.empty-state strong {
+  font-size: 1.3rem;
+  color: var(--ink);
+}
+
+@media (max-width: 1279px) {
+  .mobile-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.42);
+    z-index: 40;
+  }
+  .app-root .cols,
+  .app-root.left-collapsed .cols,
+  .app-root.right-collapsed .cols,
+  .app-root.left-collapsed.right-collapsed .cols {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .app-root .resizer {
+    display: none;
+  }
+  .app-root .app-main {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cols {
+    transition: none;
+  }
+}

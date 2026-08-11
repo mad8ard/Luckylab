@@ -21,17 +21,11 @@ describe('buildVolumePriceProfile', () => {
     expect(profile.totalVolume).toBeCloseTo(600, 8)
     expect(profile.poc.volume).toBeGreaterThan(0)
     expect(profile.valueArea.share).toBeGreaterThanOrEqual(0.7)
+    expect(profile.windowSpec).toMatchObject({ mode: 'visible-prefix', visiblePrefixRows: 3, futureRowsUsed: false })
   })
 
   it('activeIndex 与 visibleWindow 限制筹码窗口，避免使用观察日之后数据', () => {
-    const rows = Array.from({ length: 8 }, (_, i) => row(
-      `2024-01-0${i + 1}`,
-      10 + i,
-      11 + i,
-      9 + i,
-      10.5 + i,
-      100 + i,
-    ))
+    const rows = Array.from({ length: 8 }, (_, i) => row(`2024-01-0${i + 1}`, 10 + i, 11 + i, 9 + i, 10.5 + i, 100 + i))
     const profile = buildVolumePriceProfile({ rows, activeIndex: 4, visibleWindow: 3, binCount: 16 })
 
     expect(profile.rows).toBe(3)
@@ -39,6 +33,7 @@ describe('buildVolumePriceProfile', () => {
     expect(profile.lastDate).toBe('2024-01-05')
     expect(profile.currentPrice).toBe(14.5)
     expect(profile.totalVolume).toBeCloseTo(100 + 2 + 100 + 3 + 100 + 4, 8)
+    expect(profile.windowSpec).toMatchObject({ mode: 'viewport-explicit', requestedWindowSessions: 3 })
   })
 
   it('标记 POC、当前价所在 bin 和价值区间', () => {

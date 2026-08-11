@@ -29,6 +29,6 @@ describe('useMarketState', () => {
 
     expect(state.market.value.costAnchor).toBeCloseTo(activeOnly.costAnchor, 10)
     expect(state.marketStateActive.value).toHaveLength(activeRows.length)
-    expect(state.market.value.costAnchor).not.toBeCloseTo(fullPathAtCursor.costAnchor, 10)
+    expect(state.market.value.costAnchor).toBeCloseTo(fullPathAtCursor.costAnchor, 10)
   })
 })

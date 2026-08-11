@@ -11,12 +11,16 @@
  *   const input = persistedReactive('lab.input.v1', { entryPrice: 0, ... })
  *   const mode = persistedRef('lab.mode.v1', 'orders')
  */
-import { isRef, reactive, ref, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 
 const DEBOUNCE_MS = 200
 
 function safeParse(raw) {
-  try { return JSON.parse(raw) } catch { return null }
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
 }
 
 function isBrowser() {
@@ -25,12 +29,18 @@ function isBrowser() {
 
 function readStored(key) {
   if (!isBrowser()) return null
-  try { return safeParse(window.localStorage.getItem(key)) } catch { return null }
+  try {
+    return safeParse(window.localStorage.getItem(key))
+  } catch {
+    return null
+  }
 }
 
 function writeStored(key, value) {
   if (!isBrowser()) return
-  try { window.localStorage.setItem(key, JSON.stringify(value)) } catch {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value))
+  } catch {
     // 配额不足或被禁，静默失败
   }
 }
@@ -39,7 +49,10 @@ function debounce(fn, ms) {
   let t = null
   return (...args) => {
     if (t) clearTimeout(t)
-    t = setTimeout(() => { fn(...args); t = null }, ms)
+    t = setTimeout(() => {
+      fn(...args)
+      t = null
+    }, ms)
   }
 }
 

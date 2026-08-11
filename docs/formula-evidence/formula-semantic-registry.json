@@ -1,0 +1,2420 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-08-09",
+  "language": "zh-CN",
+  "purpose": "Market Lab 公式语义、证据、时点和执行权限的机器可读事实源。",
+  "authority": {
+    "semanticSourceOfTruth": "docs/formula-evidence/formula-semantic-registry.json",
+    "humanContract": "docs/formula-evidence/formula-contract.md",
+    "correctionLedger": "docs/formula-evidence/ERRATA.md",
+    "rule": "公式恒等式、样本估计、情景输出和执行权限必须分别判断；任何单一状态都不得跨层升级。"
+  },
+  "errataCoverage": [
+    { "id": "E-001", "status": "verified", "formulaIds": ["market.cost-prefix-state"] },
+    {
+      "id": "E-002",
+      "status": "verified",
+      "formulaIds": ["market.trading-days-per-year", "volatility.realized-log-return"]
+    },
+    { "id": "E-003", "status": "verified", "formulaIds": ["lp.fee-income-quote"] },
+    { "id": "E-004", "status": "verified", "formulaIds": ["holding.structural-recovery-cycle"] },
+    {
+      "id": "E-005",
+      "status": "verified",
+      "formulaIds": ["getdelta.local-price-band", "semantics.exit-target-return"]
+    },
+    { "id": "E-006", "status": "verified", "formulaIds": ["ck.capital-efficiency-skew-frontier"] },
+    { "id": "E-007", "status": "verified", "formulaIds": ["funding.basis-cumulative-proxy"] },
+    {
+      "id": "E-008",
+      "status": "verified",
+      "formulaIds": ["lp.impermanent-loss-v2", "lp.impermanent-loss-v3-range", "lp.il-attribution-model-basis"]
+    },
+    { "id": "E-009", "status": "verified", "formulaIds": ["recurrence.empirical-radius-rank"] },
+    { "id": "E-010", "status": "verified", "formulaIds": ["recurrence.kaplan-meier-return-wait"] },
+    { "id": "E-011", "status": "verified", "formulaIds": ["holding.no-hidden-fixed-horizon"] },
+    { "id": "E-012", "status": "verified", "formulaIds": ["economics.fee-theta-comparison"] },
+    { "id": "E-013", "status": "accepted-risk", "formulaIds": ["liquidity.fingerprint-model-mass"] },
+    { "id": "E-014", "status": "verified", "formulaIds": ["ck.capital-efficiency-symmetric-frontier"] },
+    {
+      "id": "E-015",
+      "status": "verified",
+      "formulaIds": ["ck.capital-efficiency-skew-frontier", "holding.structural-recovery-cycle"]
+    },
+    {
+      "id": "E-016",
+      "status": "verified",
+      "formulaIds": ["holding.structural-recovery-cycle", "replay.actual-fill-horizon"]
+    },
+    { "id": "E-017", "status": "accepted-risk", "formulaIds": ["volatility.iid-normal-confidence"] },
+    { "id": "E-018", "status": "verified", "formulaIds": ["semantics.canonical-alias-migration"] },
+    { "id": "E-019", "status": "verified", "formulaIds": ["holding.side-target-horizon-binding"] },
+    { "id": "E-020", "status": "verified", "formulaIds": ["replay.actual-fill-horizon"] },
+    { "id": "E-021", "status": "verified", "formulaIds": ["lp.il-attribution-model-basis"] },
+    { "id": "E-022", "status": "verified", "formulaIds": ["semantics.exit-target-return"] },
+    { "id": "E-023", "status": "verified", "formulaIds": ["replay.prefix-causal-warmup"] },
+    { "id": "E-024", "status": "accepted-risk", "formulaIds": ["semantics.canonical-alias-migration"] },
+    { "id": "E-025", "status": "verified", "formulaIds": ["market.adaptive-drawdown-features"] },
+    { "id": "E-026", "status": "verified", "formulaIds": ["replay.lot-specific-exit-binding"] },
+    { "id": "E-027", "status": "verified", "formulaIds": ["replay.ohlc-intrabar-policy"] },
+    { "id": "E-028", "status": "verified", "formulaIds": ["replay.used-notional-return"] },
+    { "id": "E-029", "status": "verified", "formulaIds": ["option.black-scholes-greeks"] },
+    { "id": "E-030", "status": "verified", "formulaIds": ["lp.fee-income-quote", "portfolio.single-ledger-pnl"] },
+    { "id": "E-031", "status": "verified", "formulaIds": ["market.volume-profile-prefix-window"] },
+    { "id": "E-032", "status": "verified", "formulaIds": ["data.historical-signal-prefix-provenance"] },
+    { "id": "E-033", "status": "verified", "formulaIds": ["replay.prefix-causal-warmup"] },
+    { "id": "E-034", "status": "verified", "formulaIds": ["replay.ohlc-intrabar-policy"] },
+    { "id": "E-035", "status": "verified", "formulaIds": ["replay.ohlc-intrabar-policy"] },
+    { "id": "E-036", "status": "verified", "formulaIds": ["replay.lot-specific-exit-binding"] },
+    {
+      "id": "E-037",
+      "status": "verified",
+      "formulaIds": [
+        "market.cost-prefix-state",
+        "market.trading-days-per-year",
+        "semantics.canonical-alias-migration",
+        "governance.semantic-evidence-audit"
+      ]
+    },
+    {
+      "id": "E-038",
+      "status": "verified",
+      "formulaIds": ["option.black-scholes-greeks", "portfolio.single-ledger-pnl"]
+    },
+    { "id": "E-039", "status": "verified", "formulaIds": ["option.black-scholes-greeks"] },
+    { "id": "E-040", "status": "verified", "formulaIds": ["lp.uniswap-v3-inventory"] },
+    { "id": "E-041", "status": "verified", "formulaIds": ["liquidity.fingerprint-model-mass"] },
+    { "id": "E-042", "status": "verified", "formulaIds": ["market.trading-days-per-year"] },
+    { "id": "E-043", "status": "verified", "formulaIds": ["governance.pine-single-canonical"] },
+    { "id": "E-044", "status": "verified", "formulaIds": ["funding.basis-cumulative-proxy"] },
+    {
+      "id": "E-045",
+      "status": "verified",
+      "formulaIds": ["funding.basis-cumulative-proxy", "portfolio.single-ledger-pnl"]
+    },
+    { "id": "E-046", "status": "verified", "formulaIds": ["economics.fee-theta-comparison"] },
+    { "id": "E-047", "status": "verified", "formulaIds": ["semantics.canonical-alias-migration"] },
+    { "id": "E-048", "status": "verified", "formulaIds": ["governance.semantic-evidence-audit"] },
+    { "id": "E-049", "status": "verified", "formulaIds": ["liquidity.fingerprint-model-mass"] },
+    {
+      "id": "E-050",
+      "status": "verified",
+      "formulaIds": ["data.freshness-evidence-score", "governance.semantic-evidence-audit"]
+    }
+  ],
+  "enums": {
+    "claimClass": ["exact-identity", "sample-estimate", "calibrated-estimate", "scenario-proxy", "missing-input"],
+    "correctionStatus": ["open", "fixing", "fixed", "verified", "accepted-risk", "superseded", "reopened"],
+    "implementationStatus": ["specified", "implemented", "verified", "deprecated"],
+    "productStatus": ["production-query", "research-only", "proxy-only", "protocol-unverified"],
+    "executionAuthority": ["none", "gate-input", "plan-query"],
+    "horizonMode": [
+      "none",
+      "formula-derived",
+      "explicit-scenario",
+      "same-horizon-required",
+      "expiry-derived",
+      "path-observed"
+    ]
+  },
+  "globalSemanticRules": [
+    "markPrice、entryPrice、costAnchor、strikePrice、startPrice 不得混用。",
+    "recoveryFraction 只表示从周期起点到冻结锚点的修复比例；不得命名为裸 q。",
+    "endpointFourthRoot 只表示 CK 端点价格比的四次方根；不得命名为裸 q。",
+    "deltaSlope 只进入 GetDelta；exitTargetReturn 只进入退出计划；targetReturn 不得作为任何隐式兼容别名。",
+    "历史序列在索引 t 的输出只能读取索引不大于 t 的数据；追加未来行不得改变既有前缀输出。",
+    "tradingDaysPerYear 只来自 inferTdpy、可追溯 symbol override 或显式情景；下游 domain/composable/replay 不得用 ||365 或参数默认值重新猜测。",
+    "30、60、90 等数字不得作为隐藏持有期或周期回退；只有显式命名、带来源的情景输入才允许固定期限。",
+    "timeToExpirySessions 是期权合约自身的剩余期限；不得从 formulaHorizonSessions、halfLifeSessions 或修复周期回退。",
+    "feeIncomeQuote 缺失表示现金流未知，不等于显式零；只有带来源的观测值或情景值才能进入收益归因。",
+    "期权 Greek 对外使用 optionDelta、optionGamma、optionThetaPerSession、optionThetaAnnual、optionVegaPerPct、optionRhoPerPct；未实现或缺失的 Greek 必须传播 null，不得改写为 0。",
+    "optionThetaPerSession 的时间步是 trading session，不是 calendar day；UI 和报告不得标作 Theta/日。",
+    "v3 LP 库存敏感度使用 inventoryDeltaToken0；带线性对冲的 v2 分开 lpInventoryDeltaToken0 与 netInventoryDeltaToken0；裸 delta 只允许在带 deprecated/legacyAliasOf 的兼容边界出现。",
+    "流动性指纹消费波动 bump 时必须显式提供 annualVolatility 与 tradingDaysPerYear；缺失时返回 missing-input，不得回退 0.35 或 365。",
+    "回放中的每一批 lot 必须保留其成交时冻结的 side、target、stop、horizon 与 expiry；不得用组合均值或后来订单覆盖。",
+    "外部 marketStates 只有携带由 canonical 前缀构建器生成且未被修改的 provenance fingerprint 才能复用，否则回放必须内部重算。",
+    "日线回放先处理开盘已知跳空；只有开盘位于目标与止损之间、盘中先后不可识别时才采用 stop-first 保守规则。",
+    "研究公式默认没有执行权限；数据、账户、流动性、成本或结算输入缺失时必须输出 missing-input 或关闭门禁。"
+  ],
+  "formulas": [
+    {
+      "formulaId": "market.cost-prefix-state",
+      "name": "因果前缀成本状态",
+      "family": "market-cost",
+      "canonicalTerm": [
+        { "field": "visiblePrefixRows", "meaning": "截至 t 已可见且已闭合的 OHLCV 前缀" },
+        { "field": "costAnchor", "meaning": "前缀样本的成交量加权 typical-price 成本锚" },
+        { "field": "costDistance", "meaning": "markPrice 相对 costAnchor 的无量纲偏离" },
+        { "field": "costLower/costUpper", "meaning": "由前缀波动构造的成本带" }
+      ],
+      "expression": [
+        "typical_t=(high_t+low_t+close_t)/3",
+        "costAnchor_t=sum(typical_i*volume_i)/sum(volume_i)，全零成交量时显式退化为等权 typical mean",
+        "costDistance_t=(close_t-costAnchor_t)/costAnchor_t"
+      ],
+      "units": {
+        "inputs": "OHLC 与 costAnchor 为 quote/base；volume 为数据源成交量单位",
+        "outputs": "costAnchor/costLower/costUpper 为 quote/base；costDistance 为 fraction"
+      },
+      "timeKnownAt": {
+        "observation": "日线 t 收盘后",
+        "causalBoundary": "每个 t 只允许 rows[0..t]；自适应窗口只由该前缀长度决定",
+        "executionBoundary": "不能用当日收盘后信号伪造当日收盘前成交"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "sample-estimate",
+        "reason": "聚合公式是恒等式，成本锚是否代表市场参与者真实成本是样本估计。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "gate-input"
+      },
+      "objective": "用当时可见的市场路径形成成本结构诊断。",
+      "useCases": ["成本距离", "动态目标冻结", "公式路径绘图", "研究门禁"],
+      "meaning": "描述样本内成交重心，不声称识别某个做市商或机构的真实账面成本。",
+      "domain": { "required": "合法 OHLCV，price>0", "range": "costAnchor>0；costDistance 可正可负" },
+      "constraints": ["前缀不变性", "窗口来源必须输出", "成交量全零回退必须标记"],
+      "mechanism": {
+        "type": "descriptive-aggregation",
+        "explanation": "由价格和成交量的历史聚合形成，不是结构因果识别。"
+      },
+      "allowedInferences": ["当前价格相对样本成本锚的位置", "成本结构随已知历史的变化"],
+      "forbiddenInferences": ["做市商真实持仓成本", "未来一定回归", "使用全样本长度为历史时点选择窗口"],
+      "sources": ["docs/formula-evidence/formula-reference.md#2-market-cost"],
+      "implementation": ["src/domain/market-data/cost.js", "src/domain/market-data/formulaPath.js"],
+      "tests": ["src/domain/__tests__/cost.test.js"],
+      "horizonMode": "formula-derived"
+    },
+    {
+      "formulaId": "market.trading-days-per-year",
+      "name": "市场年化交易日基准",
+      "family": "time-basis",
+      "canonicalTerm": [
+        { "field": "tradingDaysPerYear", "meaning": "市场约定年化基数" },
+        { "field": "tdpyBasis", "meaning": "基数的市场映射来源" }
+      ],
+      "expression": ["A股=242", "港股=242", "美股=252", "加密=365", "未知市场=missing-input"],
+      "units": { "inputs": "market/symbol 分类", "outputs": "sessions/year" },
+      "timeKnownAt": {
+        "observation": "配置加载时",
+        "causalBoundary": "它是年化约定，不是未来实际开市日数量",
+        "executionBoundary": "遇到精确到期日应改用交易所日历"
+      },
+      "claimClass": {
+        "law": "scenario-proxy",
+        "result": "scenario-proxy",
+        "reason": "242/252/365 是统一年化约定，不是自然定律。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "gate-input"
+      },
+      "objective": "使跨模块年化和日化换算使用同一市场基准。",
+      "useCases": ["实现波动率年化", "GetDelta 时间项", "期权 tau", "周期标准化"],
+      "meaning": "同一市场的模型时间换算口径。",
+      "domain": { "required": "可识别 market 或 symbol", "range": "positive integer sessions/year" },
+      "constraints": [
+        "生成脚本和研究模块不得自建无来源的 252 回退",
+        "market state、formula path、OrderPlan、replay 和 research snapshot 不得回退 365",
+        "未知市场返回 missing-input；只有带来源的用户覆盖或 explicit-scenario 才能提供数值",
+        "到期结算使用真实日历"
+      ],
+      "mechanism": { "type": "model-convention", "explanation": "用于单位换算，实际节假日和临时休市另由日历决定。" },
+      "allowedInferences": ["统一年化换算"],
+      "forbiddenInferences": ["未来一年一定有精确 242 或 252 个交易日", "所有非加密市场都等于 252"],
+      "sources": ["src/domain/market-data/tdpy.js"],
+      "implementation": [
+        "src/domain/market-data/tdpy.js",
+        "src/stores/labStore.js",
+        "src/composables/usePlanning.js",
+        "src/composables/useMarketState.js",
+        "src/domain/market-data/formulaPath.js",
+        "src/domain/formula-research/researchSnapshot.js",
+        "src/domain/replay/dailyReplay.js",
+        "src/domain/strategy-planning/orderPlanTiming.js",
+        "src/domain/strategy-planning/orderPlanContext.js",
+        "scripts/generate-recommended-pool.mjs",
+        "research/latent-liquidity-lab/src/cycleHorizon.js"
+      ],
+      "tests": [
+        "src/domain/__tests__/tdpy.test.js",
+        "src/domain/__tests__/tdpyProductionContract.test.js",
+        "src/stores/__tests__/labStore.test.js"
+      ],
+      "horizonMode": "none"
+    },
+    {
+      "formulaId": "volatility.realized-log-return",
+      "name": "历史实现波动率",
+      "family": "volatility",
+      "canonicalTerm": [
+        { "field": "logReturn", "meaning": "相邻收盘价对数收益" },
+        { "field": "annualVol", "meaning": "前缀样本标准差的年化值" },
+        { "field": "volatilitySource", "meaning": "必须标注 historical-realized-scenario" }
+      ],
+      "expression": ["r_t=ln(close_t/close_(t-1))", "annualVol=std(r_i)*sqrt(tradingDaysPerYear)"],
+      "units": {
+        "inputs": "close 为 quote/base",
+        "outputs": "logReturn 和 annualVol 为 fraction；annualVol 为 annualized"
+      },
+      "timeKnownAt": {
+        "observation": "窗口最后一根日线收盘后",
+        "causalBoundary": "窗口只能取截至 t 的收益",
+        "executionBoundary": "不是期权链在 t 的市场隐含波动率"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "sample-estimate",
+        "reason": "换算恒等，sigma 来自有限历史样本。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "gate-input"
+      },
+      "objective": "给风险带和研究情景提供统一的历史波动尺度。",
+      "useCases": ["波动状态", "GetDelta 情景 sigma", "期权研究情景", "偏离标准化"],
+      "meaning": "过去窗口的波动尺度估计。",
+      "domain": { "required": "至少两个正收盘价；std 样本充分", "range": "annualVol>=0" },
+      "constraints": ["输出样本数和窗口", "不得把历史 sigma 标成 market IV", "前缀不变"],
+      "mechanism": { "type": "sample-statistic", "explanation": "对历史对数收益的离散程度进行年化。" },
+      "allowedInferences": ["历史窗口波动相对大小", "同口径情景敏感性"],
+      "forbiddenInferences": ["未来实现波动率", "期权可成交 IV", "正态分布已经成立"],
+      "sources": ["docs/formula-evidence/formula-reference.md#3-volatility--atr"],
+      "implementation": ["src/domain/market-data/cost.js", "src/domain/market-data/formulaPath.js"],
+      "tests": ["src/domain/__tests__/cost.test.js"],
+      "horizonMode": "formula-derived"
+    },
+    {
+      "formulaId": "volatility.iid-normal-confidence",
+      "name": "IID 正态波动率近似区间",
+      "family": "volatility-uncertainty",
+      "canonicalTerm": [
+        { "field": "annualVol", "meaning": "外部提供的年化波动率样本估计" },
+        { "field": "sampleSize", "meaning": "波动率估计使用的等间隔交易会话样本数" },
+        { "field": "confidenceLevel", "meaning": "双侧名义区间水平；不是已校准覆盖率" },
+        { "field": "zScore", "meaning": "由标准正态逆 CDF 得到的双侧临界值" },
+        { "field": "se", "meaning": "IID 正态、局部常波动假设下 annualVol 的近似标准误" },
+        { "field": "lower/upper", "meaning": "截断于非负下界的名义近似区间" },
+        { "field": "relativeUncertainty", "meaning": "se/annualVol 的近似相对不确定性" },
+        { "field": "isRobustConfidenceInterval", "meaning": "固定为 false，明确否认稳健区间语义" }
+      ],
+      "expression": [
+        "se=annualVol/sqrt(2*sampleSize)",
+        "zScore=inverseNormalCdf((1+confidenceLevel)/2)",
+        "lower=max(0,annualVol-zScore*se)",
+        "upper=annualVol+zScore*se",
+        "relativeUncertainty=se/annualVol"
+      ],
+      "units": {
+        "inputs": "annualVol 为 annualized fraction；sampleSize 为 trading-session count；confidenceLevel 为 fraction",
+        "outputs": "se/lower/upper 为 annualized fraction；relativeUncertainty 为 fraction；zScore 无量纲"
+      },
+      "timeKnownAt": {
+        "observation": "annualVol 所用样本窗口结束且 sampleSize 已知后",
+        "causalBoundary": "只允许使用该时点可见的波动率估计和样本数；不得以后验覆盖结果回填 confidenceLevel",
+        "executionBoundary": "该近似区间只作研究不确定性标签，不得进入订单价格、仓位或执行门禁"
+      },
+      "claimClass": {
+        "law": "scenario-proxy",
+        "result": "sample-estimate",
+        "reason": "代数换算精确，但标准误和名义区间依赖 IID、正态、等间隔和常波动假设，未做稳健覆盖校准。"
+      },
+      "statusAxes": {
+        "correctionStatus": "accepted-risk",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "把 volConfidence 的有限样本不确定性近似与 realized-vol 点估计分开登记。",
+      "useCases": ["波动率研究误差条", "名义区间敏感性", "样本量质量提示"],
+      "meaning": "这是 IID 正态局部常波动假设下的名义近似区间，不是对厚尾、自相关或波动聚类稳健的置信区间。",
+      "domain": {
+        "required": "annualVol>0、sampleSize>=5、0<confidenceLevel<1",
+        "range": "0<=lower<=annualVol<=upper；relativeUncertainty>0；isRobustConfidenceInterval=false"
+      },
+      "constraints": [
+        "输出必须披露 claimClass、method、assumptions、sampleSize、confidenceLevel 和 isRobustConfidenceInterval=false",
+        "默认 confidenceLevel=0.68 只是展示约定，不是经验覆盖校准结果",
+        "quality 分档只是 relativeUncertainty 阈值标签，不是统计精度保证、置信度或胜率",
+        "收益厚尾、自相关、异方差或波动聚类时需要 bootstrap、HAC 或专门波动模型",
+        "不得把该条目的 accepted-risk 状态转嫁给 volatility.realized-log-return 点估计公式"
+      ],
+      "mechanism": {
+        "type": "parametric-standard-error-approximation",
+        "explanation": "使用正态独立收益下波动率估计的近似标准误，并以标准正态临界值构造名义区间。"
+      },
+      "allowedInferences": [
+        "给定假设下样本量变化对近似区间宽度的影响",
+        "同 annualVol 与 confidenceLevel 下的名义不确定性比较"
+      ],
+      "forbiddenInferences": [
+        "真实前向覆盖率",
+        "厚尾环境的稳健置信区间",
+        "未来波动率范围",
+        "期权市场隐含波动率区间",
+        "交易胜率或执行信号"
+      ],
+      "sources": [
+        "docs/formula-evidence/formula-reference.md#17-volatility-confidence",
+        "docs/formula-evidence/ERRATA.md#e-017--波动率区间是-iid-正态近似不是稳健置信区间"
+      ],
+      "implementation": ["src/domain/formulas/core.js"],
+      "tests": ["src/domain/__tests__/secondOrderFormulas.test.js"],
+      "horizonMode": "none"
+    },
+    {
+      "formulaId": "getdelta.local-price-band",
+      "name": "GetDelta 局部斜率价格带",
+      "family": "getdelta",
+      "canonicalTerm": [
+        { "field": "entryPrice", "meaning": "带结构的入场坐标 P" },
+        { "field": "formulaHorizonSessions", "meaning": "公式推导的持有周期 T" },
+        { "field": "deltaSlope", "meaning": "入场处局部 payoff 斜率 d" },
+        { "field": "annualVol", "meaning": "年化波动率 sigma" }
+      ],
+      "expression": [
+        "e=sqrt(T/(tdpy*2*pi))",
+        "R=((1+sigma*e)/(1-sigma*e))^2",
+        "K_long=P*(d*R-d+1)^2/R",
+        "g'(P)=(sqrt(K*R/P)-1)/(R-1)=d（模型有效域内）"
+      ],
+      "units": {
+        "inputs": "P/K/bands 为 quote/base；T 为 sessions；sigma 和 d 为 fraction",
+        "outputs": "band prices 为 quote/base；local slope 为 base/quote-value slope"
+      },
+      "timeKnownAt": {
+        "observation": "entryPrice、sigma、T、d 全部已知后",
+        "causalBoundary": "T 若来自样本估计，只能用当时可见前缀",
+        "executionBoundary": "价格带是模型坐标，不是未来成交或触达保证"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "带公式在输入条件下精确，输入和未来路径没有被校准。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "plan-query"
+      },
+      "objective": "在给定波动、周期和局部斜率约束下构造一致的价格带。",
+      "useCases": ["价格带研究", "OrderPlan 的公式输入", "局部斜率回归测试"],
+      "meaning": "描述一条指定 payoff 几何的局部敏感度，不是 Black-Scholes Delta。",
+      "domain": { "required": "P>0,T>0,sigma>=0,d>=0,sigma*e<1", "range": "R>0；上下界为正" },
+      "constraints": [
+        "deltaSlope 不得从 targetReturn 回退",
+        "周期不得隐式回退到 30/60/90",
+        "缺 T 或 sigma 时返回 missing-input"
+      ],
+      "mechanism": { "type": "payoff-geometry", "explanation": "通过指定入场点的局部斜率反解带中心。" },
+      "allowedInferences": ["模型带宽和局部斜率", "同输入下多情景比较"],
+      "forbiddenInferences": ["期权市场 Delta", "触达概率", "退出收益目标", "自动买卖价格"],
+      "sources": [
+        "https://www.desmos.com/calculator/943334771f",
+        "docs/formula-evidence/formula-reference.md#4-getdelta-price-band"
+      ],
+      "implementation": [
+        "src/domain/formulas/options.js",
+        "src/domain/formulas/inputSemantics.js",
+        "src/domain/market-data/formulaPath.js"
+      ],
+      "tests": ["src/domain/__tests__/optionFormulas.test.js", "src/domain/__tests__/planning.test.js"],
+      "horizonMode": "formula-derived"
+    },
+    {
+      "formulaId": "mean-reversion.ar1-half-life",
+      "name": "AR(1) 条件半衰期",
+      "family": "cycle",
+      "canonicalTerm": [
+        { "field": "arCoefficient", "meaning": "through-origin AR(1) 样本系数；代码兼容字段 rho" },
+        { "field": "arDecayRatePerStep", "meaning": "-ln(abs(arCoefficient))；代码兼容字段 theta" },
+        { "field": "halfLifeSessions", "meaning": "衰减一半所需交易步数" }
+      ],
+      "expression": [
+        "x_t=arCoefficient*x_(t-1)+epsilon_t",
+        "arDecayRatePerStep=-ln(abs(arCoefficient))",
+        "halfLifeSessions=ln(2)/arDecayRatePerStep"
+      ],
+      "units": {
+        "inputs": "x_t 为 fraction",
+        "outputs": "coefficient 无量纲；decay rate 为 1/session；half-life 为 sessions"
+      },
+      "timeKnownAt": {
+        "observation": "样本前缀最后一根收盘后",
+        "causalBoundary": "只拟合前缀样本",
+        "executionBoundary": "只有 0<arCoefficient<1 的 monotonic-decay 分支可进入修复周期"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "sample-estimate",
+        "reason": "半衰换算是精确代数，AR 系数来自未充分校准的样本拟合。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "gate-input"
+      },
+      "objective": "把单调衰减样本系数转换为事件特定的时间尺度。",
+      "useCases": ["动态修复周期", "因果权重半衰", "非平稳门禁"],
+      "meaning": "零冲击 AR 路径的条件时间坐标。",
+      "domain": { "required": "有效样本>=5；进入动态周期还要求 0<rho<1", "range": "halfLife>=0 或 null" },
+      "constraints": ["负 rho 是振荡衰减，不得当成同一回归逻辑", "无截距、置信区间、稳定性和持出校准"],
+      "mechanism": { "type": "sample-model", "explanation": "用相邻成本偏离拟合一阶线性衰减。" },
+      "allowedInferences": ["冻结样本下的条件衰减尺度", "单调/振荡/非平稳分类"],
+      "forbiddenInferences": ["未来实际持仓天数", "必然均值回归", "真实 OU 因果参数"],
+      "sources": ["docs/formula-evidence/formula-reference.md#15-mean-reversion-half-life"],
+      "implementation": ["src/domain/formulas/core.js", "research/latent-liquidity-lab/src/cycleHorizon.js"],
+      "tests": [
+        "src/domain/__tests__/secondOrderFormulas.test.js",
+        "research/latent-liquidity-lab/test/latentLiquidity.test.mjs"
+      ],
+      "horizonMode": "formula-derived"
+    },
+    {
+      "formulaId": "holding.structural-recovery-cycle",
+      "name": "结构目标修复周期",
+      "family": "cycle",
+      "canonicalTerm": [
+        { "field": "cycleStartPrice", "meaning": "周期起点价格；历史回放通常为 T+1 开盘" },
+        { "field": "recoveryFraction", "meaning": "目标相对起点至锚点距离的修复比例；只在本公式局部可写 q_recovery" },
+        { "field": "modelHorizonSessions", "meaning": "条件零冲击路径到达目标的公式周期" }
+      ],
+      "expression": [
+        "recoveryFraction=(targetPrice-cycleStartPrice)/(costAnchor-cycleStartPrice)（long）",
+        "modelHorizon=halfLife*log2(1/(1-recoveryFraction))",
+        "recoveryFraction(H)=1-2^(-H/halfLife); H=3*halfLife => recoveryFraction=7/8=0.875"
+      ],
+      "units": {
+        "inputs": "prices 为 quote/base；half-life 为 sessions",
+        "outputs": "recoveryFraction 为 fraction；horizon 为 sessions"
+      },
+      "timeKnownAt": {
+        "observation": "目标和锚在 T 收盘冻结；若起点用下一交易日开盘，则完整周期只在 T+1 open 已知",
+        "causalBoundary": "实时场景不得在 T 收盘提前读取 T+1 open",
+        "executionBoundary": "历史回放使用实际 next open 是填充情景，不是 T 时点预测"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "给定估计 rho 和冻结目标时换算精确，但零冲击路径是假设。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "gate-input"
+      },
+      "objective": "从每个标的、每个时点的结构目标反推自身周期。",
+      "useCases": ["动态持有研究", "到期/回放边界", "周期加权估计"],
+      "meaning": "条件修复路径的时间坐标，不是持仓期限承诺。",
+      "domain": {
+        "required": "0<recoveryFraction<1；0<rho<1；target 严格位于 cycleStart 与 anchor 之间",
+        "range": "horizon>0"
+      },
+      "constraints": [
+        "不得用 0.875 默认代替标的自身 recoveryFraction",
+        "0.875 只在显式 H=3*halfLife 条件下是精确恒等式，不是 CK 偏斜通解",
+        "锚点本身 recoveryFraction=1 导致渐近无限，不得静默裁剪",
+        "目标来源必须输出"
+      ],
+      "mechanism": {
+        "type": "conditional-decay-identity",
+        "explanation": "AR 半衰路径每个 half-life 缩小剩余差距一半。"
+      },
+      "allowedInferences": [
+        "给定目标和估计衰减下的公式时间",
+        "不同目标的相对时间敏感性",
+        "显式三次半衰期对应 87.5% 条件修复比例"
+      ],
+      "forbiddenInferences": ["固定 30/60/90 日持有", "q=87.5% 是全市场常数", "达到目标概率", "未来收益"],
+      "sources": ["research/latent-liquidity-lab/src/cycleHorizon.js"],
+      "implementation": ["src/domain/formulas/shortHold.js", "research/latent-liquidity-lab/src/cycleHorizon.js"],
+      "tests": [
+        "src/domain/__tests__/shortHoldSessions.test.js",
+        "research/latent-liquidity-lab/test/latentLiquidity.test.mjs"
+      ],
+      "horizonMode": "formula-derived"
+    },
+    {
+      "formulaId": "holding.no-hidden-fixed-horizon",
+      "name": "无隐藏固定周期规则",
+      "family": "cycle-governance",
+      "canonicalTerm": [
+        { "field": "formulaHorizonSessions", "meaning": "由当前前缀、目标和模型公式产生的周期" },
+        { "field": "scenarioHorizonSessions", "meaning": "用户显式指定且标注为情景的固定周期" }
+      ],
+      "expression": [
+        "defaultHorizon=null",
+        "if formula horizon missing => missing-input",
+        "fixed horizon permitted only when horizonMode=explicit-scenario"
+      ],
+      "units": { "inputs": "sessions", "outputs": "sessions or null" },
+      "timeKnownAt": {
+        "observation": "随公式输入可用时点",
+        "causalBoundary": "公式周期不得读取未来参数",
+        "executionBoundary": "情景期限不自动获得执行权限"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "missing-input",
+        "reason": "这是治理不变量；缺周期时结论应保持缺失。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "gate-input"
+      },
+      "objective": "消除 30/60/90 或 5/10 等无来源的全局周期污染。",
+      "useCases": ["全局时间参数审计", "回放", "图表路径", "期权/资金费同周期比较"],
+      "meaning": "固定数字只能是显式压力测试坐标，不能伪装为从标的推导的周期。",
+      "domain": { "required": "公式周期或显式情景周期二选一", "range": "positive sessions or null" },
+      "constraints": ["禁止隐藏 fallback", "测试夹具中的固定值必须注明 fixture/scenario", "UI 默认不得偷偷补数"],
+      "mechanism": {
+        "type": "semantic-invariant",
+        "explanation": "周期决定所有时间尺度，错误回退会污染波动、概率参考、期权和费用比较。"
+      },
+      "allowedInferences": ["输入不完整时关闭结果", "显式情景可做敏感性比较"],
+      "forbiddenInferences": ["30 天是下限", "60/90 天适合所有标的", "情景值是预测值"],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-011--e-016--周期与可知时点"],
+      "implementation": [
+        "src/domain/market-data/formulaPath.js",
+        "src/composables/usePlanning.js",
+        ".agents/skills/china-stock-selection/scripts/replay-short-hold.mjs",
+        "scripts/source_coverage_audit.py"
+      ],
+      "tests": [
+        "src/domain/__tests__/formulaPath.test.js",
+        "src/domain/__tests__/planning.test.js",
+        "src/stores/__tests__/labStore.test.js",
+        "scripts/check-china-stock-skill-runtime.mjs",
+        "scripts/source_coverage_audit.py"
+      ],
+      "horizonMode": "formula-derived"
+    },
+    {
+      "formulaId": "option.black-scholes-greeks",
+      "name": "Black-Scholes 欧式期权与 Greeks",
+      "family": "options",
+      "canonicalTerm": [
+        { "field": "markPrice", "meaning": "标的当前价格 S" },
+        { "field": "strikePrice", "meaning": "行权价 K" },
+        { "field": "timeToExpirySessions", "meaning": "期权合约自身的剩余交易会话数，不是标的修复周期" },
+        { "field": "timeToExpiryYears", "meaning": "由 timeToExpirySessions/tradingDaysPerYear 显式换算的 tau" },
+        { "field": "optionDelta", "meaning": "期权模型价值对标的价格的一阶敏感度" },
+        { "field": "optionGamma", "meaning": "optionDelta 对标的价格的一阶敏感度" },
+        { "field": "optionThetaPerSession", "meaning": "每交易会话的期权模型时间敏感度" },
+        { "field": "optionThetaAnnual", "meaning": "按年时间单位的期权模型时间敏感度" },
+        { "field": "optionVegaPerPct", "meaning": "年化波动率变化 1 个百分点时的模型价值变化" },
+        { "field": "optionRhoPerPct", "meaning": "年化利率变化 1 个百分点时的模型价值变化" }
+      ],
+      "expression": [
+        "d1=(ln(S/K)+(r-dividendYield+sigma^2/2)*tau)/(sigma*sqrt(tau))",
+        "d2=d1-sigma*sqrt(tau)",
+        "call=S*exp(-dividendYield*tau)*N(d1)-K*exp(-r*tau)*N(d2)"
+      ],
+      "units": {
+        "inputs": "S/K 和 price 为 currency/unit；rates/sigma 为 annual fraction；tau 为 years",
+        "outputs": "price 为 currency；optionDelta 为 units；optionGamma 为 units/price；optionThetaPerSession 为 currency/trading-session；optionThetaAnnual 为 currency/year；optionVegaPerPct 与 optionRhoPerPct 为 currency/percentage-point"
+      },
+      "timeKnownAt": {
+        "observation": "所有模型输入和报价时间戳已知时",
+        "causalBoundary": "历史 realized sigma 只能标为 scenario sigma",
+        "executionBoundary": "没有期权链 bid/ask、乘数、到期与结算规则时不可执行"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "模型公式在假设下精确，当前股票屏的 sigma 不是市场 IV。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "统一期权模型敏感性和对冲研究坐标。",
+      "useCases": ["Greeks 风险曲线", "情景期权组合", "fee-theta 同口径比较"],
+      "meaning": "在 BSM 假设和输入下的模型价值与局部敏感度。",
+      "domain": { "required": "S,K,sigma,tau>0；有限 r 和 dividendYield", "range": "模型依类型返回价格与 Greeks" },
+      "constraints": [
+        "显式 zero premium 与 missing premium 分开",
+        "realized sigma != market IV",
+        "单位/符号/乘数/期限对齐",
+        "期权到期不得从 formulaHorizonSessions 或 halfLifeSessions 回退",
+        "未实现或缺失的 Greek 必须传播 null；组合层不得用零代替未知",
+        "兼容裸字段必须携带 deprecated 与 legacyAliasOf"
+      ],
+      "mechanism": { "type": "no-arbitrage-model", "explanation": "在连续对冲、对数正态和参数假设下求解。" },
+      "allowedInferences": ["模型内价格和已实现的局部敏感度", "同假设情景比较"],
+      "forbiddenInferences": ["可成交期权价格", "实际对冲成本", "未来收益", "完整波动率曲面", "缺失 Greek 等于零"],
+      "sources": [
+        "https://www.journals.uchicago.edu/doi/10.1086/260062",
+        "docs/formula-evidence/formula-reference.md#5-black-scholes-vanilla-option"
+      ],
+      "implementation": ["src/domain/formulas/options.js", "src/domain/formulas/optionPortfolio.js"],
+      "tests": ["src/domain/__tests__/optionFormulas.test.js"],
+      "horizonMode": "expiry-derived"
+    },
+    {
+      "formulaId": "lp.uniswap-v3-inventory",
+      "name": "Uniswap v3 区间库存",
+      "family": "lp",
+      "canonicalTerm": [
+        { "field": "markPrice", "meaning": "token0 以 token1 计价的当前价格" },
+        { "field": "lowerPrice/upperPrice", "meaning": "同一价格方向和小数位口径下的区间边界" },
+        { "field": "liquidity", "meaning": "v3 流动性 L" },
+        { "field": "inventoryDeltaToken0", "meaning": "按 token1 计价时价值对价格的一阶库存敏感度 token0" }
+      ],
+      "expression": [
+        "inside: token0=L*(1/sqrt(P)-1/sqrt(Pb)); token1=L*(sqrt(P)-sqrt(Pa))",
+        "below: token0=L*(1/sqrt(Pa)-1/sqrt(Pb)); token1=0",
+        "above: token0=0; token1=L*(sqrt(Pb)-sqrt(Pa))",
+        "value=token0*P+token1"
+      ],
+      "units": {
+        "inputs": "price 为 token1/token0；L 为协议流动性单位",
+        "outputs": "token0/token1 为各自 token units；value 为 token1；inventoryDeltaToken0 为 token0"
+      },
+      "timeKnownAt": {
+        "observation": "同一区块或时间戳的价格、ticks、decimals、L 全部已知时",
+        "causalBoundary": "不同区块或价格方向的数据不得拼接",
+        "executionBoundary": "合成区间只能做研究几何"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "协议库存恒等式精确，当前界面多为合成单位流动性情景。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "把区间价格变化映射为 token0/token1 库存和价值。",
+      "useCases": ["LP 库存曲线", "库存 Delta", "区间内外状态", "对冲研究"],
+      "meaning": "协议几何库存，不是股票做市商持仓。",
+      "domain": { "required": "0<lower<upper；markPrice>0；L>=0；价格方向明确", "range": "token amounts>=0" },
+      "constraints": [
+        "真实头寸需要 NFT/tick/decimals/block",
+        "起点与终点必须同资本同范围",
+        "手续费另列现金流",
+        "主契约不得输出裸 delta；兼容别名必须携带 deprecated 与 legacyAliasOf"
+      ],
+      "mechanism": { "type": "protocol-identity", "explanation": "集中流动性在平方根价格空间中的库存变换。" },
+      "allowedInferences": ["给定区间与 L 的库存和值", "局部库存敏感度"],
+      "forbiddenInferences": ["概率密度", "真实链上头寸", "手续费收入", "股票庄家方向", "把裸 delta 当作期权 Delta"],
+      "sources": [
+        "https://app.uniswap.org/whitepaper-v3.pdf",
+        "docs/formula-evidence/formula-reference.md#8-uniswap-v3-inventory"
+      ],
+      "implementation": ["src/domain/formulas/lp.js"],
+      "tests": ["src/domain/__tests__/lpResearch.test.js"],
+      "horizonMode": "none"
+    },
+    {
+      "formulaId": "lp.fee-income-quote",
+      "name": "LP 路径手续费收入",
+      "family": "lp-fees",
+      "canonicalTerm": [
+        { "field": "feeTierFraction", "meaning": "池费率，不是收入" },
+        { "field": "feeIncomeQuote", "meaning": "已按头寸份额和路径归属后的 quote-currency 手续费现金流" },
+        { "field": "positionLiquidityShare", "meaning": "头寸占当时 active liquidity 的份额" },
+        { "field": "inRangeFraction", "meaning": "路径区间内归属比例" }
+      ],
+      "expression": [
+        "feeIncomeQuote=sum(volumeQuote_i*feeTierFraction*positionLiquidityShare_i*inRangeFraction_i)-pathCostsQuote"
+      ],
+      "units": {
+        "inputs": "volume/pathCosts/fee income 为 quote currency；feeTier/share/fraction 为 fraction",
+        "outputs": "feeIncomeQuote 为 quote currency"
+      },
+      "timeKnownAt": {
+        "observation": "每段路径成交量、active liquidity、in-range 和成本结算后",
+        "causalBoundary": "未来成交量不得作为当前收入",
+        "executionBoundary": "仅 fee tier 或 TVL 不足以估算收入"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "missing-input",
+        "reason": "现金流加总恒等；缺路径归属时应保持缺失而不是假造收入。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "在统一货币、头寸份额和路径上计算可归属手续费。",
+      "useCases": ["LP 回放", "组合台账", "fee-theta 比较"],
+      "meaning": "真实或明确情景路径中的 quote 现金流。",
+      "domain": { "required": "同一 horizon/currency/notional；0<=shares<=1", "range": "可正，扣成本后可负" },
+      "constraints": [
+        "所有 LP 函数必须把 feeIncomeQuote 解释为同一单位",
+        "不得在某个函数额外乘 strikePrice",
+        "省略 inRangeFraction=1 时必须标 path-scenario"
+      ],
+      "mechanism": {
+        "type": "path-cashflow",
+        "explanation": "费用来自成交路径和头寸的流动性份额，不来自静态区间几何。"
+      },
+      "allowedInferences": ["给定完整路径下的费用现金流", "同周期净费用"],
+      "forbiddenInferences": ["fee tier 等于收益率", "静态 TVL 推出手续费", "fees 同时既是 fraction 又是 quote amount"],
+      "sources": [".agents/skills/china-stock-selection/references/formula-risk-contract.md#lp-fees-and-theta"],
+      "implementation": ["src/domain/formulas/lpResearch.js"],
+      "tests": ["src/domain/__tests__/lpCarryResearch.test.js"],
+      "horizonMode": "path-observed"
+    },
+    {
+      "formulaId": "lp.impermanent-loss-v2",
+      "name": "全范围常数乘积 v2 相对 IL",
+      "family": "lp-il",
+      "canonicalTerm": [
+        { "field": "fullRangeV2IlProxy", "meaning": "v2 全范围 LP 相对 HODL 的无量纲差" },
+        { "field": "priceRatio", "meaning": "markPrice/startPrice" }
+      ],
+      "expression": ["IL_v2=2*sqrt(priceRatio)/(1+priceRatio)-1"],
+      "units": { "inputs": "priceRatio 为 fraction", "outputs": "IL_v2 为 fraction" },
+      "timeKnownAt": {
+        "observation": "startPrice 与 markPrice 已知时",
+        "causalBoundary": "不含未来路径费用",
+        "executionBoundary": "不是 v3 指定区间的相对收益"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "v2 无费用静态比较恒等，股票和 v3 界面只作形状代理。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "描述全范围常数乘积相对持币的静态几何差。",
+      "useCases": ["v2 几何教学", "与 v3 range IL 分离展示"],
+      "meaning": "同起点、无费用、全范围常数乘积 LP 对 HODL 的相对差。",
+      "domain": { "required": "startPrice>0,markPrice>0", "range": "-1<IL<=0" },
+      "constraints": ["字段和函数名必须显式 v2/full-range", "不消费 v3 lower/upper", "费用必须另列"],
+      "mechanism": { "type": "counterfactual-valuation", "explanation": "比较同一初始资产在 v2 LP 与静态持币的终值。" },
+      "allowedInferences": ["v2 无费用静态相对差"],
+      "forbiddenInferences": ["v3 指定区间 IL", "真实净 PnL", "费用后收益"],
+      "sources": ["docs/formula-evidence/formula-reference.md#9-full-range-v2-impermanent-loss-proxy"],
+      "implementation": ["src/domain/formulas/lp.js", "src/domain/formula-research/researchSnapshot.js"],
+      "tests": ["src/domain/__tests__/lpResearch.test.js"],
+      "horizonMode": "same-horizon-required"
+    },
+    {
+      "formulaId": "lp.impermanent-loss-v3-range",
+      "name": "v3 同区间同资本相对 IL",
+      "family": "lp-il",
+      "canonicalTerm": [
+        { "field": "rangeV3Il", "meaning": "指定 lower/upper 的 v3 LP 相对同初始 token 组合 HODL 的差" },
+        { "field": "entryInventory", "meaning": "同一 L、范围、起点的 token0/token1 初始库存" }
+      ],
+      "expression": ["rangeV3Il=(lpMarkValue-holdEntryInventoryAtMark)/holdEntryInventoryAtMark"],
+      "units": { "inputs": "所有价值为同一 quote currency", "outputs": "rangeV3Il 为 fraction" },
+      "timeKnownAt": {
+        "observation": "范围、L、entry 和 mark 同口径已知时",
+        "causalBoundary": "不含尚未发生的路径费用",
+        "executionBoundary": "真实头寸还需 block/tick/decimals/NFT"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "给定同一范围、L、entry inventory 与 mark 后，代码按协议库存恒等式计算无费用对照；真实头寸输入仍需外部校准。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "提供真正与 v3 区间一致的相对价值比较。",
+      "useCases": ["真实 v3 区间归因", "LP 风险曲线"],
+      "meaning": "同一初始资本和库存反事实下的区间 IL。",
+      "domain": { "required": "合法 v3 range、entry/mark、同一 L 和价格方向", "range": "fraction" },
+      "constraints": ["不得拿 fullRangeV2IlProxy 代替", "entry inventory 和 HODL 对照必须同资本", "费用/对冲/成本另列"],
+      "mechanism": {
+        "type": "counterfactual-valuation",
+        "explanation": "以入场库存为 HODL 对照，比较指定范围 LP 的终值。"
+      },
+      "allowedInferences": ["同范围同资本的无费用 IL"],
+      "forbiddenInferences": ["净收益", "费后表现", "跨范围直接可比"],
+      "sources": ["https://app.uniswap.org/whitepaper-v3.pdf"],
+      "implementation": [
+        "src/domain/formulas/lp.js",
+        "src/domain/formula-research/researchSnapshot.js",
+        "src/domain/market-data/formulaPath.js"
+      ],
+      "tests": ["src/domain/__tests__/lpResearch.test.js", "src/domain/__tests__/formulaPath.test.js"],
+      "horizonMode": "same-horizon-required"
+    },
+    {
+      "formulaId": "ck.capital-efficiency-symmetric-frontier",
+      "name": "CK 对称算术区间资本效率边界",
+      "family": "ck-geometry",
+      "canonicalTerm": [
+        { "field": "ckDownWidthFraction", "meaning": "相对 referencePrice 的下行算术宽度 x" },
+        { "field": "ckUpWidthFraction", "meaning": "对称情形同为 x" },
+        { "field": "endpointFourthRoot", "meaning": "((1-x)/(1+x))^(1/4)，不得称 recoveryFraction 或裸 q" },
+        { "field": "capitalEfficiencyAtGeometricMidpoint", "meaning": "CK 端点比口径 CE" }
+      ],
+      "expression": [
+        "CE(x)=1/(1-((1-x)/(1+x))^(1/4))",
+        "CE''(x)=0 <=> 256*x^4-160*x^2-15=0",
+        "x*=sqrt(5+2*sqrt(10))/4=0.8412994160945599"
+      ],
+      "units": { "inputs": "x 为 arithmetic price fraction", "outputs": "CE 为 dimensionless capital multiple" },
+      "timeKnownAt": {
+        "observation": "纯数学参考，给定 x 即可",
+        "causalBoundary": "不使用市场未来数据",
+        "executionBoundary": "要应用到标的必须另有目标函数、校准和风险约束"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "exact-identity",
+        "reason": "在 CK 声明的边际效率目标和算术对称区间下为解析定理。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "最大化局部新增区间宽度相对资本效率损失，即 CE 曲线拐点条件。",
+      "useCases": ["CK 几何基准", "资本效率敏感性", "对称与偏斜边界比较"],
+      "meaning": "特定几何目标的边界，不是经验拟合。",
+      "domain": { "required": "0<x<1；lower=P0(1-x)>0", "range": "x*≈84.13%" },
+      "constraints": [
+        "CE 端点比口径在区间几何中点估值",
+        "若 P0 是实际现价需另算 capitalEfficiencyAtPrice",
+        "不能直接移植到偏斜区间"
+      ],
+      "mechanism": {
+        "type": "geometric-optimization",
+        "explanation": "集中流动性范围扩大与资本效率下降的局部边际权衡。"
+      },
+      "allowedInferences": ["声明目标下的精确对称边界", "几何中点口径 CE"],
+      "forbiddenInferences": ["84.13% 概率覆盖", "收益最优", "费率最优", "股票默认区间", "执行价格"],
+      "sources": [
+        "https://medium.com/@med456789d/uniswap-v3-math-insights-part-1-of-6-f85e1597b411",
+        "https://www.desmos.com/calculator/ysv2j74j6k"
+      ],
+      "implementation": ["src/domain/formulas/capitalEfficiency.js"],
+      "tests": ["src/domain/__tests__/lpResearch.test.js"],
+      "horizonMode": "none"
+    },
+    {
+      "formulaId": "ck.capital-efficiency-skew-frontier",
+      "name": "CK 偏斜算术区间资本效率边界",
+      "family": "ck-geometry",
+      "canonicalTerm": [
+        { "field": "ckSkewAlpha", "meaning": "上行宽度/下行宽度比例 alpha" },
+        { "field": "ckDownWidthFraction", "meaning": "下行宽度 x" },
+        { "field": "ckUpWidthFraction", "meaning": "alpha*x" },
+        { "field": "endpointFourthRoot", "meaning": "u=((1-x)/(1+alpha*x))^(1/4)" }
+      ],
+      "expression": [
+        "3*alpha*u^5-5*alpha*u^4-5*u+3=0",
+        "x=(1-u^4)/(1+alpha*u^4)",
+        "alpha=0 => u=3/5 => x=1-(3/5)^4=0.8704"
+      ],
+      "units": {
+        "inputs": "alpha 与 x 为 dimensionless fractions",
+        "outputs": "width fractions 与 CE 为 dimensionless"
+      },
+      "timeKnownAt": {
+        "observation": "给定 alpha 后纯数学可解",
+        "causalBoundary": "若 alpha 来自样本，必须另记估计时点和样本",
+        "executionBoundary": "样本 alpha 代入精确几何只得到 scenario-proxy"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "CK Part 2 的方程是精确几何；市场 alpha 通常只是样本代理。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "在给定方向宽度比例 alpha 下求同一边际资本效率目标的偏斜边界。",
+      "useCases": ["偏斜几何敏感性", "CK Part 2 复现", "样本 alpha 的条件情景"],
+      "meaning": "CK 已发表的偏斜推导；用历史涨跌尺度估 alpha 才是本项目扩展。",
+      "domain": { "required": "alpha>=0；0<x<1", "range": "alpha 不同则 x 不同；alpha=0 时 x=87.04%" },
+      "constraints": [
+        "数值求根仍是精确方程的数值解，不能因此降级为经验拟合",
+        "alpha 样本估计与几何恒等式分开标注",
+        "87.5% 不是该方程的精确常数"
+      ],
+      "mechanism": { "type": "geometric-optimization", "explanation": "固定偏斜比例后求 CE 曲线拐点。" },
+      "allowedInferences": ["给定 alpha 下的 CK 边界", "alpha=0 的 87.04% 精确特例"],
+      "forbiddenInferences": ["alpha 是做市商方向", "87.5% 全局最优", "宽度是概率分位数", "直接执行"],
+      "sources": [
+        "https://medium.com/@med456789d/uniswap-insights-part-2-of-6-568632aa4d8",
+        "https://www.desmos.com/calculator/0l7i8kmukx"
+      ],
+      "implementation": ["src/domain/formulas/capitalEfficiency.js", "research/latent-liquidity-lab/src/ckGeometry.js"],
+      "tests": [
+        "src/domain/__tests__/lpResearch.test.js",
+        "research/latent-liquidity-lab/test/latentLiquidity.test.mjs"
+      ],
+      "horizonMode": "none"
+    },
+    {
+      "formulaId": "liquidity.fingerprint-model-mass",
+      "name": "流动性指纹模型质量分配",
+      "family": "liquidity-model",
+      "canonicalTerm": [
+        { "field": "liquidityFingerprintMass", "meaning": "在声明模型和区间上的归一化质量" },
+        { "field": "componentDensity", "meaning": "模型组件密度，不是订单簿或真实 tick liquidity" },
+        { "field": "inputMode", "meaning": "model-only/hybrid-model/real-pool 等证据来源" },
+        { "field": "annualVolatility", "meaning": "有来源的年化波动输入；缺失时查询关闭" },
+        { "field": "tradingDaysPerYear", "meaning": "把年化波动换算为每交易会话波动的市场基准" }
+      ],
+      "expression": [
+        "sessionVolatility=annualVolatility/sqrt(tradingDaysPerYear)",
+        "logSigma=max(declaredMinimum,declaredScale*sessionVolatility)",
+        "f_mix(p)=sum_c w_c*f_c(p)/integral(f_c)",
+        "segmentMass_i=integral(segment_i,f_mix)/integral(fullRange,f_mix)"
+      ],
+      "units": {
+        "inputs": "price 与 density coordinate 必须明确；weights 为 dimensionless；annualVolatility 为 annual fraction；tradingDaysPerYear 为 sessions/year",
+        "outputs": "density 依坐标带 1/price；mass 为 fraction"
+      },
+      "timeKnownAt": {
+        "observation": "所用组件输入已知时",
+        "causalBoundary": "历史组件只取前缀；真实池输入要求同一 block",
+        "executionBoundary": "model-only 不得升级为真实流动性"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "归一化积分恒等，组件和权重是模型设定。"
+      },
+      "statusAxes": {
+        "correctionStatus": "accepted-risk",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "把多种结构证据投影成可比较的价格区间质量分配。",
+      "useCases": ["研究可视化", "区间质量比较", "形状诊断"],
+      "meaning": "模型分配权重，不是价格发生概率。",
+      "domain": {
+        "required": "正价格区间、可积密度、非负权重、有限正 annualVolatility 与 tradingDaysPerYear",
+        "range": "mass in [0,1] and sums approximately 1"
+      },
+      "constraints": [
+        "必须输出 inputMode",
+        "log-price 与 linear-price 密度必须注明 Jacobian/坐标",
+        "真实池声明需链上 tick 数据",
+        "波动或时间基缺失时返回 missing-input/null，不得回退 0.35 或 365"
+      ],
+      "mechanism": { "type": "model-mixture", "explanation": "将假设的组件密度归一化后混合。" },
+      "allowedInferences": ["模型内部相对质量", "组件对形状的贡献"],
+      "forbiddenInferences": ["未来价格概率", "真实订单簿深度", "做市商库存", "交易胜率"],
+      "sources": ["docs/formula-evidence/formula-reference.md#10-liquidity-fingerprint"],
+      "implementation": ["src/domain/formulas/liquidity.js", "src/domain/research-visualization/liquidityRackModel.js"],
+      "tests": ["src/domain/__tests__/liquidityRack.test.js", "src/domain/__tests__/formulas.test.js"],
+      "horizonMode": "none"
+    },
+    {
+      "formulaId": "funding.basis-cumulative-proxy",
+      "name": "Funding 基差累计代理与现金流分账",
+      "family": "funding",
+      "canonicalTerm": [
+        { "field": "basisFraction", "meaning": "perpTwap/spotTwap-1 的同期基差" },
+        { "field": "cumulativeFundingProxy", "meaning": "在 horizonHours 上按简化线性规则累计的无量纲代理" },
+        { "field": "horizonHours", "meaning": "累计代理已经包含的小时期限" },
+        {
+          "field": "grossRecoveryReturn",
+          "meaning": "从 cycleStartPrice 到 targetPrice、按 long/short 方向计算的毛收益率"
+        },
+        {
+          "field": "fundingCashflowReturn",
+          "meaning": "按 funding 持仓方向把累计代理转成的带符号情景收益率；不是结算现金流"
+        },
+        {
+          "field": "breakEvenFundingNetCostReturn",
+          "meaning": "令情景 netReturn 为零的同名义 funding 净成本收益率阈值"
+        },
+        { "field": "fundingCashflowQuote", "meaning": "quote currency 带符号现金流；正数收到、负数支付" },
+        {
+          "field": "fundingCashflowSource",
+          "meaning": "observed-settlement 或 explicit-scenario；其他来源不能进入 canonical 现金流"
+        }
+      ],
+      "expression": [
+        "basisFraction=perpTwap/spotTwap-1",
+        "cumulativeFundingProxy=basisFraction*(horizonHours/24)",
+        "long grossRecoveryReturn=targetPrice/cycleStartPrice-1",
+        "short grossRecoveryReturn=(cycleStartPrice-targetPrice)/cycleStartPrice",
+        "fundingCashflowReturn=(fundingPositionSide=long)?-cumulativeFundingProxy:cumulativeFundingProxy",
+        "fundingNetCostReturn=-fundingCashflowReturn",
+        "netReturn=grossRecoveryReturn+fundingCashflowReturn",
+        "breakEvenFundingNetCostReturn=grossRecoveryReturn",
+        "fundingCashflowQuote is supplied separately with fundingCashflowSource; cumulativeFundingProxy is never multiplied by capital and renamed as settlement"
+      ],
+      "units": {
+        "inputs": "TWAP/价格为同币种价格；horizonHours 为 hour；notional basis 必须一致；现金流为 quote currency",
+        "outputs": "basis/proxy/carry 为 stated-horizon fraction；fundingCashflowQuote 为带符号 quote currency"
+      },
+      "timeKnownAt": {
+        "observation": "basis/proxy 在 spot/perp TWAP 区间结束后可知；observed-settlement 在交易所结算后可知；explicit-scenario 在情景声明时可知",
+        "causalBoundary": "不得用未来资金费、未来基差或未来 settlement；proxy 的 horizonHours 必须与 comparisonHorizon 映射一致",
+        "executionBoundary": "proxy 不能满足正式结算门禁；只有 observed-settlement 可满足真实结算要求，A/H 股票没有对应腿时 funding 与 carry 保持 null"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "当前线性累计是简化代理，不等于交易所真实结算机制。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "proxy-only",
+        "executionAuthority": "none"
+      },
+      "objective": "在研究层估算同周期 carry，同时把无量纲 proxy 与真实或显式情景的 quote 现金流严格分账。",
+      "useCases": ["carry 情景", "LP/期权组合压力测试", "真实结算缺失门禁", "Funding 方向和 break-even 校验"],
+      "meaning": "basis 线性累计只产生情景收益率代理；组合现金流必须另有金额和来源。",
+      "domain": {
+        "required": "spotTwap>0、perpTwap>0、horizonHours>=0；carry 另需 cycle start/target、两侧方向、相同 notional basis 和完整 comparisonHorizon",
+        "range": "fraction 可正可负；fundingCashflowQuote 为有限带符号 quote currency 或 null"
+      },
+      "constraints": [
+        "fundingProxy 旧字段不得同时表示 basis、累计代理和 quote 现金流",
+        "cumulativeFundingProxy 已包含 horizon，不得再乘 holdingDays、formulaHorizonSessions 或 tradingDaysPerYear",
+        "grossRecoveryReturn 必须用 cycleStartPrice 作分母并保留 long/short 方向，不得用 abs(costDistance) 代替",
+        "break-even 是令 netReturn=0 求得的同名义 funding 净成本阈值，不是当前 proxy 回显，也不得附加固定安全边际",
+        "fundingCashflowQuote 只有在 source=observed-settlement|explicit-scenario 时才是 canonical 输入；后者只能进入 scenarioTotal",
+        "fundingCost 只允许在显式兼容边界以 negate-cost-positive-to-cashflow-positive 转换，且不能冒充 observed settlement",
+        "旧 costDistance/fundingRate/fundingCost 因方向、分母、名义或周期不全时必须作为 rejected deprecatedInputs，不得静默产出 carry",
+        "真实结算还需要交易所 schedule、cap、clamp、合约名义和历史；缺失不得从 proxy 推造"
+      ],
+      "mechanism": {
+        "type": "scenario-proxy",
+        "explanation": "把同期基差按小时线性累计为收益率代理；独立的带来源 quote 字段承接观测结算或显式情景现金流。"
+      },
+      "allowedInferences": [
+        "声明简化规则、方向、名义和共同周期下的 carry 量级",
+        "observed 与 scenario 现金流的来源分类",
+        "缺失真实结算时关闭正式总额"
+      ],
+      "forbiddenInferences": [
+        "proxy 等于真实资金费率",
+        "proxy 乘资本等于已结算现金流",
+        "explicit-scenario 等于 observed-settlement",
+        "股票市场天然存在 funding",
+        "跨周期或跨名义直接相加"
+      ],
+      "sources": [
+        "docs/formula-evidence/formula-reference.md#12-funding-proxy",
+        "docs/formula-evidence/formula-contract.md#111-funding-三层语义",
+        "docs/formula-evidence/ERRATA.md#e-044--funding-净-carry-必须先统一方向分母与周期",
+        "docs/formula-evidence/ERRATA.md#e-045--funding-proxy-与真实现金流分账"
+      ],
+      "implementation": [
+        "src/domain/formulas/core.js",
+        "src/domain/formulas/lp.js",
+        "src/domain/formula-research/researchSnapshot.js",
+        "src/domain/formula-research/portfolioResearch.js",
+        "src/domain/market-data/formulaPath.js"
+      ],
+      "tests": [
+        "src/domain/__tests__/carryContracts.test.js",
+        "src/domain/__tests__/lpCarryResearch.test.js",
+        "src/domain/__tests__/portfolioResearch.test.js",
+        "src/domain/__tests__/legacyAliasContract.test.js"
+      ],
+      "horizonMode": "same-horizon-required"
+    },
+    {
+      "formulaId": "economics.fee-theta-comparison",
+      "name": "LP 费用与期权 Theta 的经济类比",
+      "family": "cross-model-comparison",
+      "canonicalTerm": [
+        { "field": "feeIncomeQuote", "meaning": "路径观测或明确情景得到的 LP 净费用现金流，收入为正" },
+        { "field": "comparisonHorizonSessions", "meaning": "费用累计和局部 Theta 积分共同使用的交易会话数" },
+        { "field": "comparisonSessionCalendarId", "meaning": "费用与期权完全相同的 session calendar 标识" },
+        { "field": "comparisonInterval", "meaning": "feeAccrualStart、feeAccrualEnd 与 optionThetaAsOf 的对齐区间" },
+        { "field": "comparisonNotional", "meaning": "两侧精确一致的正名义本金" },
+        { "field": "feeCarryQuotePerSession", "meaning": "共同日历上每交易会话的费用 carry" },
+        {
+          "field": "optionThetaQuotePerSession",
+          "meaning": "long-option-value-change 符号下、含 contractMultiplier 的每交易会话 Theta"
+        },
+        { "field": "feeCarryQuote", "meaning": "通过全部可比性门禁后的共同周期费用金额" },
+        { "field": "optionThetaDecayQuote", "meaning": "局部 Theta 不变情景下的正时间衰减成本" },
+        { "field": "feeThetaGapQuote", "meaning": "feeCarryQuote 与 optionThetaDecayQuote 的差；不是恒等式残差" }
+      ],
+      "expression": [
+        "feeCarryQuotePerSession=feeIncomeQuote/comparisonHorizonSessions",
+        "optionThetaQuotePerSession=optionThetaPerSession*contractMultiplier",
+        "optionThetaDecayQuote=-optionThetaQuotePerSession*comparisonHorizonSessions",
+        "feeThetaGapQuote=feeCarryQuote-optionThetaDecayQuote",
+        "comparable iff currency、notional、sign、session count、option tenor、session calendar、accrual interval 与 theta as-of 全部对齐"
+      ],
+      "units": {
+        "inputs": "fee 为 quote currency；Theta 为 quote currency/option unit/trading session；notional 为同一正口径；horizon 为 trading session",
+        "outputs": "per-session 输出为 quote currency/trading session；累计输出为 quote currency；normalized 输出为 fraction"
+      },
+      "timeKnownAt": {
+        "observation": "费用路径在 accrual end 后可观测；局部 Theta 必须在 feeAccrualStart 时点可知",
+        "causalBoundary": "预估费用必须标 scenario；不得用 accrual end 后的 Theta 回填区间起点",
+        "executionBoundary": "任一币种、名义、符号、期限、日历、区间或 as-of 不齐即 calibration-required"
+      },
+      "claimClass": {
+        "law": "scenario-proxy",
+        "result": "scenario-proxy",
+        "reason": "这是经济暴露类比，不是数学或无套利恒等式。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "比较做市费用收入能否覆盖同名义负凸性/时间价值暴露。",
+      "useCases": ["风险归因", "情景敏感性", "费用覆盖率研究"],
+      "meaning": "两个不同机制现金流在统一台账上的可比性检查。",
+      "domain": {
+        "required": "相同 currency、正且相等 notional、约定符号、feeAccrualSessions>0、option tenor 覆盖该期限、相同 calendar、start<end、thetaAsOf=start",
+        "range": "通过门禁时为有限 quote amount/ratio；否则比较量为 null 并列出 missingInputs"
+      },
+      "constraints": [
+        "feeIncomeQuote 必须来自路径费用或显式情景，缺失不等于零",
+        "Theta 输入单位必须明确为 per-trading-session；annual Theta 不能未经 TDPY 明确换算后直接进入",
+        "feeSignConvention=income-positive 且 optionThetaSignConvention=long-option-value-change",
+        "feeNotional 与 optionNotional 必须相等，且 optionTimeToExpirySessions 覆盖共同 accrual horizon",
+        "feeSessionCalendarId 必须等于 optionSessionCalendarId，feeAccrualStart 必须早于 feeAccrualEnd，optionThetaAsOf 必须等于 feeAccrualStart",
+        "共同期限累计采用 optionThetaPerSession 局部不变情景，不能冒充真实 Theta 路径积分",
+        "旧 *Daily/*PerDay 只可作为带 deprecated/legacyAliasOf 的 trading-session 兼容字段，不代表自然日",
+        "比较不能忽略 Gamma、跳跃、动态对冲、gas、再平衡和成交量路径"
+      ],
+      "mechanism": {
+        "type": "economic-analogy",
+        "explanation": "LP 和短期权都可能呈现赚取 carry、承担凸性风险，但现金流机制不同。"
+      },
+      "allowedInferences": ["全部口径与时间轴门禁通过时，局部线性情景下费用与时间衰减的相对量级"],
+      "forbiddenInferences": [
+        "fee=theta",
+        "LP 就是短期权",
+        "局部 Theta 在全程恒定",
+        "费用稳定覆盖 Gamma 或跳跃风险",
+        "稳赚手续费"
+      ],
+      "sources": [
+        ".agents/skills/china-stock-selection/references/formula-risk-contract.md#lp-fees-and-theta",
+        "docs/formula-evidence/formula-contract.md#112-fee-≈-theta-的唯一合法解释",
+        "docs/formula-evidence/ERRATA.md#e-046--fee-theta-需要同一交易日历和估值时点"
+      ],
+      "implementation": ["src/domain/formulas/lpResearch.js"],
+      "tests": ["src/domain/__tests__/lpCarryResearch.test.js", "src/domain/__tests__/legacyAliasContract.test.js"],
+      "horizonMode": "same-horizon-required"
+    },
+    {
+      "formulaId": "deviation.extremeness-not-probability",
+      "name": "偏离极端度与尾部质量",
+      "family": "statistics",
+      "canonicalTerm": [
+        { "field": "zScore", "meaning": "偏离除以声明周期波动尺度" },
+        { "field": "deviationPercentile", "meaning": "正态参考下 abs(z) 的双侧极端度变换" },
+        { "field": "twoSidedTailProbability", "meaning": "正态参考分布在 abs(z) 外的质量" },
+        { "field": "empiricalTailFraction", "meaning": "声明历史样本中的经验尾部比例" }
+      ],
+      "expression": [
+        "z=costDistance/periodVol",
+        "deviationPercentile=2*Phi(abs(z))-1",
+        "twoSidedTailProbability=2*(1-Phi(abs(z)))"
+      ],
+      "units": { "inputs": "costDistance/periodVol 为 fractions", "outputs": "z 无量纲；percentile/tail 为 [0,1]" },
+      "timeKnownAt": {
+        "observation": "成本偏离和前缀波动可用时",
+        "causalBoundary": "经验分布只用截至 t 的样本",
+        "executionBoundary": "不得作为买卖胜率或仓位置信度"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "sample-estimate",
+        "reason": "正态变换是参考恒等；sigma 和经验分布来自样本。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "gate-input"
+      },
+      "objective": "量化当前偏离在参考分布或历史样本中的罕见程度。",
+      "useCases": ["极端度排序", "反证和风险提示", "研究门禁"],
+      "meaning": "描述已经观察到的状态有多极端。",
+      "domain": { "required": "periodVol>0；经验样本非空", "range": "tail/percentile in [0,1]" },
+      "constraints": ["输出 probabilitySemantics", "样本窗口和 n 可见", "不得名为 regressionProbability"],
+      "mechanism": {
+        "type": "reference-distribution-transform",
+        "explanation": "把观测偏离映射到参考分布的尾部位置。"
+      },
+      "allowedInferences": ["观测极端度", "样本内相对排名"],
+      "forbiddenInferences": ["均值回归概率", "上涨概率", "目标触达概率", "校准胜率"],
+      "sources": ["docs/formula-evidence/formula-reference.md#14-deviation-score"],
+      "implementation": [
+        "src/domain/formulas/core.js",
+        ".agents/skills/china-stock-selection/scripts/screen-cn-stocks.mjs"
+      ],
+      "tests": ["src/domain/__tests__/formulas.test.js"],
+      "horizonMode": "formula-derived"
+    },
+    {
+      "formulaId": "recurrence.empirical-radius-rank",
+      "name": "当前状态邻域半径经验排名",
+      "family": "recurrence",
+      "canonicalTerm": [
+        { "field": "recurrenceRadius", "meaning": "当前 costDistance 的 k 近邻半径" },
+        { "field": "empiricalRadiusRank", "meaning": "该半径相对因果历史半径参考的经验排名" },
+        { "field": "neighbourCount", "meaning": "ceil(sqrt(prefix candidate count))" }
+      ],
+      "expression": [
+        "k=ceil(sqrt(N_prefix))",
+        "radius=current-state kNN distance",
+        "empiricalRadiusRank=(1+count(referenceRadius<=radius))/(N_reference+1)"
+      ],
+      "units": { "inputs": "costDistance 为 fraction", "outputs": "radius 为 fraction；rank 为 [0,1]" },
+      "timeKnownAt": {
+        "observation": "当前状态 t 收盘后",
+        "causalBoundary": "候选和参考均来自 t 之前",
+        "executionBoundary": "只是 pilot 状态稀有度，不授予执行权限"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "sample-estimate",
+        "reason": "排名计算精确，但参考半径不是 exchangeability 已验证的 conformal calibration set。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "估计当前状态邻域相对历史是否稀疏。",
+      "useCases": ["状态稀有度诊断", "复现周期不确定性"],
+      "meaning": "经验半径排名，不是 conformal p-value。",
+      "domain": { "required": "至少 4 个有效前缀候选；radius>0", "range": "rank in (0,1]" },
+      "constraints": ["字段和方法不得叫 conformalRank", "未证明交换性/独立性", "k 规则为 pilot"],
+      "mechanism": {
+        "type": "nearest-neighbour-sample-statistic",
+        "explanation": "用当前状态的历史邻域稀疏度构造经验排序。"
+      },
+      "allowedInferences": ["当前状态在该参考下相对稀疏或密集"],
+      "forbiddenInferences": ["有效 conformal p-value", "覆盖保证", "状态复现概率", "锚点恢复概率"],
+      "sources": ["research/latent-liquidity-lab/src/recurrenceCycle.js"],
+      "implementation": ["research/latent-liquidity-lab/src/recurrenceCycle.js"],
+      "tests": ["research/latent-liquidity-lab/test/latentLiquidity.test.mjs"],
+      "horizonMode": "none"
+    },
+    {
+      "formulaId": "recurrence.kaplan-meier-return-wait",
+      "name": "离开后再进入的复现等待分布",
+      "family": "recurrence",
+      "canonicalTerm": [
+        { "field": "recurrenceWaitSessions", "meaning": "前一命中 episode 结束到下一 episode 开始的等待步数" },
+        { "field": "recurrenceSurvival", "meaning": "等待时间的 Kaplan-Meier 生存估计" },
+        { "field": "greenwoodStandardError", "meaning": "KM 生存估计的 Greenwood 标准误" }
+      ],
+      "expression": [
+        "wait_j=episode_(j+1).startIndex-episode_j.endIndex",
+        "S(t)=product_(t_i<=t)(1-d_i/n_i)",
+        "Var_log component=sum d_i/(n_i*(n_i-d_i))"
+      ],
+      "units": {
+        "inputs": "episode indices 为 state-path sessions",
+        "outputs": "wait 为 sessions；survival/CI 为 [0,1]"
+      },
+      "timeKnownAt": {
+        "observation": "命中 episodes 在前缀内已完成后",
+        "causalBoundary": "当前仍处在命中 episode 的 age 不是离开后等待，不能作右删失",
+        "executionBoundary": "样本少或无有效删失时只作 pilot 不确定性描述"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "sample-estimate",
+        "reason": "KM/Greenwood 公式精确，episode 定义和有限样本是估计。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "描述离开当前状态邻域后再次进入的等待时间分布。",
+      "useCases": ["复现周期分布", "区间不确定性", "与结构修复周期做不同端点比较"],
+      "meaning": "回到当前状态邻域的经验等待，不是回到成本锚。",
+      "domain": { "required": "至少一个完整 leave-then-reentry interval", "range": "wait>0；survival in [0,1]" },
+      "constraints": [
+        "duration 必须是 episode end 到下一 start",
+        "currentEpisodeAge 不得作为 censor",
+        "完整 interval-only 时 censoredCount=0 并披露"
+      ],
+      "mechanism": { "type": "survival-estimator", "explanation": "把已完成复现等待作为事件时间进行非参数生存估计。" },
+      "allowedInferences": ["已定义 episode 下的样本等待分布", "Greenwood 近似不确定性"],
+      "forbiddenInferences": [
+        "锚点修复时间",
+        "未来命中概率保证",
+        "当前 episode 内年龄是离开后删失",
+        "与 AR 修复周期同量"
+      ],
+      "sources": ["research/latent-liquidity-lab/src/recurrenceCycle.js"],
+      "implementation": ["research/latent-liquidity-lab/src/recurrenceCycle.js"],
+      "tests": ["research/latent-liquidity-lab/test/latentLiquidity.test.mjs"],
+      "horizonMode": "path-observed"
+    },
+    {
+      "formulaId": "portfolio.single-ledger-pnl",
+      "name": "组合分列研究台账",
+      "family": "portfolio",
+      "canonicalTerm": [
+        { "field": "mark", "meaning": "LP、期权和对冲腿的盯市列；当前 hedge/common basis 不全时 total 保持 null" },
+        { "field": "entryCashflow", "meaning": "LP、真实期权 premium 和对冲建仓现金流列；不得用模型价补 premium" },
+        { "field": "pnl", "meaning": "LP、期权、对冲、费用和 Funding 的同币种损益组件列" },
+        { "field": "pnl.feeIncomeQuote", "meaning": "quote currency 费用收入；缺失不等于零" },
+        { "field": "pnl.fundingCashflowQuote", "meaning": "带符号 quote currency Funding 现金流；正数收到、负数支付" },
+        {
+          "field": "fundingCashflowSource",
+          "meaning": "observed-settlement、explicit-scenario 或显式 legacy 来源状态"
+        },
+        { "field": "pnl.scenarioTotal", "meaning": "数值组件齐全时的已建模腿情景和；允许仍有校准缺口" },
+        { "field": "pnl.total", "meaning": "只有合并后的 missingInputs 为空时才返回的已建模腿正式和" },
+        { "field": "missingInputs", "meaning": "期权、LP、费用模型、Funding 来源和结算状态的去重缺口并集" }
+      ],
+      "expression": [
+        "pnl.scenarioTotal=pnl.lp+pnl.option+pnl.hedge+pnl.feeIncomeQuote+pnl.fundingCashflowQuote when every component is finite",
+        "pnl.total=(pnl.scenarioTotal when missingInputs=[] else null)",
+        "mark.total=null and entryCashflow.total=null while hedge mark/entry cashflow or common valuation basis is missing",
+        "accounting target: mark minus entry cashflow plus period cashflows minus costs equals PnL; current implementation must not claim this full identity until every column and costs are modeled"
+      ],
+      "units": {
+        "inputs": "所有可加项必须是相同 quote currency、notional、符号、估值时点和 horizon",
+        "outputs": "各列和总额均为 quote currency 或 null"
+      },
+      "timeKnownAt": {
+        "observation": "各腿报价和现金流按同一估值时点可用时",
+        "causalBoundary": "实现现金流只记到当前；未来或 explicit-scenario 费用/Funding 只能支撑 scenarioTotal，不能冒充 observed account cashflow",
+        "executionBoundary": "先合并全部 missingInputs 再计算 status 与 pnl.total；mark/entry 列缺共同基础时各自 total 保持 null"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "missing-input",
+        "reason": "组件加总是精确算术；完整账户恒等仍缺 hedge mark/entry、共同估值基础和独立成本列。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "把 mark、entry cashflow 与 PnL 分列，阻止不同列、币种、名义、符号和期限的数字被直接相加。",
+      "useCases": ["LP+期权+对冲归因", "formalTotal 与 scenarioTotal 分离", "缺失输入门禁"],
+      "meaning": "当前实现是研究型组件台账：能严格区分场景加总与缺口门禁，但尚不是完整账户净值账本。",
+      "domain": {
+        "required": "currency/notional/sign/timestamp/horizon 一致；期权 premium、有效 LP 区间、费用路径模型、Funding 金额与来源按所需结论齐全",
+        "range": "各组件为有限 quote amount 或 null；scenarioTotal/total 按各自门禁返回"
+      },
+      "constraints": [
+        "premium 缺失不能用模型价代入 entry cashflow",
+        "feeIncomeQuote 与 fundingCashflowQuote 必须是同周期、同币种、同名义的带来源现金流",
+        "explicit-scenario Funding 可以进入 pnl.scenarioTotal，但只有 observed-settlement 可清除 observed-funding-settlement 缺口",
+        "feeModelCalibrated=false 时即使 fee 数值存在也不能输出 pnl.total",
+        "最终 missingInputs union 后必须重算 status 和 pnl.total",
+        "pnl.scenarioTotal 只是已建模组件之和，不得跨列再加 mark 或 entryCashflow",
+        "当前没有独立 costsQuote、hedge mark 与 hedge entry cashflow 的完整实现；即使 pnl.total 非空也不得升级为真实账户净 PnL"
+      ],
+      "mechanism": {
+        "type": "accounting-identity",
+        "explanation": "先按 mark、entry cashflow、PnL 分列，再在 PnL 列内对同口径、带符号且有限的已建模组件求和。"
+      },
+      "allowedInferences": [
+        "数值组件齐全时的 scenarioTotal",
+        "全部当前门禁通过时的已建模腿 pnl.total",
+        "缺失输入的明确并集"
+      ],
+      "forbiddenInferences": [
+        "把模型价当成交价",
+        "把合成 Gamma/LP shape 当账户 PnL",
+        "把 scenarioTotal 当 realized PnL",
+        "缺腿或缺成本时声称完整账户净值",
+        "跨列重复加总"
+      ],
+      "sources": [
+        ".agents/skills/china-stock-selection/references/formula-risk-contract.md#portfolio-ledger",
+        "docs/formula-evidence/formula-contract.md#13-组合统一台账",
+        "docs/formula-evidence/ERRATA.md#e-045--funding-proxy-与真实现金流分账"
+      ],
+      "implementation": [
+        "src/domain/formula-research/portfolioResearch.js",
+        "src/domain/formulas/optionPortfolio.js",
+        "src/domain/formulas/lp.js"
+      ],
+      "tests": [
+        "src/domain/__tests__/portfolioResearch.test.js",
+        "src/domain/__tests__/carryContracts.test.js",
+        "src/domain/__tests__/lpResearch.test.js",
+        "src/domain/__tests__/legacyAliasContract.test.js"
+      ],
+      "horizonMode": "same-horizon-required"
+    },
+    {
+      "formulaId": "holding.side-target-horizon-binding",
+      "name": "方向、终点与周期绑定门禁",
+      "family": "cycle-governance",
+      "canonicalTerm": [
+        { "field": "horizonSide", "meaning": "周期代数对应的 long/short 方向" },
+        { "field": "horizonTargetPrice", "meaning": "周期代数的冻结终点" },
+        { "field": "horizonTargetSource", "meaning": "终点来源，如 costLower/costAnchor/explicit-scenario" },
+        { "field": "cycleStartPrice", "meaning": "周期实际起算价格" }
+      ],
+      "expression": [
+        "horizonKey=(horizonSide,cycleStartPrice,costAnchor,horizonTargetPrice,horizonTargetSource,frozenAt,availableAt)",
+        "consumer.side 必须等于 horizonSide",
+        "limit/fill/target 改变时，用同一冻结 anchor 与 halfLife 对实际 start/target 重算；无法重算则 missing-input"
+      ],
+      "units": {
+        "inputs": "prices 为 quote/base；side/source 为 enum",
+        "outputs": "bound horizon context or missing-input"
+      },
+      "timeKnownAt": {
+        "observation": "锚、目标、起点全部可知后",
+        "causalBoundary": "不得用不同方向或不同终点的 H 代替",
+        "executionBoundary": "绑定失配时 OrderPlan 必须关闭"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "missing-input",
+        "reason": "这是周期量的类型与终点不变量；计划限价和真实 fill 都已按各自起点/终点重算。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "gate-input"
+      },
+      "objective": "防止 long/costLower 周期被上侧 sell 或其他退出终点复用。",
+      "useCases": ["OrderPlan 周期门禁", "多方向信号", "结构 milestone 到期"],
+      "meaning": "H 是方向和 target-specific quantity，不是标的的通用周期。",
+      "domain": {
+        "required": "side/start/anchor/target/source/timing 完整",
+        "range": "matched context or missing-input"
+      },
+      "constraints": [
+        "long costLower H 不得驱动 upper sell",
+        "target 改变后必须重算",
+        "每档限价单按自身 limitPrice/targetPrice 重算，成交后再按实际 fill 重算",
+        "无 short-side 模型时上侧周期为 missing-input"
+      ],
+      "mechanism": {
+        "type": "semantic-invariant",
+        "explanation": "修复公式的分子和方向都由指定终点决定，替换终点就改变了被测量。"
+      },
+      "allowedInferences": ["当前周期可否被某一具体计划消费"],
+      "forbiddenInferences": ["一个 H 适用所有方向", "H(costLower)=H(costAnchor)", "long H 可用于 sell"],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-019--e-020--周期必须与方向终点和实际起点同一"],
+      "implementation": [
+        "src/domain/market-data/formulaPath.js",
+        "src/domain/strategy-planning/orderPlanHorizonBinding.js",
+        "src/domain/strategy-planning/orderPlanExecution.js",
+        "src/domain/replay/dailyReplayExecution.js"
+      ],
+      "tests": [
+        "src/domain/__tests__/formulaPath.test.js",
+        "src/domain/__tests__/planning.test.js",
+        "src/domain/__tests__/replay.test.js"
+      ],
+      "horizonMode": "formula-derived"
+    },
+    {
+      "formulaId": "replay.actual-fill-horizon",
+      "name": "T+1 实际成交后 q/H 重算",
+      "family": "replay-governance",
+      "canonicalTerm": [
+        { "field": "signalContextHorizonSessions", "meaning": "T 收盘上下文的研究周期" },
+        { "field": "fillPrice", "meaning": "T+1 或以后真实回放成交价" },
+        { "field": "fillDerivedRecoveryFraction", "meaning": "以 fillPrice 为起点重算的修复比例" },
+        { "field": "fillDerivedHorizonSessions", "meaning": "以 fillPrice 为起点重算的周期" }
+      ],
+      "expression": [
+        "fillDerivedRecoveryFraction=(targetPrice-fillPrice)/(costAnchor-fillPrice) for long",
+        "fillDerivedHorizonSessions=ceil(halfLifeSessions*log2(1/(1-fillDerivedRecoveryFraction)))"
+      ],
+      "units": { "inputs": "prices 为 quote/base；half-life 为 sessions", "outputs": "fraction 和 sessions" },
+      "timeKnownAt": {
+        "observation": "历史 T+1 fill 完成时",
+        "causalBoundary": "T 收盘不得预读下一根实际 fill",
+        "executionBoundary": "fill-derived 周期不可用时，不启用到期退出"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "重算代数精确，历史 fill 与零冲击路径仍是回放情景。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "none"
+      },
+      "objective": "使历史回放的周期起点与实际成交价一致。",
+      "useCases": ["T+1 回放", "gap-open 情景", "到期退出"],
+      "meaning": "信号时只冻结结构，成交后才生成可用于该持仓的周期。",
+      "domain": {
+        "required": "有效 fillPrice 且 target 严格位于 fill 与 anchor 之间",
+        "range": "0<q<1；H>0 or missing-input"
+      },
+      "constraints": ["signal H 不得直接写入 fill order expiry", "gap 变化 q/H", "重算失败时保持关闭"],
+      "mechanism": { "type": "point-in-time-replay-rule", "explanation": "修复比例的分母和分子都取决于真实周期起点。" },
+      "allowedInferences": ["历史 fill 情景下的条件周期"],
+      "forbiddenInferences": ["T 收盘已知 T+1 fill", "signal close H 等于 fill H", "可实盘成交"],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-019--e-020--周期必须与方向终点和实际起点同一"],
+      "implementation": [
+        "src/domain/replay/dailyReplay.js",
+        "src/domain/replay/dailyReplayExecution.js",
+        ".agents/skills/china-stock-selection/scripts/replay-short-hold.mjs"
+      ],
+      "tests": ["src/domain/__tests__/replay.test.js", "scripts/check-china-stock-skill-runtime.mjs"],
+      "horizonMode": "formula-derived"
+    },
+    {
+      "formulaId": "replay.prefix-causal-warmup",
+      "name": "Replay 前缀因果 warmup",
+      "family": "replay-governance",
+      "canonicalTerm": [
+        { "field": "visibleReplayPrefixRows", "meaning": "当前 replay 时点已可见的行" },
+        { "field": "warmupEligibility", "meaning": "由逐点样本充足条件决定的 eligible 状态" },
+        { "field": "calibrationSplit", "meaning": "如使用固定起点，必须事前冻结的 split 说明" },
+        { "field": "marketStateSource", "meaning": "内部前缀计算、验证过的外部前缀，或外部不可信后内部重算" }
+      ],
+      "expression": [
+        "warmupEligibility_t=all(requiredEstimatorsHaveEnough(rows[0..t]))",
+        "append(future) must not change historical eligible set"
+      ],
+      "units": { "inputs": "rows/session indices", "outputs": "boolean eligibility and provenance" },
+      "timeKnownAt": {
+        "observation": "每个 replay 时点",
+        "causalBoundary": "不得用最终 rows.length 推起点",
+        "executionBoundary": "不满足样本充足条件的时点不进入回放"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "missing-input",
+        "reason": "这是因果回放的治理不变量；样本不足时应保持缺失。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "none"
+      },
+      "objective": "防止追加未来数据改变历史回放起点和 eligible set。",
+      "useCases": ["daily replay", "walk-forward", "追加未来不变性测试"],
+      "meaning": "回放范围本身也属于必须因果的 query 输出。",
+      "domain": { "required": "可追溯的样本充足规则或 calibration split", "range": "eligible/not-eligible" },
+      "constraints": [
+        "rows.length 不能是历史起点的未来输入",
+        "起点与事件集均需前缀不变",
+        "外部状态只校验长度不够，必须验证 canonical provenance 与内容 fingerprint"
+      ],
+      "mechanism": {
+        "type": "causal-sampling-invariant",
+        "explanation": "先判断当时估计器所需样本是否齐备，而不是根据最终数据集长度回写历史。"
+      },
+      "allowedInferences": ["历史某时点是否有足够当时数据参与回放"],
+      "forbiddenInferences": ["最终数据越长则历史必须更晚开始", "用未来数据决定历史 eligible set"],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-023--replay-起点也必须因果不变"],
+      "implementation": ["src/domain/replay/dailyReplay.js", "src/domain/market-data/cost.js"],
+      "tests": ["src/domain/__tests__/replay.test.js", "src/domain/__tests__/cost.test.js"],
+      "horizonMode": "formula-derived"
+    },
+    {
+      "formulaId": "market.adaptive-drawdown-features",
+      "name": "前缀自适应回撤特征",
+      "family": "market-state",
+      "canonicalTerm": [
+        { "field": "drawdownDepth", "meaning": "当前价格相对可见样本峰值的回撤" },
+        { "field": "drawdownSpeedFast", "meaning": "自适应 fast lag 上的回撤深度变化" },
+        { "field": "drawdownSpeedSlow", "meaning": "自适应 slow lag 上的回撤深度变化" },
+        { "field": "windowSpec", "meaning": "窗口、滞后、最低样本和模式来源" }
+      ],
+      "expression": [
+        "drawdownDepth_t=close_t/prefixPeak_t-1",
+        "drawdownSpeedFast_t=drawdownDepth_t-drawdownDepth_(t-fastLag_t)",
+        "drawdownSpeedSlow_t=drawdownDepth_t-drawdownDepth_(t-slowLag_t)"
+      ],
+      "units": { "inputs": "close 为 quote/base；lags 为 sessions", "outputs": "drawdown/speed 为 fraction" },
+      "timeKnownAt": {
+        "observation": "t 日收盘后",
+        "causalBoundary": "windowSpec 和特征只读 rows[0..t]",
+        "executionBoundary": "特征只是状态输入，不是反转或成交保证"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "sample-estimate",
+        "reason": "特征换算精确，窗口和状态分类来自有限前缀样本。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "gate-input"
+      },
+      "objective": "取代无来源的全局 5/20 固定滞后语义。",
+      "useCases": ["回撤扩张门禁", "修复阶段", "成本斜率与动量状态"],
+      "meaning": "在当时可见样本上计算的自适应快/慢回撤速度。",
+      "domain": {
+        "required": "正 close 且达到 windowSpec.minimumRequired",
+        "range": "drawdownDepth<=0；speeds 可正可负"
+      },
+      "constraints": ["windowSpec 必须输出", "显式 lookback 标为 explicit-scenario", "旧数字后缀别名不得进入新逻辑"],
+      "mechanism": {
+        "type": "prefix-adaptive-sample-feature",
+        "explanation": "窗口和 fast/slow lag 由可见样本规模决定。"
+      },
+      "allowedInferences": ["声明窗口下的回撤扩张或修复状态"],
+      "forbiddenInferences": ["固定 5/20 日周期", "主力节奏", "未来反转"],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-024--e-025--规范名称与自适应特征契约"],
+      "implementation": ["src/domain/formulas/shortHold.js", "src/domain/market-data/cost.js"],
+      "tests": ["src/domain/__tests__/formulas.test.js", "src/domain/__tests__/cost.test.js"],
+      "horizonMode": "formula-derived"
+    },
+    {
+      "formulaId": "lp.il-attribution-model-basis",
+      "name": "IL 模型与对照基准门禁",
+      "family": "lp-il-governance",
+      "canonicalTerm": [
+        { "field": "ilModel", "meaning": "full-range-v2 或 range-v3 等明确模型" },
+        { "field": "rangeV3Il", "meaning": "净 LP 主路径使用的指定区间 IL" },
+        { "field": "capitalBasis", "meaning": "入场库存/资本对照基准" },
+        { "field": "feeTreatment", "meaning": "费用是排除、观测还是情景" }
+      ],
+      "expression": [
+        "attributableIL requires model+start+mark+range+capitalBasis+feeTreatment+horizon",
+        "zero entry capital => missing-input"
+      ],
+      "units": {
+        "inputs": "prices/range 为 quote/base；capital 为 quote currency",
+        "outputs": "IL fraction or missing-input"
+      },
+      "timeKnownAt": {
+        "observation": "对照资本、mark 和周期一致后",
+        "causalBoundary": "未发生费用不得写入 observed attribution",
+        "executionBoundary": "裸 IL 字段或模型不明时正式净收益为 null"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "missing-input",
+        "reason": "同口径归因是会计门禁；模型、区间、资本、费用或周期缺失时保持 null。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "防止 v2/v3 或不同资本基准的 IL 被静默混入组合归因。",
+      "useCases": ["net LP attribution", "v2/v3 对照", "组合统一台账"],
+      "meaning": "IL 数值只有连同模型和反事实基准才具有语义。",
+      "domain": { "required": "model/range/start/mark/capital basis/horizon 完整", "range": "fraction or null" },
+      "constraints": ["主路径禁止裸 impermanentLoss", "v2 proxy 不得代替 v3 range", "零入场资本不得返回 IL=0"],
+      "mechanism": {
+        "type": "semantic-accounting-gate",
+        "explanation": "相对价值差的分子和分母必须来自同一模型、资本与周期。"
+      },
+      "allowedInferences": ["完整同口径下的 IL 归因"],
+      "forbiddenInferences": ["裸数值自带 v2/v3 语义", "零资本 IL=0", "跨范围直接比较"],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-021--il-归因必须保留模型和对照基准"],
+      "implementation": [
+        "src/domain/formulas/lp.js",
+        "src/domain/formulas/lpResearch.js",
+        "src/domain/formula-research/researchSnapshot.js"
+      ],
+      "tests": ["src/domain/__tests__/lpResearch.test.js", "src/domain/__tests__/portfolioResearch.test.js"],
+      "horizonMode": "same-horizon-required"
+    },
+    {
+      "formulaId": "replay.lot-specific-exit-binding",
+      "name": "Replay 批次级退出绑定",
+      "family": "replay-accounting",
+      "canonicalTerm": [
+        { "field": "lotId", "meaning": "每次买入形成的唯一批次" },
+        { "field": "targetPrice/stopPrice", "meaning": "该批次成交时冻结的目标和失效价" },
+        { "field": "formulaHorizonSessions/expiresAt", "meaning": "该批次成交后重算并冻结的周期与到期索引" },
+        {
+          "field": "eligibleExitIndex/sameBarExitPolicy",
+          "meaning": "日线分辨率下该批次首次允许退出的完整 K 线及其来源"
+        },
+        { "field": "horizonBinding", "meaning": "side、起点、锚、终点、来源和可知时点的完整绑定" }
+      ],
+      "expression": [
+        "positionTotals=sum(lot.baseAmount,lot.investedCost)",
+        "exit(lot_i) uses only lot_i target/stop/expiry/horizon"
+      ],
+      "units": {
+        "inputs": "prices 为 quote/base；horizon/expiry 为 session index",
+        "outputs": "lot-level base、cost 与 exit event"
+      },
+      "timeKnownAt": {
+        "observation": "每个实际 fill 后",
+        "causalBoundary": "新批次不得改写旧批次退出参数",
+        "executionBoundary": "这是回放会计规则，不证明真实成交"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "批次台账是会计恒等，OHLC 成交和策略退出仍是回放情景。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "none"
+      },
+      "objective": "防止加仓后用平均目标、合并止损或最大到期日覆盖各批次。",
+      "useCases": ["daily replay", "分批建仓", "lot-level PnL"],
+      "meaning": "组合总量可聚合，但退出条件属于各自成交批次。",
+      "domain": { "required": "正 baseAmount、非负 investedCost、可追溯 lotId", "range": "每批次零或一个退出事件" },
+      "constraints": [
+        "不得平均 target/stop",
+        "不得取最大 expiry",
+        "减仓后按明确方法分摊批次成本",
+        "新 fill 不得使用同一根日线的完整 high/low 伪造 fill 后路径"
+      ],
+      "mechanism": { "type": "lot-ledger", "explanation": "以不可变批次参数记录路径依赖头寸。" },
+      "allowedInferences": ["回放中每批次的条件退出与损益"],
+      "forbiddenInferences": ["组合均价决定所有批次目标", "最后一笔订单覆盖旧周期", "等同券商逐笔持仓"],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-026--多批次仓位必须各自退出"],
+      "implementation": ["src/domain/replay/dailyReplayExecution.js"],
+      "tests": ["src/domain/__tests__/replay.test.js"],
+      "horizonMode": "formula-derived"
+    },
+    {
+      "formulaId": "replay.ohlc-intrabar-policy",
+      "name": "OHLC 日线内退出顺序策略",
+      "family": "replay-execution-proxy",
+      "canonicalTerm": [
+        { "field": "intrabarPolicy", "meaning": "目标和止损同 K 线触及时的显式排序规则" },
+        { "field": "exitPriceSource", "meaning": "open gap、threshold touch 或 close rule" }
+      ],
+      "expression": [
+        "open>=target => target fill at open",
+        "open<=stop => stop fill at open",
+        "open between thresholds and both hit => stop first",
+        "single intrabar touch => fill at threshold"
+      ],
+      "units": { "inputs": "OHLC 与 thresholds 为 quote/base", "outputs": "exit price 与离散来源标签" },
+      "timeKnownAt": {
+        "observation": "该日 OHLC 收盘后",
+        "causalBoundary": "OHLC 无法恢复真实盘中先后",
+        "executionBoundary": "保守排序是明示情景，不是逐笔成交事实"
+      },
+      "claimClass": {
+        "law": "scenario-proxy",
+        "result": "scenario-proxy",
+        "reason": "只凭 OHLC 无法识别同 K 线触发顺序，必须选定并披露代理规则。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "避免用 close 判断遗漏盘中止损，并在保留开盘已知信息后消除盘中未知顺序的乐观选择。",
+      "useCases": ["daily replay", "目标/止损冲突", "跳空处理"],
+      "meaning": "在缺少分钟/逐笔路径时采用可重复的保守成交代理。",
+      "domain": { "required": "合法 OHLC 与正阈值", "range": "one exit or none per lot/session" },
+      "constraints": [
+        "开盘跳空优先",
+        "盘中顺序未知时 stop-first 必须输出",
+        "跳空按 open 而非阈值成交",
+        "分钟数据可替换该代理"
+      ],
+      "mechanism": { "type": "explicit-path-policy", "explanation": "用可审计的最保守顺序处理不可识别的日内路径。" },
+      "allowedInferences": ["该代理规则下的回放退出"],
+      "forbiddenInferences": ["真实触发顺序", "可成交性", "滑点为零"],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-027--ohlc-日线内退出必须披露不可识别性"],
+      "implementation": ["src/domain/replay/dailyReplayExecution.js"],
+      "tests": ["src/domain/__tests__/replay.test.js"],
+      "horizonMode": "path-observed"
+    },
+    {
+      "formulaId": "replay.used-notional-return",
+      "name": "峰值占用本金收益率",
+      "family": "replay-accounting",
+      "canonicalTerm": [
+        { "field": "usedNotional", "meaning": "回放期间未平仓成本基准的峰值" },
+        { "field": "totalNotional", "meaning": "所有成交名义金额之和，只表示换手" },
+        { "field": "returnOnUsedNotional", "meaning": "总损益除以峰值占用本金" }
+      ],
+      "expression": ["usedNotional=max_t(openCostBasis_t)", "returnOnUsedNotional=totalPnl/usedNotional"],
+      "units": { "inputs": "PnL/notional 为 quote currency", "outputs": "return 为 fraction" },
+      "timeKnownAt": {
+        "observation": "回放区间结束后",
+        "causalBoundary": "每个时点的 openCostBasis 只来自当时已成交 lot",
+        "executionBoundary": "不含未建模保证金、融资和资本机会成本"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "分母定义和算术精确，输入来自简化现货回放。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "避免以累计成交额稀释或夸大资本收益率。",
+      "useCases": ["replay summary", "capital efficiency comparison"],
+      "meaning": "每单位最大实际占用成本基准产生的回放损益。",
+      "domain": { "required": "usedNotional>0 才有定义", "range": "fraction；无占用时返回 0 并标空回放" },
+      "constraints": ["不得使用 totalNotional 作分母", "必须包含初始底仓占用", "杠杆账户另建资本分母"],
+      "mechanism": { "type": "accounting-ratio", "explanation": "用路径上的峰值成本占用作为资本分母。" },
+      "allowedInferences": ["当前现货代理回放的资本占用收益率"],
+      "forbiddenInferences": ["真实账户 ROE", "成交额收益率", "含衍生品保证金的组合收益率"],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-028--资本分母与成交额分开"],
+      "implementation": ["src/domain/replay/dailyReplayReport.js"],
+      "tests": ["src/domain/__tests__/replay.test.js"],
+      "horizonMode": "path-observed"
+    },
+    {
+      "formulaId": "market.volume-profile-prefix-window",
+      "name": "成交量价格分布可见窗口",
+      "family": "market-visualization",
+      "canonicalTerm": [
+        { "field": "visiblePrefixRows", "meaning": "截至 activeIndex 的可见 OHLCV 前缀" },
+        { "field": "requestedWindowSessions", "meaning": "仅由显式 viewport 提供的截取长度" },
+        { "field": "windowSpec", "meaning": "模式、应用行数与 futureRowsUsed 证据" }
+      ],
+      "expression": [
+        "rowsUsed=rows[0..activeIndex] when no viewport",
+        "rowsUsed=last(requestedWindowSessions) of visible prefix when viewport explicit"
+      ],
+      "units": {
+        "inputs": "rows/sessions；volume 为数据源单位",
+        "outputs": "price bins、volume shares 与 window provenance"
+      },
+      "timeKnownAt": {
+        "observation": "activeIndex 对应 K 线收盘后",
+        "causalBoundary": "不得读取 activeIndex 之后的行",
+        "executionBoundary": "成交量按价格均匀分桶是 proxy，不是订单簿"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "分桶聚合按定义精确，OHLCV 到价位成交分布是近似。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "research-only",
+        "executionAuthority": "none"
+      },
+      "objective": "移除无来源的 180 会话隐藏窗口并保留 viewport 来源。",
+      "useCases": ["筹码/成交量分布覆盖层", "POC/value area", "历史截图复现"],
+      "meaning": "当时可见 OHLCV 的 volume-by-price 代理。",
+      "domain": { "required": "有效 OHLCV 与正 binCount", "range": "非负 volume mass；shares sum to 1" },
+      "constraints": ["无 viewport 时用完整可见前缀", "显式窗口必须输出来源", "futureRowsUsed=false"],
+      "mechanism": {
+        "type": "ohlcv-bin-allocation",
+        "explanation": "把每根 K 线成交量按其 high-low 覆盖区间分配到价格桶。"
+      },
+      "allowedInferences": ["该代理下的历史成交密集区"],
+      "forbiddenInferences": ["真实持仓成本分布", "做市商仓位", "未来支撑阻力概率"],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-031--成交量价格分布窗口"],
+      "implementation": ["src/domain/research-visualization/volumePriceProfile.js"],
+      "tests": ["src/domain/__tests__/volumePriceProfile.test.js"],
+      "horizonMode": "path-observed"
+    },
+    {
+      "formulaId": "data.historical-signal-prefix-provenance",
+      "name": "历史信号前缀来源一致性",
+      "family": "data-provenance",
+      "canonicalTerm": [
+        { "field": "dataThrough", "meaning": "信号时点可见前缀的最后日期" },
+        { "field": "rows", "meaning": "信号时点可见前缀样本数" },
+        { "field": "freshness/candidateStatus", "meaning": "仅由该前缀判定的新鲜度和候选状态" }
+      ],
+      "expression": ["metadata_t = metadata(rows[0..t])", "append(future) must not change metadata_t"],
+      "units": { "inputs": "dated rows", "outputs": "date/count/status/provenance" },
+      "timeKnownAt": {
+        "observation": "信号时点 t",
+        "causalBoundary": "不得以最终数据集 last row 或 row count 回填历史状态",
+        "executionBoundary": "来源缺失时历史结论关闭或标 stale/unknown"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "missing-input",
+        "reason": "来源一致性是治理恒等；必要前缀元数据缺失时不能生成可信历史状态。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "gate-input"
+      },
+      "objective": "防止历史信号借用未来数据集的新鲜度和覆盖状态。",
+      "useCases": ["stock screen", "skill replay", "historical evidence"],
+      "meaning": "信号数值和描述它的数据来源必须处于同一信息集。",
+      "domain": { "required": "有序 dated rows 与信号索引", "range": "prefix-consistent metadata or missing-input" },
+      "constraints": ["dataThrough 等于前缀最后日期", "rows 等于前缀长度", "candidateStatus 只看前缀"],
+      "mechanism": { "type": "causal-provenance-invariant", "explanation": "让信号内容和元数据共享同一历史截面。" },
+      "allowedInferences": ["历史时点当时具备的数据覆盖与状态"],
+      "forbiddenInferences": ["用最终文件日期证明旧信号当时新鲜", "未来行改变旧候选状态"],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-032--历史信号与来源元数据必须同一前缀"],
+      "implementation": [
+        ".agents/skills/china-stock-selection/scripts/screen-cn-stocks.mjs",
+        ".agents/skills/china-stock-selection/scripts/replay-short-hold.mjs"
+      ],
+      "tests": ["scripts/check-china-stock-skill-runtime.mjs"],
+      "horizonMode": "path-observed"
+    },
+    {
+      "formulaId": "semantics.exit-target-return",
+      "name": "退出目标与 profile 门槛分离",
+      "family": "semantic-governance",
+      "canonicalTerm": [
+        { "field": "exitTargetReturn", "meaning": "仓位退出的情景收益目标" },
+        { "field": "minimumGrossReturn", "meaning": "profile 接受结构 milestone 的最低毛收益门槛" },
+        { "field": "fixedTargetReturn", "meaning": "显式固定情景的目标收益" }
+      ],
+      "expression": [
+        "exitTargetPrice=entryPrice*(1+exitTargetReturn)",
+        "profile gate: structuralGrossReturn>=minimumGrossReturn",
+        "fixed scenario target=entryPrice*(1+fixedTargetReturn)"
+      ],
+      "units": { "inputs": "returns 为 fraction", "outputs": "target price 为 quote/base；gates 为 boolean" },
+      "timeKnownAt": {
+        "observation": "情景/profile 配置时",
+        "causalBoundary": "不得把未来实现收益当作输入",
+        "executionBoundary": "字段角色不明时不生成新订单契约"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "价格换算精确，退出目标和 profile 门槛是用户或策略情景。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "gate-input"
+      },
+      "objective": "消除 targetReturn 在退出、筛选门槛与固定情景之间的语义漂移。",
+      "useCases": ["OrderPlan", "strategy profile", "fixed-target replay"],
+      "meaning": "三种收益率对应三种不同命令/查询角色。",
+      "domain": { "required": "角色明确的非负 fraction", "range": "fraction" },
+      "constraints": ["targetReturn 只允许边界层弃用别名", "新 graph/order 不得产生旧字段", "改变终点后重算 H"],
+      "mechanism": { "type": "semantic-separation", "explanation": "退出命令、候选门槛和压力情景属于不同领域概念。" },
+      "allowedInferences": ["每个字段对应的唯一目标或门槛"],
+      "forbiddenInferences": [
+        "targetReturn 自动表示 deltaSlope",
+        "profile 门槛就是仓位退出目标",
+        "fixed target 是公式推导"
+      ],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-022--退出收益字段的唯一语义"],
+      "implementation": [
+        "src/domain/formulas/inputSemantics.js",
+        "src/domain/strategy-planning/orderPlan.js",
+        "src/domain/strategy-planning/orderPlanContext.js",
+        "src/domain/strategy-planning/orderPlanExecution.js",
+        ".agents/skills/china-stock-selection/scripts/replay-short-hold.mjs"
+      ],
+      "tests": ["src/domain/__tests__/planning.test.js", "src/domain/__tests__/optionFormulas.test.js"],
+      "horizonMode": "explicit-scenario"
+    },
+    {
+      "formulaId": "semantics.canonical-alias-migration",
+      "name": "全域规范字段与兼容别名迁移",
+      "family": "semantic-governance",
+      "canonicalTerm": [
+        { "field": "arCoefficient", "meaning": "AR(1) 样本系数" },
+        { "field": "arDecayRatePerStep", "meaning": "AR 每 session 条件衰减率" },
+        { "field": "halfLifeSessions", "meaning": "AR 条件半衰会话数" },
+        { "field": "formulaHorizonSessions", "meaning": "公式推导的交易会话周期" },
+        { "field": "optionDelta", "meaning": "期权价格对标的价格的一阶敏感度" },
+        { "field": "optionGamma", "meaning": "期权 Delta 对标的价格的一阶敏感度" },
+        { "field": "optionThetaPerSession", "meaning": "每交易会话期权价值变化" },
+        { "field": "optionThetaAnnual", "meaning": "每年期权价值变化，与 per-session 字段分离" },
+        { "field": "optionVegaPerPct", "meaning": "IV 上升一个百分点的期权价值变化" },
+        { "field": "optionRhoPerPct", "meaning": "年化利率上升一个百分点的期权价值变化" },
+        { "field": "inventoryDeltaToken0", "meaning": "v3 LP token0 库存敏感度" },
+        { "field": "netInventoryDeltaToken0", "meaning": "v2 LP 扣除线性 hedge 后的 token0 净库存敏感度" },
+        { "field": "fullRangeV2IlProxy", "meaning": "v2 全区间 IL 代理" },
+        { "field": "rangeV3Il", "meaning": "指定 v3 区间的 IL；不得与 v2 proxy 共用裸名" },
+        { "field": "feeIncomeQuote", "meaning": "quote currency 费用收入" },
+        { "field": "basisFraction", "meaning": "perp/spot 同期基差" },
+        { "field": "cumulativeFundingProxy", "meaning": "声明周期上的累计代理" },
+        { "field": "fundingCashflowQuote", "meaning": "带符号 quote currency Funding 现金流" },
+        {
+          "field": "fundingCashflowSource",
+          "meaning": "Funding 现金流的 observed-settlement 或 explicit-scenario 来源"
+        },
+        { "field": "minimumGrossReturn", "meaning": "策略 profile 的最小毛收益门槛" },
+        {
+          "field": "legacyAliasMetadata",
+          "meaning": "逐旧字段披露 deprecated、legacyAliasOf 与必要 transform 的机器契约"
+        }
+      ],
+      "expression": [
+        "legacyAliases[legacyName]=canonicalName only at an explicit compatibility boundary",
+        "legacyAliasMetadata[legacyName]={deprecated:true,legacyAliasOf:canonicalName,transform?:namedTransform}",
+        "fundingCost -> fundingCashflowQuote requires transform=negate-cost-positive-to-cashflow-positive",
+        "non-equivalent legacy input -> deprecatedInputs[legacyName].accepted=false with reason and missing replacement inputs",
+        "new production consumers intersect legacy output names = empty"
+      ],
+      "units": {
+        "inputs": "由每个 canonical target 定义；alias 自身不得改变单位、符号、周期或可知时点",
+        "outputs": "与 canonical target 同单位；存在符号变换时必须由命名 transform 披露"
+      },
+      "timeKnownAt": {
+        "observation": "兼容边界读取旧 schema 或输出兼容字段时",
+        "causalBoundary": "别名不得改变数值的可知时点、calendar 或 horizon；day 名不得把 trading session 改成自然日",
+        "executionBoundary": "新主路径只消费 canonical fields；拒绝型旧输入不得绕过缺失输入门禁"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "missing-input",
+        "reason": "同值同义映射是治理恒等；非同义字段必须拒绝，旧名只允许在可审计兼容边界存活。"
+      },
+      "statusAxes": {
+        "correctionStatus": "accepted-risk",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "none"
+      },
+      "objective": "在不静默改变数值、单位、符号或周期的前提下，统一退役 AR、期权、LP、Funding、周期和目标门槛的多义旧名。",
+      "useCases": ["AR/周期输出", "期权 Greeks", "LP 库存与 IL", "费用与 Funding", "策略 profile", "兼容边界审计"],
+      "meaning": "旧字段只是有限期、逐字段可追溯的迁移接口；canonical 字段才是内部和新输出契约。",
+      "domain": {
+        "required": "每个真 alias 唯一指向一个实际存在的 canonical field；单位、符号、周期相同，或披露一个确定的命名 transform",
+        "range": "canonical value plus legacyAliases/legacyAliasMetadata，或带 accepted=false 的 deprecatedInputs"
+      },
+      "constraints": [
+        "每个兼容输出必须同时提供 deprecated=true 与 legacyAliasOf；alias target 必须是该结果真实存在的 canonical 字段",
+        "不得一个旧名跨上下文自动映射多个量；AR rho 不得自动解释为 optionRhoPerPct，裸 theta/delta 也不得跨期权与 LP 解释",
+        "需要换符号或尺度时必须披露命名 transform；不得把非等价值伪装成 alias",
+        "旧 costDistance/fundingRate 等缺少方向、分母、名义或周期的输入必须进入 rejected deprecatedInputs，而不是 legacyAliases",
+        "旧 halfLifeDays、formulaHorizonDays、thetaDaily 只能在显式 session canonicalizer 或兼容输出边界出现，不能宣称自然日",
+        "input canonicalizer 可以在审计白名单内消费并删除旧名，但不得把旧名重新输出到新 skill JSON",
+        "新 domain、store、composable、screen、replay 与 order consumer 不得读取裸旧名；兼容适配器必须单独列入 source allowlist"
+      ],
+      "mechanism": {
+        "type": "compatibility-boundary",
+        "explanation": "由 defineLegacyAliasContract 生成逐字段映射元数据，session canonicalizer 只在入口归一化旧 schema，内部和新输出使用全名。"
+      },
+      "allowedInferences": ["白名单兼容边界内旧字段对应的唯一规范含义", "某个旧输入被明确拒绝及其所缺替代信息"],
+      "forbiddenInferences": [
+        "rho 可自动表示 option Rho",
+        "theta/delta 可跨期权与 LP 共享裸语义",
+        "impermanentLoss 自动表示 v3 range IL",
+        "fees 自动具有路径、币种和名义来源",
+        "fundingCost 等于真实 funding settlement",
+        "minGrossReturn 等于 exitTargetReturn",
+        "alias 可无期保留或被新主路径继续消费"
+      ],
+      "sources": [
+        "docs/formula-evidence/ERRATA.md#e-024--e-025--规范名称与自适应特征契约",
+        "docs/formula-evidence/ERRATA.md#e-047--兼容输入分成-alias-与-rejected-input"
+      ],
+      "implementation": [
+        "src/domain/formulas/legacyAliases.js",
+        "src/domain/formulas/core.js",
+        "src/domain/formulas/options.js",
+        "src/domain/formulas/optionPortfolio.js",
+        "src/domain/formulas/lp.js",
+        "src/domain/formulas/lpResearch.js",
+        "src/domain/formula-research/portfolioResearch.js",
+        "src/domain/formulas/dynamicHoldingSupport.js",
+        "src/domain/formulas/shortHold.js",
+        "src/domain/market-data/formulaPath.js",
+        "research/latent-liquidity-lab/src/cycleHorizon.js",
+        ".agents/skills/china-stock-selection/scripts/selection-helpers.mjs"
+      ],
+      "tests": [
+        "src/domain/__tests__/legacyAliasContract.test.js",
+        "src/domain/__tests__/optionFormulas.test.js",
+        "src/domain/__tests__/lpResearch.test.js",
+        "src/domain/__tests__/lpCarryResearch.test.js",
+        "src/domain/__tests__/formulas.test.js",
+        "src/domain/__tests__/formulaPath.test.js",
+        "src/domain/__tests__/shortHoldSessions.test.js",
+        "src/domain/__tests__/sourceAudit.test.js",
+        "research/latent-liquidity-lab/test/latentLiquidity.test.mjs",
+        "skills/china-stock-selection/scripts/selection-helpers.test.mjs",
+        "scripts/check-china-stock-skill-runtime.mjs"
+      ],
+      "horizonMode": "none"
+    },
+    {
+      "formulaId": "data.freshness-evidence-score",
+      "name": "数据新鲜度与证据深度评分",
+      "family": "data-quality",
+      "canonicalTerm": [
+        { "field": "staleDays", "meaning": "数据截止日相对审计日的自然日年龄，只用于新鲜度" },
+        { "field": "totalRows", "meaning": "当前可见前缀的有效样本行数" },
+        { "field": "minimumRequiredRows", "meaning": "由前缀自适应窗口推导的最低证据行数" },
+        { "field": "freshnessScore", "meaning": "staleDays 不超过显式新鲜度阈值时为 5，否则为 0" },
+        { "field": "evidenceDepthScore", "meaning": "样本行数相对最低要求的对数分档，范围 0..3" },
+        { "field": "annualCoverageScore", "meaning": "样本行数相对 TDPY 的平方根分档，范围 0..2" },
+        { "field": "score", "meaning": "三个可观察分量之和，范围 0..10" }
+      ],
+      "expression": [
+        "freshnessScore=(staleDays<=10)?5:0",
+        "evidenceDepthScore=min(3,max(0,floor(log2(max(totalRows/minimumRequiredRows,1)))))",
+        "annualCoverageScore=min(2,max(0,floor(sqrt(totalRows/tradingDaysPerYear))))",
+        "score=freshnessScore+evidenceDepthScore+annualCoverageScore"
+      ],
+      "units": {
+        "inputs": "staleDays 为 calendar day；totalRows/minimumRequiredRows 为 rows；tradingDaysPerYear 为 sessions/year",
+        "outputs": "无量纲诊断分，0..10"
+      },
+      "timeKnownAt": {
+        "observation": "筛选快照生成时，且所有行数和 dataThrough 只来自该历史前缀",
+        "causalBoundary": "不得用最终文件 staleDays/rows 回填历史信号；未来日期或缺失输入返回 null",
+        "executionBoundary": "分数只参与研究排序，不授予交易或下单权限"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "scenario-proxy",
+        "reason": "分量计算是确定规则；10 日阈值和权重是明确的产品情景，不是统计最优常数。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "none"
+      },
+      "objective": "让数据新鲜度和证据深度的每个评分分量可见，消除扣到零后仍继续扣分的死分支。",
+      "useCases": ["候选研究排序", "数据质量诊断", "历史前缀回放"],
+      "meaning": "它是可解释的数据质量分，不是持有期、收益概率或市场状态概率。",
+      "domain": {
+        "required": "staleDays>=0、totalRows>=0、tradingDaysPerYear>0、minimumRequiredRows>0",
+        "range": "各分量和总分有限；score in [0,10]；非法输入返回 null"
+      },
+      "constraints": [
+        "10 是显式数据新鲜度阈值，不是 10 个交易会话持有期",
+        "staleDays>10 后 freshnessScore 已为零，不得再添加不会改变输出的 staleDays>30 扣分",
+        "证据深度使用前缀 totalRows 与前缀自适应 minimumRequiredRows",
+        "TDPY 必须来自可追溯市场映射；未知时不得猜 365"
+      ],
+      "mechanism": {
+        "type": "observable-score-decomposition",
+        "explanation": "把新鲜度、相对最低样本深度和年覆盖拆成三个有上限的可观察分量。"
+      },
+      "allowedInferences": ["分数变化由哪个数据质量分量造成", "当前前缀在声明规则下的数据质量排序"],
+      "forbiddenInferences": ["10 日是持有期", "分数是胜率", "staleDays 超过 30 有第二个有效断点", "高分可直接执行"],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-049--e-050--数值精度参数与评分分支必须可观察"],
+      "implementation": [
+        ".agents/skills/china-stock-selection/scripts/selection-helpers.mjs",
+        ".agents/skills/china-stock-selection/scripts/screen-cn-stocks.mjs"
+      ],
+      "tests": [
+        "skills/china-stock-selection/scripts/selection-helpers.test.mjs",
+        "scripts/check-china-stock-skill-runtime.mjs"
+      ],
+      "horizonMode": "none"
+    },
+    {
+      "formulaId": "governance.semantic-evidence-audit",
+      "name": "公式语义与证据链机器审计",
+      "family": "semantic-governance",
+      "canonicalTerm": [
+        { "field": "semanticRegistry", "meaning": "公式语义、状态、证据、实现与测试路径的机器事实源" },
+        { "field": "sourceSemanticGuards", "meaning": "针对曾逃过审计的旧字段消费、错误现金流和死分支的精确源码规则" },
+        {
+          "field": "legacyAliasMetadata",
+          "meaning": "兼容输出逐字段的 deprecated、legacyAliasOf 与可选 transform 证据"
+        },
+        {
+          "field": "productionTemporalLiteralScan",
+          "meaning": "生产路径中隐藏 30/60/90 周期与普适 87.5% 常数的负向扫描"
+        },
+        { "field": "evidenceGateResult", "meaning": "所有结构、路径、锚点、别名消费和隐藏回退检查的汇总 pass/fail" }
+      ],
+      "expression": [
+        "all registry implementation/tests/local-source paths exist",
+        "every ERRATA item maps to a formula or explicit governance scope and its exact heading anchor exists",
+        "every compatibility output alias has legacyAliasMetadata.deprecated=true and legacyAliasOf equal to an existing canonical output",
+        "every value-changing alias transform is named; non-equivalent legacy inputs are rejected rather than mapped",
+        "previously-failed source semantic guards all pass",
+        "production hidden temporal fallback matches=empty",
+        "evidenceGateResult=pass iff every required check passes"
+      ],
+      "units": {
+        "inputs": "repository paths、formulaId、E-ID、field names、status enums 和 source locations",
+        "outputs": "deterministic pass/fail plus exact file/field/reason diagnostics"
+      },
+      "timeKnownAt": {
+        "observation": "当前 repository snapshot 被审计时",
+        "causalBoundary": "审计只读取当前提交可见文件，不得引用未来修复或未落盘证据",
+        "executionBoundary": "失败只能阻止 correctionStatus 升级为 verified；审计通过本身不授予任何市场执行权限"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "missing-input",
+        "reason": "结构、路径、锚点、勘误映射和已知源码回归规则都可确定校验；通过只证明已编码门禁。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "none"
+      },
+      "objective": "让勘误状态、公式语义、兼容别名、固定数字和本地证据路径可以由 CI 复核，避免文档正确而运行时代码继续漂移。",
+      "useCases": ["公式审计 CI", "勘误状态升级门禁", "兼容别名退役", "隐藏固定周期扫描", "证据路径与锚点校验"],
+      "meaning": "这是 repository 语义一致性门禁，不是市场公式、数值正确性证明或统计有效性证明。",
+      "domain": {
+        "required": "可解析 registry/ERRATA、明确状态枚举、可遍历源码、精确 source guards 和存在的本地证据路径",
+        "range": "pass/fail；失败必须定位到 formulaId/E-ID/path/field/rule"
+      },
+      "constraints": [
+        "已知旧字段消费与错误现金流回归必须精确到文件和 required/forbidden pattern，不得用目录级通配豁免",
+        "生产周期扫描只针对时间语义字段及 87.5% 普适常数；市场 calendar TDPY、测试 fixture、数值网格和显式 scenario 不得被误当持有期",
+        "裸文本命中不能单独证明语义错误；扫描器必须识别注释、文档、测试和兼容边界并输出可复核上下文",
+        "canonical consumer 扫描必须覆盖 domain、store、composable、screen、replay、order、skill runtime 与 Pine 入口",
+        "实现和测试路径必须存在；本地 docs source 的精确标题锚必须存在；远程资料不能代替本地实现证据",
+        "审计不得把 deprecated alias 的存在等同于失败，也不得把带 metadata 的输出 alias 误当成主路径消费",
+        "source_coverage、inventory、wiring、数值、skill runtime 与 Pine audit 共同构成门禁；未编码的经济学或统计假设仍不能由静态审计证明"
+      ],
+      "mechanism": {
+        "type": "static-evidence-gate",
+        "explanation": "合并 JSON schema/path/anchor/ERRATA 检查、运行时 wiring smoke test、已知源码回归 guard 与生产时间常数扫描，形成可复现的失败清单。"
+      },
+      "allowedInferences": [
+        "当前 repository snapshot 是否满足已编码的语义证据门禁",
+        "已知旧字段/错误现金流/隐藏时间常数是否重新出现",
+        "某个状态升级是否缺少机器证据"
+      ],
+      "forbiddenInferences": [
+        "审计通过即公式经济学正确",
+        "审计通过即统计校准有效",
+        "审计通过即策略可交易",
+        "没有文本命中即不存在动态或运行时语义污染"
+      ],
+      "sources": [
+        "docs/formula-evidence/formula-contract.md",
+        "docs/formula-evidence/ERRATA.md#e-048--勘误和证据链本身也要机器校验",
+        "docs/formula-evidence/formula-semantic-registry.json"
+      ],
+      "implementation": [
+        "scripts/source_coverage_audit.py",
+        "scripts/formula_inventory_audit.py",
+        "scripts/formula_wiring_audit.py",
+        "scripts/formula_audit.py",
+        "scripts/check-china-stock-skill-runtime.mjs",
+        "scripts/verify-domain.mjs"
+      ],
+      "tests": [
+        "src/domain/__tests__/sourceAudit.test.js",
+        "src/domain/__tests__/legacyAliasContract.test.js",
+        "src/domain/__tests__/tdpyProductionContract.test.js",
+        "src/domain/__tests__/formulaPath.test.js",
+        "src/domain/__tests__/shortHoldSessions.test.js",
+        "skills/china-stock-selection/scripts/selection-helpers.test.mjs",
+        "scripts/check-china-stock-skill-runtime.mjs"
+      ],
+      "horizonMode": "none"
+    },
+    {
+      "formulaId": "governance.pine-single-canonical",
+      "name": "Pine 单一 canonical 与历史隔离",
+      "family": "semantic-governance",
+      "canonicalTerm": [
+        { "field": "canonicalPine", "meaning": "唯一维护并通过动态周期校验的 Pine 脚本" },
+        { "field": "compatibilityPineStub", "meaning": "根目录旧文件名的 inert stub，只保留路径和 archive 指针" },
+        { "field": "archivedPine", "meaning": "research/archive/pine 下只作审计、无公式/信号/执行权限的冻结历史源码" },
+        {
+          "field": "archiveAuthorityManifest",
+          "meaning": "README 中 executable=false、formulaAuthority=none、signalAuthority=none 的权限声明"
+        }
+      ],
+      "expression": [
+        "canonical=bl-esw-pinbar-market-lab.pine",
+        "legacy root path => indicator-only inert stub with plot(na) and exact archive pointer",
+        "full legacy source => research/archive/pine with executable=false, formulaAuthority=none, signalAuthority=none",
+        "runtime/build imports or references to archived source = empty"
+      ],
+      "units": { "inputs": "source artifact", "outputs": "authority state" },
+      "timeKnownAt": {
+        "observation": "构建、Pine 静态校验和 JS/Pine 等价测试时",
+        "causalBoundary": "历史脚本不得进入当前公式依赖图",
+        "executionBoundary": "archive 和 compatibility stub 均无公式、市场信号、告警或执行权限；只有 canonical 文件可被维护和发布"
+      },
+      "claimClass": {
+        "law": "exact-identity",
+        "result": "missing-input",
+        "reason": "这是源码权限治理规则，不生成市场结论。"
+      },
+      "statusAxes": {
+        "correctionStatus": "verified",
+        "implementationStatus": "implemented",
+        "productStatus": "production-query",
+        "executionAuthority": "none"
+      },
+      "objective": "阻止旧固定周期 Pine 在根目录继续产生可误用信号或假绿校验。",
+      "useCases": ["Pine CI", "历史公式审计", "兼容旧路径"],
+      "meaning": "保留历史证据，但把当前公式权限收敛到单一文件。",
+      "domain": {
+        "required": "一个 canonical Pine、三个根目录 inert stubs、三个冻结 archive sources、权限 manifest 和 canonical/equivalence verifier",
+        "range": "canonical-maintained / compatibility-inert / archive-evidence-only"
+      },
+      "constraints": [
+        "三个根目录旧路径只能保留 version、deprecated/archive 注释、indicator 声明和 plot(na)；禁止市场公式、输入、信号、alertcondition 与 strategy action",
+        "每个 stub 必须精确指向 research/archive/pine 下同名冻结源码",
+        "archive README 必须持续声明 executable=false、formulaAuthority=none、signalAuthority=none 和 canonical replacement",
+        "archive 源码禁止被 src、runtime、build 或发布入口导入；只能被审计工具和人工证据读取",
+        "canonical verifier 必须同时检查 stubs、动态周期禁项和 JS/Pine 参数对齐；旧 CDX verifier 必须明确失败并指向 canonical verifier",
+        "archive 保存旧固定窗口只是历史证据，不能成为默认值、fallback、推荐参数或信号来源"
+      ],
+      "mechanism": {
+        "type": "artifact-authority-boundary",
+        "explanation": "将可执行入口与历史证据物理分离，并用负向检查锁定。"
+      },
+      "allowedInferences": [
+        "哪个 Pine 文件具有当前公式维护权限",
+        "旧文件名是否被物理降级为 inert compatibility stub",
+        "冻结历史源码的证据位置"
+      ],
+      "forbiddenInferences": [
+        "deprecated 注释等于不可执行",
+        "plot(na) stub 可产生市场信号",
+        "archive 可恢复为当前实现",
+        "旧 verifier 通过等于当前公式通过"
+      ],
+      "sources": ["docs/formula-evidence/ERRATA.md#e-043--历史源码不能只靠注释隔离"],
+      "implementation": [
+        "bl-esw-pinbar-market-lab.pine",
+        "bl-esw-pinbar-market-lab-cdx.pine",
+        "bl-esw-pinbar-market-lab-pro-cc.pine",
+        "bl-esw-pinbar-market-lab-pro-osc-cc.pine",
+        "research/archive/pine/README.md",
+        "research/archive/pine/bl-esw-pinbar-market-lab-cdx.pine",
+        "research/archive/pine/bl-esw-pinbar-market-lab-pro-cc.pine",
+        "research/archive/pine/bl-esw-pinbar-market-lab-pro-osc-cc.pine",
+        "scripts/verify-pine.mjs",
+        "scripts/verify-pine-equivalence.mjs",
+        "scripts/verify-pine-cdx.ps1"
+      ],
+      "tests": ["scripts/verify-pine.mjs", "src/test/pine-equivalence.test.js"],
+      "horizonMode": "none"
+    }
+  ]
+}

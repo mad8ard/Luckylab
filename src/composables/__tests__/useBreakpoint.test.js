@@ -13,11 +13,18 @@ describe('useBreakpoint', () => {
     mqStates = {
       '(max-width: 768px)': { matches: true },
       '(max-width: 1024px)': { matches: false },
+      '(max-width: 1279px)': { matches: true },
     }
     window.matchMedia = vi.fn().mockImplementation((query) => ({
-      get matches() { return mqStates[query]?.matches ?? false },
-      addEventListener: (_event, cb) => { listeners[query] = cb },
-      removeEventListener: () => { delete listeners[query] },
+      get matches() {
+        return mqStates[query]?.matches ?? false
+      },
+      addEventListener: (_event, cb) => {
+        listeners[query] = cb
+      },
+      removeEventListener: () => {
+        delete listeners[query]
+      },
     }))
     // 单例模式下需要在每个用例之间手动重置内部状态与监听器
     __resetBreakpointForTests()
@@ -27,7 +34,12 @@ describe('useBreakpoint', () => {
     const Comp = defineComponent({
       setup() {
         const bp = useBreakpoint()
-        return () => h('div', { 'data-mobile': bp.isMobile.value, 'data-tablet': bp.isTablet.value })
+        return () =>
+          h('div', {
+            'data-mobile': bp.isMobile.value,
+            'data-tablet': bp.isTablet.value,
+            'data-compact': bp.isCompact.value,
+          })
       },
     })
     return mount(Comp)
@@ -49,13 +61,19 @@ describe('useBreakpoint', () => {
     expect(wrapper.attributes('data-tablet')).toBe('true')
   })
 
+  it('compact 覆盖 1279px 以下三栏转抽屉的工作台', () => {
+    const wrapper = harness()
+    expect(wrapper.attributes('data-compact')).toBe('true')
+  })
+
   it('多次调用 useBreakpoint 复用同一个 ref 与监听器（单例语义）', () => {
     const a = useBreakpoint()
     const b = useBreakpoint()
     expect(a.isMobile).toBe(b.isMobile)
     expect(a.isTablet).toBe(b.isTablet)
-    // matchMedia 只被调用一次（mobile + tablet 两个 query 各一次，共两次），
+    expect(a.isCompact).toBe(b.isCompact)
+    // matchMedia 只被调用一次（mobile + tablet + compact 三个 query 各一次），
     // 第二次 useBreakpoint 不应再触发新的 matchMedia
-    expect(window.matchMedia).toHaveBeenCalledTimes(2)
+    expect(window.matchMedia).toHaveBeenCalledTimes(3)
   })
 })

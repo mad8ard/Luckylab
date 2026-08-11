@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { formatFormulaBlockReason, formatFormulaInputList } from '../domain/formula-research/formulaAvailability.js'
 
 const props = defineProps({
   formulaId: { type: String, required: true },
@@ -14,11 +15,21 @@ const lpParts = computed(() => {
   const d = props.netLpData
   if (!d) return []
   return [
-    { id: 'gross', label: 'CE 毛效率', value: d.grossGain, display: signedX(d.grossGain) },
-    { id: 'il', label: 'IL', value: d.impermanentLoss, display: props.pctFmt(d.impermanentLoss) },
-    { id: 'fee', label: '手续费估计', value: d.feeBoost, display: signedX(d.feeBoost, 2) },
-    { id: 'net', label: '净效率', value: d.totalNet, display: signedX(d.totalNet, 2), strong: true },
-  ]
+    {
+      id: 'il',
+      label: '同期限 IL',
+      value: d.returns?.lpIlFraction,
+      display: props.pctFmt(d.returns?.lpIlFraction),
+    },
+    { id: 'fee', label: '路径手续费', value: d.returns?.feeReturn, display: props.pctFmt(d.returns?.feeReturn) },
+    {
+      id: 'net',
+      label: '同口径净收益',
+      value: d.returns?.netReturn,
+      display: props.pctFmt(d.returns?.netReturn),
+      strong: true,
+    },
+  ].filter((item) => Number.isFinite(item.value))
 })
 const lpScale = computed(() => Math.max(...lpParts.value.map((item) => Math.abs(item.value || 0)), 0.01))
 const dynamicPlans = computed(() => {
@@ -30,19 +41,23 @@ const dynamicPlans = computed(() => {
       ]
     : []
 })
+const candidateThresholdText = computed(() => {
+  const thresholds = props.dynamicHoldingData?.candidateThresholds
+  const shortTrade = thresholds?.shortTradeMinimumGrossReturn
+  const fundCycle = thresholds?.fundCycleMinimumGrossReturn
+  if (![shortTrade, fundCycle].every(Number.isFinite)) return ''
+  if (shortTrade === fundCycle) return `短线 / 基金周期情景毛收益 ≥ ${props.pctFmt(shortTrade)}`
+  return `短线 ≥ ${props.pctFmt(shortTrade)} · 基金周期 ≥ ${props.pctFmt(fundCycle)}`
+})
 
 function barWidth(value) {
   return `${Math.max(2, Math.min(100, (Math.abs(value || 0) / lpScale.value) * 100)).toFixed(1)}%`
 }
-function signedX(value, digits = 1) {
-  if (!Number.isFinite(value)) return '—'
-  return `${value >= 0 ? '+' : ''}${value.toFixed(digits)}×`
-}
 function fixed(value, digits = 2) {
   return Number.isFinite(value) ? value.toFixed(digits) : '—'
 }
-function day(value) {
-  return Number.isFinite(value) ? `${Math.round(value)}天` : '—'
+function session(value) {
+  return Number.isFinite(value) ? `${Math.ceil(value)}个交易会话` : '—'
 }
 function ratio(value) {
   return Number.isFinite(value) ? `${Math.round(Math.max(0, Math.min(1, value)) * 100)}%` : '—'
@@ -56,35 +71,49 @@ function statusClass(status) {
   return ''
 }
 function targetName(id) {
-  return { firstRepair: '成本下沿', baseAnchor: '成本锚', stretch: 'LP 上沿' }[id] ?? id ?? '—'
+  if (!id) return '—'
+  return { firstRepair: '成本下沿', baseAnchor: '成本锚', stretch: 'LP 上沿' }[id] ?? '未标注目标'
 }
 function actionName(action) {
   return (
     {
-      execute: '执行',
+      execute: '形成模拟候选',
       review: '复核',
       'wait-window': '等窗口',
+      'wait-target': '等目标',
       'wait-repair-start': '等修复',
       'wait-drawdown-stabilize': '等止跌',
       'review-extension': '锚后复核',
       'refresh-data': '刷新数据',
-    }[action] ??
-    action ??
-    '—'
+    }[action] ?? (action ? '未标注动作' : '—')
   )
 }
 function reasonText(reasons = []) {
-  const map = {
-    'drawdown-expanding': '回撤扩张',
-    'gross-return': '收益不足',
-    'holding-window': '周期外',
-    'insufficient-history': '数据不足',
-    'no-structural-target': '无目标',
-    'post-anchor-extension': '锚后扩展',
-    'target-behind-entry': '目标反向',
-    'z-threshold': 'z不足',
-  }
-  return reasons.length ? reasons.map((reason) => map[reason] ?? reason).join('/') : '通过'
+  return reasons.length ? reasons.map(formatFormulaBlockReason).join('/') : '通过'
+}
+function researchStatus(status) {
+  return (
+    {
+      implemented: '可查看',
+      'research-only': '仅研究',
+      'proxy-only': '代理模型',
+      'protocol-unverified': '协议未验证',
+      'missing-input': '待输入',
+      'calibration-required': '待路径校准',
+    }[status] ?? '研究状态'
+  )
+}
+function inputModeLabel(mode, isSynthetic = false) {
+  if (isSynthetic) return '回退样本'
+  return (
+    {
+      real: '真实输入',
+      'pool-real': '聚合池快照',
+      scenario: '情景输入',
+      inferred: '推导输入',
+      fallback: '回退输入',
+    }[mode] ?? '输入未标注'
+  )
 }
 </script>
 
@@ -92,23 +121,25 @@ function reasonText(reasons = []) {
   <div v-if="formulaId === 'net-lp-efficiency'" class="ff-card">
     <template v-if="netLpData">
       <header class="ff-head">
-        <span class="fc-ttl">LP 净效率</span>
-        <strong :class="netLpData.totalNet >= 0 ? 'green' : 'red'">净 {{ signedX(netLpData.totalNet, 2) }}</strong>
-        <em>{{ netLpData.status }}</em>
+        <span class="fc-ttl">LP 研究拆解</span>
+        <strong :class="netLpData.returns?.netReturn >= 0 ? 'green' : 'red'">{{
+          Number.isFinite(netLpData.returns?.netReturn) ? `净 ${pctFmt(netLpData.returns.netReturn)}` : '待路径校准'
+        }}</strong>
+        <em>{{ researchStatus(netLpData.status) }}</em>
       </header>
       <div class="ff-metrics">
         <div>
-          <b>CE</b><span>{{ fixed(netLpData.ce, 1) }}×</span>
+          <b>CE 几何</b><span>{{ fixed(netLpData.geometry?.capitalEfficiency, 2) }}×</span>
+        </div>
+        <div><b>可与收益相加</b><span>否</span></div>
+        <div>
+          <b>同期限 IL</b
+          ><span :class="netLpData.returns?.lpIlFraction < 0 ? 'red' : 'green'">{{
+            pctFmt(netLpData.returns?.lpIlFraction)
+          }}</span>
         </div>
         <div>
-          <b>毛效率</b><span>{{ signedX(netLpData.grossGain) }}</span>
-        </div>
-        <div>
-          <b>IL</b
-          ><span :class="netLpData.impermanentLoss < 0 ? 'red' : 'green'">{{ pctFmt(netLpData.impermanentLoss) }}</span>
-        </div>
-        <div>
-          <b>手续费</b><span>{{ signedX(netLpData.feeBoost, 2) }}</span>
+          <b>路径手续费</b><span>{{ pctFmt(netLpData.returns?.feeReturn) }}</span>
         </div>
       </div>
       <div class="ff-bars">
@@ -120,7 +151,10 @@ function reasonText(reasons = []) {
           <strong>{{ part.display }}</strong>
         </div>
       </div>
-      <div class="ff-note">真实 LP 权重 / 手续费制度 / 再平衡规则：未接入</div>
+      <div class="ff-note">
+        CE 与收益分列。待补：{{ formatFormulaInputList(netLpData.missingInputs) }}；fee≈theta
+        仅为统一币种/期限/名义后的类比。
+      </div>
     </template>
     <div v-else class="ff-empty">等待 CE / IL 数据</div>
   </div>
@@ -129,8 +163,8 @@ function reasonText(reasons = []) {
     <template v-if="lpPoolData">
       <header class="ff-head">
         <span class="fc-ttl">LP 池覆盖</span>
-        <strong>{{ lpPoolData.inputMode || '—' }}</strong>
-        <em>{{ lpPoolData.isSynthetic ? 'fallback' : 'real-snapshot' }}</em>
+        <strong>{{ inputModeLabel(lpPoolData.inputMode, lpPoolData.isSynthetic) }}</strong>
+        <em>{{ lpPoolData.isSynthetic ? '回退数据' : '真实快照' }}</em>
       </header>
       <div class="ff-metrics">
         <div>
@@ -158,7 +192,7 @@ function reasonText(reasons = []) {
           <strong>{{ pctFmt(lpPoolData.topReserveShare) }}</strong>
         </div>
       </div>
-      <div class="ff-note">待补：{{ lpPoolData.missingInputs.join(' / ') || '无' }}</div>
+      <div class="ff-note">待补：{{ formatFormulaInputList(lpPoolData.missingInputs) }}</div>
     </template>
     <div v-else class="ff-empty">等待聚合池覆盖数据</div>
   </div>
@@ -175,7 +209,7 @@ function reasonText(reasons = []) {
           <b>Z</b><span>{{ fixed(dynamicHoldingData.state?.zScore, 2) }}</span>
         </div>
         <div>
-          <b>HL</b><span>{{ day(dynamicHoldingData.state?.halfLifeDays) }}</span>
+          <b>HL</b><span>{{ session(dynamicHoldingData.state?.halfLifeSessions) }}</span>
         </div>
         <div>
           <b>回撤</b><span>{{ pctFmt(dynamicHoldingData.state?.drawdown?.drawdownDepth) }}</span>
@@ -193,7 +227,7 @@ function reasonText(reasons = []) {
           <strong :class="statusClass(item.plan.status)">{{ item.plan.status }}</strong>
           <span>{{ actionName(item.plan.action) }} · {{ targetName(item.plan.targetId) }}</span>
           <small
-            >{{ day(item.plan.expectedDays) }} ·
+            >条件 {{ session(item.plan.expectedSessions) }} ·
             {{
               Number.isFinite(item.plan.expectedReturnPct)
                 ? item.plan.expectedReturnPct + '%'
@@ -204,15 +238,21 @@ function reasonText(reasons = []) {
       </div>
       <div class="ff-table">
         <div class="ff-row head">
-          <span>目标</span><span>价格</span><span>周期</span><span>收益</span><span>状态</span>
+          <span>目标</span><span>价格</span><span>条件周期</span><span>条件收益</span><span>状态</span>
         </div>
         <div v-for="milestone in dynamicHoldingData.milestones" :key="milestone.id" class="ff-row">
           <span>{{ targetName(milestone.id) }}</span>
           <span>{{ fmt(milestone.effectiveTargetPrice) }}</span>
-          <span>{{ day(milestone.expectedDays) }}</span>
+          <span>{{ session(milestone.expectedSessions) }}</span>
           <span>{{ Number.isFinite(milestone.grossReturn) ? pctFmt(milestone.grossReturn) : '—' }}</span>
           <span>{{ reasonText(milestone.blockedReasons) }}</span>
         </div>
+      </div>
+      <div class="ff-note">周期和收益按信号日结构、AR 零冲击衰减投影，仅是情景坐标，不是预测或预期实现值。</div>
+      <div v-if="candidateThresholdText" class="ff-note">
+        候选硬门槛（{{ dynamicHoldingData.gateVersion }}）：{{
+          candidateThresholdText
+        }}；未通过时只保留研究诊断，不生成模拟挂单。
       </div>
     </template>
     <div v-else class="ff-empty">等待回撤 / z / 半衰期 / 结构目标</div>

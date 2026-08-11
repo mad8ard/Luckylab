@@ -1,7 +1,7 @@
 // MainChart 主题与轻量工具：与 lightweight-charts 强绑定但无 Vue 依赖。
 // 放在 composables/ 而非 domain/，因为 import 了 lightweight-charts。
 
-import { ColorType } from 'lightweight-charts'
+import { ColorType, PriceScaleMode } from 'lightweight-charts'
 
 // 主题（亮/暗）相关的 chart 选项工厂；chartOptions 与 syncChart 共用，
 // 避免硬编码重复。
@@ -35,6 +35,20 @@ export function buildChartOptions({ dark, width, height }) {
     height,
     rightPriceScale: { ...theme.rightPriceScale, scaleMargins: { top: 0.08, bottom: 0.12 } },
     timeScale: { ...theme.timeScale, rightOffset: 8, barSpacing: 7 },
+    ...chartInteractionOptions(false),
+  }
+}
+
+// 只应用到主 K 线价格轴。不要把 chart 级默认设为 Log，否则包含 0 或
+// 负值的 Greeks / Funding 等副图也会继承对数坐标。
+export function mainPriceScaleOptions() {
+  return { mode: PriceScaleMode.Logarithmic }
+}
+
+export function chartInteractionOptions(drawingInputActive) {
+  return {
+    handleScroll: !drawingInputActive,
+    handleScale: !drawingInputActive,
   }
 }
 

@@ -23,9 +23,9 @@ function signed(value) {
           <th>动作</th>
           <th>价格</th>
           <th>目标</th>
-          <th>名义</th>
-          <th>数量</th>
-          <th>预期</th>
+          <th>模拟名义</th>
+          <th>模拟数量</th>
+          <th>情景盈亏</th>
         </tr>
       </thead>
       <tbody>

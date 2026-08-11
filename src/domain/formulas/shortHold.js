@@ -9,49 +9,52 @@ import {
   phaseLabel,
   unique,
 } from './dynamicHoldingSupport.js'
+import { defineLegacyAliasContract } from './legacyAliases.js'
+import { recoveryHorizonAudit } from './recoveryHorizonAudit.js'
 
 export { DEFAULT_DYNAMIC_HOLDING_PROFILES } from './dynamicHoldingSupport.js'
 
 export function deriveShortHoldWindow({
   zScore,
-  halfLifeDays,
+  halfLifeSessions,
   costDistance = null,
-  recoveryFraction = 0.2,
+  recoveryFraction = null,
   zExit = 1,
   minAbsZ = 1.5,
-  minExecutableDays = 2,
-  maxHoldingDays = 5,
-  minGrossReturn = 0.01,
+  minExecutableSessions = 0,
+  maxHoldingSessions = null,
+  minimumGrossReturn,
+  minGrossReturn: legacyMinimumGrossReturn,
   side = 'long',
 } = {}) {
-  if (
-    ![zScore, halfLifeDays, recoveryFraction, zExit, minAbsZ, minExecutableDays, maxHoldingDays, minGrossReturn].every(
-      Number.isFinite,
-    )
-  )
+  const grossReturnGate = resolveMinimumGrossReturn({ minimumGrossReturn, legacyMinimumGrossReturn })
+  if (!grossReturnGate) return null
+  if (![zScore, halfLifeSessions, recoveryFraction, zExit, minAbsZ, minExecutableSessions].every(Number.isFinite))
     return null
-  if (halfLifeDays <= 0 || recoveryFraction <= 0 || recoveryFraction >= 1 || zExit <= 0) return null
+  if (maxHoldingSessions !== null && (!Number.isFinite(maxHoldingSessions) || maxHoldingSessions <= 0)) return null
+  if (halfLifeSessions <= 0 || recoveryFraction <= 0 || recoveryFraction >= 1 || zExit <= 0) return null
   if (
     minAbsZ < 0 ||
-    minExecutableDays < 0 ||
-    maxHoldingDays <= 0 ||
-    minExecutableDays > maxHoldingDays ||
-    minGrossReturn < 0
+    minExecutableSessions < 0 ||
+    (Number.isFinite(maxHoldingSessions) && minExecutableSessions > maxHoldingSessions)
   )
     return null
 
   const absZ = Math.abs(zScore)
-  const daysToZExit = absZ > zExit ? halfLifeDays * log2(absZ / zExit) : 0
-  const partialRecoveryDays = halfLifeDays * log2(1 / (1 - recoveryFraction))
-  const executableHoldingDays = Math.max(minExecutableDays, partialRecoveryDays)
+  const sessionsToZExit = absZ > zExit ? halfLifeSessions * log2(absZ / zExit) : 0
+  const partialRecoverySessions = halfLifeSessions * log2(1 / (1 - recoveryFraction))
+  const executableHoldingSessions = Math.max(minExecutableSessions, Math.ceil(partialRecoverySessions))
   const expectedGrossReturn = Number.isFinite(costDistance) ? Math.abs(costDistance) * recoveryFraction : null
-  const minExecutableRecoveryFraction = 1 - Math.pow(2, -minExecutableDays / halfLifeDays)
-  const maxWindowRecoveryFraction = 1 - Math.pow(2, -maxHoldingDays / halfLifeDays)
+  const minExecutableRecoveryFraction = 1 - Math.pow(2, -minExecutableSessions / halfLifeSessions)
+  const maxWindowRecoveryFraction = Number.isFinite(maxHoldingSessions)
+    ? 1 - Math.pow(2, -maxHoldingSessions / halfLifeSessions)
+    : null
 
   const blockedReasons = []
   if (!passesZDirection({ zScore, minAbsZ, side })) blockedReasons.push('z-threshold')
-  if (partialRecoveryDays > maxHoldingDays) blockedReasons.push('holding-window')
-  if (expectedGrossReturn !== null && expectedGrossReturn < minGrossReturn) blockedReasons.push('gross-return')
+  if (Number.isFinite(maxHoldingSessions) && partialRecoverySessions > maxHoldingSessions)
+    blockedReasons.push('holding-window')
+  if (expectedGrossReturn !== null && expectedGrossReturn < grossReturnGate.value) blockedReasons.push('gross-return')
 
   return {
     eligible: blockedReasons.length === 0,
@@ -61,13 +64,20 @@ export function deriveShortHoldWindow({
     absZ,
     zExit,
     recoveryFraction,
-    halfLifeDays,
-    daysToZExit,
-    partialRecoveryDays,
-    executableHoldingDays,
-    minExecutableDays,
-    maxHoldingDays,
+    halfLifeSessions,
+    sessionsToZExit,
+    partialRecoverySessions,
+    executableHoldingSessions,
+    minExecutableSessions,
+    maxHoldingSessions,
+    horizonUnit: 'trading-session',
+    horizonRounding: 'ceil-to-whole-trading-session',
+    horizonMode: 'formula-derived-from-recovery-target',
+    fixedHoldingCapApplied: Number.isFinite(maxHoldingSessions),
     expectedGrossReturn,
+    minimumGrossReturn: grossReturnGate.value,
+    minimumGrossReturnSource: grossReturnGate.source,
+    ...(grossReturnGate.legacyContract ?? {}),
     minExecutableRecoveryFraction,
     maxWindowRecoveryFraction,
     blockedReasons,
@@ -76,45 +86,27 @@ export function deriveShortHoldWindow({
 
 export function deriveStructuralHoldWindow({
   zScore,
-  halfLifeDays,
+  halfLifeSessions,
   entryPrice,
   anchorPrice,
   targetPrices = {},
-  anchorRecoveryFraction = 0.875,
   minAbsZ = 1.5,
-  minExecutableDays = 2,
-  maxHoldingDays = 5,
-  minGrossReturn = 0.01,
+  minExecutableSessions = 0,
+  maxHoldingSessions = null,
+  minimumGrossReturn,
+  minGrossReturn: legacyMinimumGrossReturn,
   side = 'long',
 } = {}) {
-  if (
-    ![
-      zScore,
-      halfLifeDays,
-      entryPrice,
-      anchorPrice,
-      anchorRecoveryFraction,
-      minAbsZ,
-      minExecutableDays,
-      maxHoldingDays,
-      minGrossReturn,
-    ].every(Number.isFinite)
-  )
+  const grossReturnGate = resolveMinimumGrossReturn({ minimumGrossReturn, legacyMinimumGrossReturn })
+  if (!grossReturnGate) return null
+  if (![zScore, halfLifeSessions, entryPrice, anchorPrice, minAbsZ, minExecutableSessions].every(Number.isFinite))
     return null
-  if (
-    halfLifeDays <= 0 ||
-    entryPrice <= 0 ||
-    anchorPrice <= 0 ||
-    anchorRecoveryFraction <= 0 ||
-    anchorRecoveryFraction >= 1
-  )
-    return null
+  if (halfLifeSessions <= 0 || entryPrice <= 0 || anchorPrice <= 0) return null
+  if (maxHoldingSessions !== null && (!Number.isFinite(maxHoldingSessions) || maxHoldingSessions <= 0)) return null
   if (
     minAbsZ < 0 ||
-    minExecutableDays < 0 ||
-    maxHoldingDays <= 0 ||
-    minExecutableDays > maxHoldingDays ||
-    minGrossReturn < 0
+    minExecutableSessions < 0 ||
+    (Number.isFinite(maxHoldingSessions) && minExecutableSessions > maxHoldingSessions)
   )
     return null
 
@@ -129,15 +121,14 @@ export function deriveStructuralHoldWindow({
         rawPrice,
         direction,
         zScore,
-        halfLifeDays,
+        halfLifeSessions,
         entryPrice,
         anchorPrice,
         anchorGap,
-        anchorRecoveryFraction,
         minAbsZ,
-        minExecutableDays,
-        maxHoldingDays,
-        minGrossReturn,
+        minExecutableSessions,
+        maxHoldingSessions,
+        minimumGrossReturn: grossReturnGate.value,
         side,
       }),
     )
@@ -150,18 +141,88 @@ export function deriveStructuralHoldWindow({
     side,
     entryPrice,
     anchorPrice,
-    anchorRecoveryFraction,
+    horizonUnit: 'trading-session',
+    horizonRounding: 'ceil-to-whole-trading-session',
+    horizonMode: 'formula-derived-per-structural-target',
+    fixedHoldingCapApplied: Number.isFinite(maxHoldingSessions),
+    minimumGrossReturn: grossReturnGate.value,
+    minimumGrossReturnSource: grossReturnGate.source,
+    ...(grossReturnGate.legacyContract ?? {}),
     selected,
     candidates,
   }
 }
 
-export function deriveDrawdownFeatures({ rows, index = null, lookback = 120, minSamples = 30 } = {}) {
-  if (!Array.isArray(rows) || rows.length < minSamples) return insufficientDrawdown(rows?.length ?? 0)
+/**
+ * Exact recovery-horizon identity conditional on an estimated half-life and a
+ * target strictly between the cycle start and the frozen anchor. The identity
+ * is exact, while an estimated half-life leaves the result sample-conditioned.
+ * `resultClaimClass` is null when no result exists due to an inapplicable structure or failed model gate.
+ */
+export function deriveRecoveryHorizon({
+  cycleStartPrice,
+  anchorPrice,
+  targetPrice,
+  halfLifeSessions,
+  side = 'long',
+  availableAt = null,
+} = {}) {
+  const audit = recoveryHorizonAudit(cycleStartPrice, anchorPrice, targetPrice, halfLifeSessions, side, availableAt)
+  if (![cycleStartPrice, anchorPrice, targetPrice, halfLifeSessions].every(Number.isFinite)) {
+    return unavailableRecovery('invalid-recovery-input', audit)
+  }
+  if (cycleStartPrice <= 0 || anchorPrice <= 0 || targetPrice <= 0 || halfLifeSessions <= 0) {
+    return unavailableRecovery('invalid-recovery-input', audit)
+  }
+
+  const { anchorGap, targetGap } = audit
+  if (!(anchorGap > 0)) return unavailableRecovery('cycle-start-at-or-beyond-anchor', audit)
+  if (!(targetGap > 0)) return unavailableRecovery('target-already-crossed-at-cycle-start', audit)
+
+  const recoveryFraction = audit.rawRecoveryFraction
+  if (!(recoveryFraction > 0 && recoveryFraction < 1)) {
+    return unavailableRecovery('target-not-strictly-between-cycle-start-and-anchor', audit)
+  }
+
+  const modelHorizonRaw = halfLifeSessions * log2(1 / (1 - recoveryFraction))
+  if (!Number.isFinite(modelHorizonRaw) || modelHorizonRaw <= 0) {
+    return unavailableRecovery('non-finite-recovery-horizon', audit)
+  }
+
+  return {
+    ...audit,
+    status: 'eligible',
+    eligible: true,
+    recoveryFraction,
+    modelHorizonRaw,
+    modelHorizonSessions: Math.ceil(modelHorizonRaw),
+    horizonUnit: 'trading-session',
+    horizonRounding: 'ceil-to-whole-trading-session',
+    availableAt,
+    formula: 'H=HL*log2(1/(1-recoveryFraction))',
+    identityClaimClass: 'exact-identity',
+    resultClaimClass: 'scenario-proxy',
+    inputSemantics: 'canonical-half-life-sessions',
+  }
+}
+
+export function deriveDrawdownFeatures({ rows, index = null, lookback = null, minSamples = null } = {}) {
+  if (!Array.isArray(rows) || rows.length === 0) return insufficientDrawdown(rows?.length ?? 0)
   const end = Number.isInteger(index) ? Math.min(Math.max(index, 0), rows.length - 1) : rows.length - 1
-  const start = Math.max(0, end - lookback + 1)
+  const visibleCount = end + 1
+  const explicitLookback = positiveInteger(lookback)
+  const lookbackSessions = Math.min(explicitLookback ?? visibleCount, visibleCount)
+  const minimumRequired = positiveInteger(minSamples) ?? Math.max(3, Math.ceil(Math.sqrt(lookbackSessions)))
+  const start = Math.max(0, end - lookbackSessions + 1)
   const sample = rows.slice(start, end + 1).filter((row) => Number.isFinite(row?.close) && row.close > 0)
-  if (sample.length < minSamples) return insufficientDrawdown(sample.length)
+  const windowSpec = deriveDrawdownWindowSpec(sample.length, explicitLookback !== null)
+  if (sample.length < minimumRequired || !windowSpec) {
+    return insufficientDrawdown(sample.length, {
+      lookbackSessions,
+      minimumRequired,
+      mode: explicitLookback === null ? 'expanding-prefix' : 'explicit-scenario',
+    })
+  }
 
   let peakRel = 0
   for (let i = 1; i < sample.length; i += 1) if (sample[i].close >= sample[peakRel].close) peakRel = i
@@ -172,20 +233,28 @@ export function deriveDrawdownFeatures({ rows, index = null, lookback = 120, min
   const peak = sample[peakRel].close
   const trough = sample[troughRel].close
   const drawdownDepth = current / peak - 1
-  const drawdownSpeed5 = drawdownDepth - drawdownDepthAt(rows, end - 5, lookback)
-  const drawdownSpeed20 = drawdownDepth - drawdownDepthAt(rows, end - 20, lookback)
+  const drawdownSpeedFast = drawdownDepth - drawdownDepthAt(rows, end - windowSpec.fastLagSessions, lookbackSessions)
+  const drawdownSpeedSlow = drawdownDepth - drawdownDepthAt(rows, end - windowSpec.slowLagSessions, lookbackSessions)
   const drawdownRepair = peak > trough ? clamp01((current - trough) / (peak - trough)) : 1
+  const peakAgeSessions = sample.length - 1 - peakRel
+  const troughAgeSessions = sample.length - 1 - troughRel
 
   return {
     status: 'ok',
-    lookbackDays: sample.length,
+    lookbackSessions: sample.length,
     drawdownDepth,
-    drawdownSpeed5,
-    drawdownSpeed20,
+    drawdownSpeedFast,
+    drawdownSpeedSlow,
     drawdownRepair,
     drawdownAge: {
-      peakDays: sample.length - 1 - peakRel,
-      troughDays: sample.length - 1 - troughRel,
+      peakSessions: peakAgeSessions,
+      troughSessions: troughAgeSessions,
+    },
+    windowSpec: {
+      ...windowSpec,
+      lookbackSessions: sample.length,
+      minimumRequired,
+      mode: explicitLookback === null ? 'expanding-prefix' : 'explicit-scenario',
     },
     peakPrice: peak,
     troughPrice: trough,
@@ -194,14 +263,13 @@ export function deriveDrawdownFeatures({ rows, index = null, lookback = 120, min
 
 export function deriveDynamicHoldingState({
   zScore,
-  halfLifeDays,
+  halfLifeSessions,
   entryPrice,
   anchorPrice,
   targetPrices = {},
   drawdown,
   lpPercentile = null,
   costSlopePct = 0,
-  anchorRecoveryFraction = 0.875,
   minAbsZ = 1.5,
   profiles = DEFAULT_DYNAMIC_HOLDING_PROFILES,
   side = 'long',
@@ -220,7 +288,7 @@ export function deriveDynamicHoldingState({
   const state = {
     zScore,
     absZ: Math.abs(zScore),
-    halfLifeDays,
+    halfLifeSessions,
     lpPercentile,
     costSlopePct,
     drawdown,
@@ -232,18 +300,16 @@ export function deriveDynamicHoldingState({
     return buildDynamicState({ phase, state, structural: null, profiles: normalizedProfiles })
   }
 
-  const maxWindow = Math.max(normalizedProfiles.shortTrade.maxDays, normalizedProfiles.fundCycle.maxDays)
   const structural = deriveStructuralHoldWindow({
     zScore,
-    halfLifeDays,
+    halfLifeSessions,
     entryPrice,
     anchorPrice,
     targetPrices,
-    anchorRecoveryFraction,
     minAbsZ,
-    minExecutableDays: 1,
-    maxHoldingDays: maxWindow,
-    minGrossReturn: 0,
+    minExecutableSessions: 0,
+    maxHoldingSessions: null,
+    minimumGrossReturn: 0,
     side,
   })
 
@@ -290,41 +356,37 @@ function buildTargetCandidate({
   rawPrice,
   direction,
   zScore,
-  halfLifeDays,
+  halfLifeSessions,
   entryPrice,
-  anchorPrice,
   anchorGap,
-  anchorRecoveryFraction,
   minAbsZ,
-  minExecutableDays,
-  maxHoldingDays,
-  minGrossReturn,
+  minExecutableSessions,
+  maxHoldingSessions,
+  minimumGrossReturn,
   side,
 }) {
   const targetPrice = Number(rawPrice)
   if (!Number.isFinite(targetPrice) || targetPrice <= 0) return null
 
   const rawMove = (targetPrice - entryPrice) * direction
-  let recoveryFraction = rawMove / anchorGap
-  let effectiveTargetPrice = targetPrice
+  const recoveryFraction = rawMove / anchorGap
+  const effectiveTargetPrice = targetPrice
   const blockedReasons = []
-
-  if (id === 'anchor' && recoveryFraction >= 1) {
-    recoveryFraction = anchorRecoveryFraction
-    effectiveTargetPrice = entryPrice + direction * anchorGap * anchorRecoveryFraction
-  }
 
   if (!passesZDirection({ zScore, minAbsZ, side })) blockedReasons.push('z-threshold')
   if (recoveryFraction <= 0) blockedReasons.push('target-behind-entry')
   if (recoveryFraction >= 1) blockedReasons.push('post-anchor-extension')
 
-  const partialRecoveryDays =
-    recoveryFraction > 0 && recoveryFraction < 1 ? halfLifeDays * log2(1 / (1 - recoveryFraction)) : null
-  const executableHoldingDays = partialRecoveryDays !== null ? Math.max(minExecutableDays, partialRecoveryDays) : null
+  const partialRecoverySessions =
+    recoveryFraction > 0 && recoveryFraction < 1 ? halfLifeSessions * log2(1 / (1 - recoveryFraction)) : null
+  const executableHoldingSessions =
+    partialRecoverySessions !== null ? Math.max(minExecutableSessions, Math.ceil(partialRecoverySessions)) : null
   const grossReturn = direction === 1 ? effectiveTargetPrice / entryPrice - 1 : entryPrice / effectiveTargetPrice - 1
 
-  if (partialRecoveryDays === null || partialRecoveryDays > maxHoldingDays) blockedReasons.push('holding-window')
-  if (!Number.isFinite(grossReturn) || grossReturn < minGrossReturn) blockedReasons.push('gross-return')
+  if (partialRecoverySessions === null) blockedReasons.push('non-finite-target-horizon')
+  if (Number.isFinite(maxHoldingSessions) && partialRecoverySessions > maxHoldingSessions)
+    blockedReasons.push('holding-window')
+  if (!Number.isFinite(grossReturn) || grossReturn < minimumGrossReturn) blockedReasons.push('gross-return')
 
   return {
     id,
@@ -332,11 +394,14 @@ function buildTargetCandidate({
     effectiveTargetPrice,
     recoveryFraction,
     zAtTarget: zScore * (1 - Math.max(0, Math.min(recoveryFraction, 1))),
-    halfLifeDays,
-    partialRecoveryDays,
-    executableHoldingDays,
+    halfLifeSessions,
+    partialRecoverySessions,
+    executableHoldingSessions,
+    horizonUnit: 'trading-session',
+    horizonRounding: 'ceil-to-whole-trading-session',
     grossReturn,
-    isAnchorProxy: id === 'anchor' && targetPrice === anchorPrice,
+    isAnchorProxy: false,
+    horizonMode: 'formula-derived-from-target-recovery',
     eligible: blockedReasons.length === 0,
     blockedReasons,
   }
@@ -351,16 +416,33 @@ function drawdownDepthAt(rows, index, lookback) {
   return sample.at(-1).close / peak - 1
 }
 
-function insufficientDrawdown(sampleSize) {
+function insufficientDrawdown(sampleSize, windowSpec = null) {
   return {
     status: 'insufficient-history',
     sampleSize,
     drawdownDepth: null,
-    drawdownSpeed5: null,
-    drawdownSpeed20: null,
+    drawdownSpeedFast: null,
+    drawdownSpeedSlow: null,
     drawdownRepair: null,
-    drawdownAge: { peakDays: null, troughDays: null },
+    drawdownAge: { peakSessions: null, troughSessions: null },
+    windowSpec,
   }
+}
+
+function deriveDrawdownWindowSpec(sampleSize, explicitLookback) {
+  if (!Number.isFinite(sampleSize) || sampleSize < 3) return null
+  const fastLagSessions = Math.max(1, Math.floor(Math.cbrt(sampleSize)))
+  const slowLagSessions = Math.min(sampleSize - 1, Math.max(fastLagSessions + 1, Math.floor(Math.sqrt(sampleSize))))
+  return {
+    fastLagSessions,
+    slowLagSessions,
+    lagMode: explicitLookback ? 'adaptive-within-explicit-scenario' : 'adaptive-prefix',
+  }
+}
+
+function positiveInteger(value) {
+  const next = Number(value)
+  return Number.isInteger(next) && next > 0 ? next : null
 }
 
 function clamp01(value) {
@@ -373,6 +455,41 @@ function passesZDirection({ zScore, minAbsZ, side }) {
   return Math.abs(zScore) >= minAbsZ
 }
 
+function resolveMinimumGrossReturn({ minimumGrossReturn, legacyMinimumGrossReturn }) {
+  if (minimumGrossReturn !== undefined && minimumGrossReturn !== null) {
+    if (!Number.isFinite(minimumGrossReturn) || minimumGrossReturn < 0) return null
+    return { value: minimumGrossReturn, source: 'minimumGrossReturn' }
+  }
+  if (legacyMinimumGrossReturn !== undefined && legacyMinimumGrossReturn !== null) {
+    if (!Number.isFinite(legacyMinimumGrossReturn) || legacyMinimumGrossReturn < 0) return null
+    return {
+      value: legacyMinimumGrossReturn,
+      source: 'deprecated:minGrossReturn',
+      legacyContract: defineLegacyAliasContract({ minGrossReturn: 'minimumGrossReturn' }),
+    }
+  }
+  return { value: 0, source: 'query-default' }
+}
+
 function log2(value) {
   return Math.log(value) / Math.log(2)
+}
+
+function unavailableRecovery(reason, audit = {}) {
+  const status = recoveryAvailabilityStatus(reason)
+  return {
+    ...audit,
+    status,
+    eligible: false,
+    reason,
+    identityClaimClass: 'exact-identity',
+    resultClaimClass: status === 'missing-input' ? 'missing-input' : null,
+  }
+}
+
+function recoveryAvailabilityStatus(reason) {
+  if (reason === 'invalid-recovery-input') return 'missing-input'
+  if (['cycle-start-at-or-beyond-anchor', 'target-already-crossed-at-cycle-start'].includes(reason))
+    return 'not-applicable'
+  return 'model-gate-failed'
 }

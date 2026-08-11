@@ -1,6 +1,7 @@
 import XLSX from 'xlsx'
 import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'fs'
 import { join } from 'path'
+import { assessOhlcvQuality } from '../src/domain/market-data/ohlcv.js'
 
 // 用法：
 //   node scripts/convert-stocks-xlsx.mjs <xlsx 路径>
@@ -26,12 +27,17 @@ console.log('Sheets:', wb.SheetNames)
 
 // Read all sheets
 const sheets = {}
-for (const name of ['close', 'high', 'low', 'volume']) {
+for (const name of ['open', 'high', 'low', 'close', 'volume']) {
   const ws = wb.Sheets[name]
-  if (!ws) { console.error(`Sheet "${name}" not found`); process.exit(1) }
+  if (!ws) {
+    console.error(`Sheet "${name}" not found`)
+    process.exit(1)
+  }
   sheets[name] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null })
 }
+validateWorkbookLayout(sheets)
 
+const openData = sheets.open
 const closeData = sheets.close
 const highData = sheets.high
 const lowData = sheets.low
@@ -40,6 +46,12 @@ const volumeData = sheets.volume
 // Row 0: codes, Row 1: names
 const codes = closeData[0].slice(1)
 const names = closeData[1].slice(1)
+const workbookLatestDate = closeData
+  .slice(2)
+  .map((row) => String(row[0] ?? '').trim())
+  .filter((value) => /^\d{4}-\d{2}-\d{2}$/.test(value))
+  .sort()
+  .at(-1)
 
 console.log(`Total stocks: ${codes.length}`)
 console.log(`Date rows: ${closeData.length - 2}`) // Row 2 is "Date" header, Row 3+ are data
@@ -55,25 +67,51 @@ for (let colIdx = 0; colIdx < codes.length; colIdx++) {
   if (!code || code === 'null') continue
 
   const rows = []
+  let invalidCandleRows = 0
   for (let rowIdx = 2; rowIdx < closeData.length; rowIdx++) {
     const date = closeData[rowIdx][0]
     if (!date) continue
 
+    const open = numberVal(openData[rowIdx]?.[colIdx + 1])
     const close = numberVal(closeData[rowIdx]?.[colIdx + 1])
     const high = numberVal(highData[rowIdx]?.[colIdx + 1])
     const low = numberVal(lowData[rowIdx]?.[colIdx + 1])
     const volume = numberVal(volumeData[rowIdx]?.[colIdx + 1])
 
     // Validation: need valid OHLCV
+    if (!Number.isFinite(open) || open <= 0) continue
     if (!Number.isFinite(close) || close <= 0) continue
     if (!Number.isFinite(high) || high <= 0) continue
     if (!Number.isFinite(low) || low <= 0) continue
     if (!Number.isFinite(volume) || volume < 0) continue
-
-    // Open = Close for safety (passes high >= max(open,close) and low <= min(open,close))
-    const open = close
+    if (high < Math.max(open, close) || low > Math.min(open, close)) {
+      invalidCandleRows++
+      continue
+    }
 
     rows.push({ date: String(date).trim(), open, high, low, close, volume })
+  }
+
+  const quality = assessOhlcvQuality(rows)
+  if (quality.suspectedSyntheticOpen) {
+    console.error(
+      `  ERROR ${code} (${name}): ${quality.flatBodyRows}/${quality.rangedRows} ranged candles have open=close; source open prices look synthetic`,
+    )
+    process.exit(1)
+  }
+  if (quality.duplicateRows) {
+    console.error(`  ERROR ${code} (${name}): ${quality.duplicateRows} duplicate dates`)
+    process.exit(1)
+  }
+  if (quality.corporateActionBreaks.length) {
+    const first = quality.corporateActionBreaks[0]
+    console.error(
+      `  ERROR ${code} (${name}): suspected unadjusted corporate action at ${first.date} (overnight ratio ${first.overnightRatio.toFixed(4)})`,
+    )
+    process.exit(1)
+  }
+  if (invalidCandleRows) {
+    console.warn(`  WARN ${code} (${name}): skipped ${invalidCandleRows} invalid OHLC rows`)
   }
 
   if (rows.length < 10) {
@@ -97,6 +135,7 @@ for (let colIdx = 0; colIdx < codes.length; colIdx++) {
     continue
   }
   const filename = `${safeName}-1d.csv`
+  const dataThrough = rows.at(-1).date
   writeFileSync(join(OUT_DIR, filename), csv.join('\n'), 'utf-8')
   refreshedIndex.push({
     id: `auto-${safeName}-1d`,
@@ -105,6 +144,10 @@ for (let colIdx = 0; colIdx < codes.length; colIdx++) {
     market,
     interval: '1日',
     source: inferSource(code),
+    priceBasis: inferPriceBasis(code),
+    dataThrough,
+    isPartial: false,
+    isStale: daysBetween(dataThrough, workbookLatestDate) > 14,
     url: `/data/${filename}`,
     rows: rows.length,
   })
@@ -122,6 +165,42 @@ console.log(`Updated stock index: ${INDEX_PATH} (${REPLACE_INDEX ? 'replace' : '
 function numberVal(v) {
   if (v === null || v === undefined || v === '') return NaN
   return Number(String(v).replace(/,/g, ''))
+}
+
+function validateWorkbookLayout(inputSheets) {
+  const baseline = inputSheets.close
+  const baselineCodes = baseline[0]?.slice(1) ?? []
+  const baselineNames = baseline[1]?.slice(1) ?? []
+
+  for (const [sheetName, rows] of Object.entries(inputSheets)) {
+    if (rows.length !== baseline.length) {
+      throw new Error(`Sheet "${sheetName}" row count ${rows.length} does not match close sheet ${baseline.length}`)
+    }
+    assertSameCells(sheetName, 'code headers', rows[0]?.slice(1) ?? [], baselineCodes)
+    assertSameCells(sheetName, 'name headers', rows[1]?.slice(1) ?? [], baselineNames)
+    for (let rowIdx = 2; rowIdx < baseline.length; rowIdx++) {
+      if (cellKey(rows[rowIdx]?.[0]) !== cellKey(baseline[rowIdx]?.[0])) {
+        throw new Error(`Sheet "${sheetName}" date mismatch at row ${rowIdx + 1}`)
+      }
+    }
+  }
+}
+
+function assertSameCells(sheetName, label, actual, expected) {
+  if (actual.length !== expected.length) {
+    throw new Error(
+      `Sheet "${sheetName}" ${label} length ${actual.length} does not match close sheet ${expected.length}`,
+    )
+  }
+  for (let index = 0; index < expected.length; index++) {
+    if (cellKey(actual[index]) !== cellKey(expected[index])) {
+      throw new Error(`Sheet "${sheetName}" ${label} mismatch at column ${index + 2}`)
+    }
+  }
+}
+
+function cellKey(value) {
+  return String(value ?? '').trim()
 }
 
 function optionValue(name, fallback) {
@@ -186,7 +265,15 @@ function inferMarket(code) {
 
 function inferSource(code) {
   const market = inferMarket(code)
-  if (market === 'A股') return 'BaoStock / akshare / yfinance'
-  if (market === '港股') return 'yfinance / akshare'
-  return 'yfinance / Alpha Vantage / akshare'
+  if (market === 'A股') return 'BaoStock / AkShare'
+  if (market === '港股') return 'AkShare adjusted / Tencent adjusted'
+  return 'Nasdaq / AkShare adjusted / Alpha Vantage'
+}
+
+function inferPriceBasis(code) {
+  return 'adjusted'
+}
+
+function daysBetween(from, to) {
+  return Math.max(0, (new Date(`${to}T00:00:00Z`) - new Date(`${from}T00:00:00Z`)) / 86400000)
 }

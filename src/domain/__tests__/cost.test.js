@@ -28,17 +28,17 @@ describe('deriveWindows', () => {
 describe('buildMarketStatePath（A1/A2 回归）', () => {
   it('产出长度等于输入', () => {
     const rows = makeRows(60)
-    const path = buildMarketStatePath(rows)
+    const path = buildMarketStatePath(rows, 252)
     expect(path.length).toBe(60)
   })
   it('跨调用不再污染：先长再短不影响短的窗口', () => {
     const long = makeRows(200)
     const short = makeRows(40)
-    const longPath = buildMarketStatePath(long)
-    const shortPath1 = buildMarketStatePath(short)
+    const longPath = buildMarketStatePath(long, 252)
+    const shortPath1 = buildMarketStatePath(short, 252)
     // 重新调一次长的
-    buildMarketStatePath(long)
-    const shortPath2 = buildMarketStatePath(short)
+    buildMarketStatePath(long, 252)
+    const shortPath2 = buildMarketStatePath(short, 252)
     // 第二次短调用结果应与第一次完全一致（消除全局污染）
     expect(shortPath2.at(-1).costAnchor).toBeCloseTo(shortPath1.at(-1).costAnchor, 9)
     expect(longPath.length).toBe(200)
@@ -50,7 +50,11 @@ describe('buildMarketStatePath（A1/A2 回归）', () => {
       return {
         date: `2024-01-${String((i % 28) + 1).padStart(2, '0')}`,
         timestamp: i,
-        open: close, high: close + 1, low: close - 1, close, volume: 1000,
+        open: close,
+        high: close + 1,
+        low: close - 1,
+        close,
+        volume: 1000,
       }
     })
     const a = buildMarketStatePath(rows, 365)
@@ -59,30 +63,49 @@ describe('buildMarketStatePath（A1/A2 回归）', () => {
     const ratio = a.at(-1).annualVol / b.at(-1).annualVol
     expect(ratio).toBeCloseTo(Math.sqrt(365 / 252), 3)
   })
+
+  it('追加未来数据不会改写历史前缀状态', () => {
+    const prefix = makeRows(90)
+    const extended = [...prefix, ...makeRows(70, 250).map((row, index) => ({ ...row, timestamp: 90 + index }))]
+    const before = buildMarketStatePath(prefix, 252)
+    const after = buildMarketStatePath(extended, 252).slice(0, prefix.length)
+
+    expect(after).toEqual(before)
+  })
 })
 
 describe('buildCostPath', () => {
   it('每行都有 anchor / lower / upper', () => {
     const path = buildCostPath(makeRows(60))
-    expect(path.every(r => Number.isFinite(r.anchor) && r.lower < r.anchor && r.anchor < r.upper)).toBe(true)
+    expect(path.every((r) => Number.isFinite(r.anchor) && r.lower < r.anchor && r.anchor < r.upper)).toBe(true)
   })
   it('与 buildMarketStatePath 同口径（A2 回归）', () => {
     const rows = makeRows(80)
     const cost = buildCostPath(rows)
-    const states = buildMarketStatePath(rows)
+    const states = buildMarketStatePath(rows, 252)
     // 最后一根的 anchor 应一致
     expect(cost.at(-1).anchor).toBeCloseTo(states.at(-1).costAnchor, 9)
+  })
+
+  it('追加未来数据不会改写历史成本路径', () => {
+    const prefix = makeRows(75)
+    const extended = [...prefix, ...makeRows(40, 180).map((row, index) => ({ ...row, timestamp: 75 + index }))]
+    expect(buildCostPath(extended).slice(0, prefix.length)).toEqual(buildCostPath(prefix))
   })
 })
 
 describe('buildMarketState', () => {
   it('返回路径最后一根', () => {
     const rows = makeRows(50)
-    const state = buildMarketState(rows)
+    const state = buildMarketState(rows, 252)
     expect(state.markPrice).toBe(rows.at(-1).close)
   })
   it('rows < 2 返回 null', () => {
-    expect(buildMarketState([])).toBeNull()
-    expect(buildMarketState([makeRows(1)[0]])).toBeNull()
+    expect(buildMarketState([], 252)).toBeNull()
+    expect(buildMarketState([makeRows(1)[0]], 252)).toBeNull()
+  })
+  it('缺少 tradingDaysPerYear 时拒绝年化市场态', () => {
+    expect(buildMarketState(makeRows(20))).toBeNull()
+    expect(buildMarketStatePath(makeRows(20))).toEqual([])
   })
 })

@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Activity } from 'lucide-vue-next'
 import TopBar from './components/TopBar.vue'
-import MainChart from './components/MainChart.vue'
+import ChartWorkspace from './components/ChartWorkspace.vue'
 import LeftPanel from './components/LeftPanel.vue'
 import RightPanel from './components/RightPanel.vue'
 import RecommendedPoolPage from './components/RecommendedPoolPage.vue'
@@ -12,8 +12,7 @@ import { useBreakpoint } from './composables/useBreakpoint.js'
 import stockIndex from './data/stock-index.json'
 
 const lab = useLabStore()
-const { isMobile } = useBreakpoint()
-const narrowScreen = isMobile  // 行为别名，保留 toggleLeftPanel/toggleRightPanel 内引用
+const { isCompact } = useBreakpoint()
 const mobileLeftOpen = ref(false)
 const mobileRightOpen = ref(false)
 const lastSampleId = persistedRef('lab.lastSampleId.v1', '')
@@ -27,7 +26,9 @@ function applyTheme(t) {
 }
 applyTheme(theme.value)
 watch(theme, applyTheme)
-function toggleTheme() { theme.value = theme.value === 'dark' ? 'light' : 'dark' }
+function toggleTheme() {
+  theme.value = theme.value === 'dark' ? 'light' : 'dark'
+}
 
 function resetWorkbench() {
   if (!confirm('清空所有持久化参数（输入、UI 状态、主题）并刷新？')) return
@@ -44,6 +45,10 @@ function openRecommendedPool() {
   window.location.assign(HIDDEN_POOL_PATH)
 }
 function onHiddenKey(e) {
+  if (e.key === 'Escape' && isCompact.value && (mobileLeftOpen.value || mobileRightOpen.value)) {
+    closeMobileDrawers()
+    return
+  }
   // 在 input/textarea/contenteditable 中不响应
   const t = e.target
   const tag = t?.tagName?.toLowerCase()
@@ -59,7 +64,9 @@ function onHiddenKey(e) {
   if (k === 'g') {
     chordPrev = 'g'
     clearTimeout(chordTimer)
-    chordTimer = setTimeout(() => { chordPrev = '' }, 800)
+    chordTimer = setTimeout(() => {
+      chordPrev = ''
+    }, 800)
     return
   }
   if (k === 'p' && chordPrev === 'g') {
@@ -101,12 +108,12 @@ onBeforeUnmount(() => {
   if (chordTimer) clearTimeout(chordTimer)
 })
 
-const effectiveLeftOpen = computed(() => isMobile.value ? mobileLeftOpen.value : lab.leftPanelOpen)
-const effectiveRightOpen = computed(() => isMobile.value ? mobileRightOpen.value : lab.rightPanelOpen)
+const effectiveLeftOpen = computed(() => (isCompact.value ? mobileLeftOpen.value : lab.leftPanelOpen))
+const effectiveRightOpen = computed(() => (isCompact.value ? mobileRightOpen.value : lab.rightPanelOpen))
 
 // 合并 marketSamples + stockIndex 给搜索
 const allSamples = computed(() => {
-  const curated = new Map(lab.marketSamples.map(s => [s.symbol, s]))
+  const curated = new Map(lab.marketSamples.map((s) => [s.symbol, s]))
   for (const s of stockIndex) {
     if (!curated.has(s.symbol)) curated.set(s.symbol, s)
   }
@@ -114,7 +121,7 @@ const allSamples = computed(() => {
 })
 
 // 决策摘要派生
-const briefConfidence = computed(() => lab.graph?.decision?.signalStrength ?? 0)
+const briefExtremeness = computed(() => lab.graph?.decision?.signalStrength ?? 0)
 
 function onParamChange(field, value) {
   if (lab.input && field in lab.input) {
@@ -134,28 +141,35 @@ function onSetAutoProfile(v) {
 function selectSample(sample) {
   lastSampleId.value = sample.id
   lab.loadSample(sample)
+  if (isCompact.value) closeMobileDrawers()
 }
 
 function toggleLeftPanel() {
-  if (isMobile.value) {
+  if (isCompact.value) {
     mobileLeftOpen.value = !mobileLeftOpen.value
     if (mobileLeftOpen.value) mobileRightOpen.value = false
     return
   }
-  const opening = !lab.leftPanelOpen
   lab.toggleLeftPanel()
-  if (narrowScreen.value && opening) lab.rightPanelOpen = false
 }
 
 function toggleRightPanel() {
-  if (isMobile.value) {
+  if (isCompact.value) {
     mobileRightOpen.value = !mobileRightOpen.value
     if (mobileRightOpen.value) mobileLeftOpen.value = false
     return
   }
-  const opening = !lab.rightPanelOpen
   lab.toggleRightPanel()
-  if (narrowScreen.value && opening) lab.leftPanelOpen = false
+}
+
+function openMobileLeft() {
+  mobileLeftOpen.value = true
+  mobileRightOpen.value = false
+}
+
+function openMobileRight() {
+  mobileRightOpen.value = true
+  mobileLeftOpen.value = false
 }
 
 function closeMobileDrawers() {
@@ -185,7 +199,7 @@ function onResizerMouseMove(e) {
 }
 
 function flushW() {
-  if (dragging === 'left')  lab.setLeftPanelW(pendingW)
+  if (dragging === 'left') lab.setLeftPanelW(pendingW)
   if (dragging === 'right') lab.setRightPanelW(pendingW)
   rafId = null
 }
@@ -196,7 +210,10 @@ function onResizerMouseUp() {
   document.removeEventListener('mouseup', onResizerMouseUp)
   document.body.style.cursor = ''
   document.body.style.userSelect = ''
-  if (rafId) { cancelAnimationFrame(rafId); rafId = null }
+  if (rafId) {
+    cancelAnimationFrame(rafId)
+    rafId = null
+  }
 }
 
 function onResizerDblclick(side) {
@@ -204,7 +221,8 @@ function onResizerDblclick(side) {
 }
 
 const rootStyle = computed(() => ({
-  '--left-w':  `${lab.leftPanelW}px`,
+  // 公式研究包含图形、输入输出与研究边界；桌面端至少保留可读宽度。
+  '--left-w': `${lab.activeLeftTab === 'compute' ? Math.max(lab.leftPanelW, 360) : lab.leftPanelW}px`,
   '--right-w': `${lab.rightPanelW}px`,
 }))
 </script>
@@ -225,7 +243,7 @@ const rootStyle = computed(() => ({
       :market="lab.market"
       :rows="lab.rows"
       :decision="lab.graph?.decision"
-      :confidence="briefConfidence"
+      :extremeness="briefExtremeness"
       :profile-id="lab.input.strategyProfile"
       :auto-profile="lab.featureFlags.replayAutoProfile"
       :profile-list="lab.strategyProfileList"
@@ -235,12 +253,12 @@ const rootStyle = computed(() => ({
       @set-auto-profile="onSetAutoProfile"
       @toggle-theme="toggleTheme"
       @reset="resetWorkbench"
-      @mobile-open-left="mobileLeftOpen = true; mobileRightOpen = false"
-      @mobile-open-right="mobileRightOpen = true; mobileLeftOpen = false"
+      @mobile-open-left="openMobileLeft"
+      @mobile-open-right="openMobileRight"
     />
 
     <div
-      v-if="isMobile && (effectiveLeftOpen || effectiveRightOpen)"
+      v-if="isCompact && (effectiveLeftOpen || effectiveRightOpen)"
       class="mobile-backdrop"
       @click="closeMobileDrawers"
     />
@@ -260,13 +278,18 @@ const rootStyle = computed(() => ({
         :lab="lab"
         :theme="theme"
         @toggle="toggleLeftPanel"
-        @set-tab="(name) => lab.activeLeftTab = name"
+        @set-tab="(name) => (lab.activeLeftTab = name)"
         @set-profile="onSetProfile"
         @set-auto-profile="onSetAutoProfile"
-        @select-formula="(id) => lab.activeFormulaId = id"
+        @select-formula="lab.selectFormula"
         @override-tdpy="(sym, val) => lab.setTdpyOverride(sym, val)"
         @reset-tdpy="(sym) => lab.clearTdpyOverride(sym)"
-        @set-theme="(t) => { theme.value = t }"
+        @set-theme="
+          (t) => {
+            theme.value = t
+          }
+        "
+        @set-overlay="lab.setChartOverlay"
         @reset-all="resetWorkbench"
       />
 
@@ -279,19 +302,25 @@ const rootStyle = computed(() => ({
       />
 
       <main class="app-main">
-        <MainChart
+        <ChartWorkspace
           v-if="lab.activeRows.length"
           :rows="lab.activeRows"
+          :source="lab.source"
           :cost-path="lab.costPath"
           :formula-path="lab.formulaPath"
           :entry-price="lab.input.entryPrice"
           :replay="lab.replay"
           :market="lab.market"
           :decision="lab.graph?.decision"
+          :position="lab.graph?.position"
+          :summary="lab.workbenchSummary"
+          :drawing-scope="lab.source?.id ?? lab.source?.symbol ?? ''"
           :overlays="lab.chartOverlays"
           :input="lab.input"
+          :theme="theme"
           @param-change="onParamChange"
           @cursor-change="lab.setHoverIndex"
+          @set-overlay="lab.setChartOverlay"
         />
         <div v-else class="empty-state">
           <Activity :size="36" />
@@ -320,66 +349,3 @@ const rootStyle = computed(() => ({
     </div>
   </div>
 </template>
-
-<style>
-.app-root {
-  width: 100%; max-width: 100%;
-  height: 100vh; height: 100dvh;
-  display: flex; flex-direction: column; overflow: hidden;
-  background: var(--bg); color: var(--ink);
-}
-.app-root.left-collapsed { --left-w: 36px !important; }
-.app-root.right-collapsed { --right-w: 36px !important; }
-
-.cols {
-  flex: 1; min-width: 0; min-height: 0; overflow: hidden;
-  display: grid;
-  grid-template-columns: var(--left-w) auto 1fr auto var(--right-w);
-  transition: grid-template-columns 200ms ease;
-}
-.app-root.left-collapsed .cols { grid-template-columns: 36px 1fr auto var(--right-w); }
-.app-root.right-collapsed .cols { grid-template-columns: var(--left-w) auto 1fr 36px; }
-.app-root.left-collapsed.right-collapsed .cols { grid-template-columns: 36px 1fr 36px; }
-
-.resizer { width: 4px; cursor: col-resize; background: transparent; transition: background 100ms; user-select: none; }
-.resizer:hover, .resizer:active { background: var(--green); }
-
-.app-main { min-width: 0; min-height: 0; position: relative; overflow: hidden; }
-
-.err-bar { flex-shrink: 0; display: flex; gap: 10px; align-items: center; margin: 0; padding: 5px 12px; background: var(--red); color: #fff; font-size: 0.76rem; }
-.err-bar.kind-empty { background: #b8860b; }
-.err-bar.kind-parse { background: #884d22; }
-.err-bar.kind-network { background: var(--red); }
-.err-msg { flex: 1; }
-.err-btn { min-height: 22px; padding: 1px 9px; border: 1px solid rgba(255,255,255,0.5); border-radius: 4px; background: transparent; color: #fff; font-size: 0.7rem; font-weight: 800; cursor: pointer; }
-.err-btn:hover:not(:disabled) { background: rgba(255,255,255,0.15); }
-.err-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-.err-dismiss { opacity: 0.8; }
-
-.empty-state { width: 100%; height: 100%; display: grid; place-items: center; align-content: center; gap: 10px; color: var(--muted); }
-.empty-state strong { font-size: 1.3rem; color: var(--ink); }
-
-/* 移动端：backdrop 与单列布局 */
-@media (max-width: 768px) {
-  .mobile-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 40;
-  }
-  /* 单列：左右面板脱离 grid，主图占满 */
-  .app-root .cols,
-  .app-root.left-collapsed .cols,
-  .app-root.right-collapsed .cols,
-  .app-root.left-collapsed.right-collapsed .cols {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-  .app-root .resizer {
-    display: none;
-  }
-  .app-root .app-main {
-    width: 100%;
-  }
-}
-</style>

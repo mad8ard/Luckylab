@@ -78,7 +78,8 @@ pnpm run fetch:market-data
 Provider notes:
 
 - BaoStock is the primary A-share source.
-- yfinance and akshare cover Hong Kong and US samples.
+- AkShare-adjusted and adjusted Tencent data cover Hong Kong samples.
+- Nasdaq and AkShare-adjusted data cover US samples.
 - Alpha Vantage is optional and requires `ALPHA_VANTAGE_API_KEY`.
 
 Provider failures can be partial. A partial workbook should update available samples without shrinking the index.

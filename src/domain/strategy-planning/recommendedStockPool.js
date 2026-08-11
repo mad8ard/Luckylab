@@ -5,26 +5,31 @@
 //   - UI / URL 调权：调用方传入 overrides（部分启用/禁用 + 改权重），
 //     buildScoreConfig 合并出最终配置
 //   - 数据缺失（requires 字段缺失）自动跳过该维度，剩余维度按比例归一
-//   - "接飞刀豁免"：z ≤ -1.5 且回归概率 ≥ 85% 时，锚向下不再硬扣，给予中位分
+//   - 趋势下行豁免默认关闭；样本内 AR 不够，必须有独立留出验证标识
 
 import {
-  meanReversionHalfLife,
-  volConfidence,
+  deriveRecoveryHorizon,
   deviationScore,
   getDeltaBands,
+  meanReversionHalfLife,
+  volConfidence,
 } from '../formulas/core.js'
 
 import {
   DEFAULT_OPTIONS,
   DEFAULT_TIER_THRESHOLDS,
   DIMENSION_LIBRARY,
+  FORBIDDEN_SCORE_DIMENSION_IDS,
+  FORBIDDEN_SCORE_INPUT_KEYS,
+  hasValidatedMeanReversion,
 } from './recommendedStockPool/dimensions.js'
 
 import {
   classify,
   clamp01,
   formatHit,
-  regressionProbabilityFromZ,
+  deviationPercentileFromZ,
+  deviationReferenceFromZ,
   round1,
   round2,
 } from './recommendedStockPool/scoring-utils.js'
@@ -32,11 +37,7 @@ import {
 import { buildNarrative } from './recommendedStockPool/narrative.js'
 
 // 对外保留的常量与工具，与重构前保持兼容
-export {
-  DEFAULT_TIER_THRESHOLDS,
-  DIMENSION_LIBRARY,
-  regressionProbabilityFromZ,
-}
+export { DEFAULT_TIER_THRESHOLDS, DIMENSION_LIBRARY, deviationPercentileFromZ, deviationReferenceFromZ }
 
 /**
  * 合并默认维度库 + 用户 overrides 形成最终评分配置。
@@ -60,23 +61,77 @@ export function buildScoreConfig(overrides = []) {
  *   - disabled / missing 维度：直接跳过，不进入分母（也不补满）
  *   - 取消某个维度的权重 → 总分上限随之下降；buyScore 与"当前启用维度的满分"成同一坐标系
  *   options.dimensions 是评分维度数组（默认 buildScoreConfig() ）
- *   options.allowCatchKnife 控制接飞刀豁免（默认开）
+ *   options.allowCatchKnife 控制独立留出校准后的人工豁免（默认关闭；保留旧字段名以兼容调用）
  */
 export function computeBuyScore(metrics, options = {}) {
-  const safe = metrics ?? {}
-  const dims = options.dimensions ?? buildScoreConfig()
+  const forbiddenInputKeys = new Set(FORBIDDEN_SCORE_INPUT_KEYS)
+  const safe = Object.fromEntries(Object.entries(metrics ?? {}).filter(([key]) => !forbiddenInputKeys.has(key)))
+  const requestedDimensions = options.dimensions ?? buildScoreConfig()
   const ctx = { options: { ...DEFAULT_OPTIONS, ...options } }
+  const forbiddenDimensionIds = new Set(FORBIDDEN_SCORE_DIMENSION_IDS)
+  const allowedDimensionIds = new Set(DIMENSION_LIBRARY.map((dimension) => dimension.id))
+  const canonicalDimensionsById = new Map(DIMENSION_LIBRARY.map((dimension) => [dimension.id, dimension]))
+  const seenDimensionIds = new Set()
+  const canonicalizedDimensions = []
 
-  const result = { score: 0, dimensions: {}, hits: [], catchKnife: false, maxScore: 0, activeWeight: 0 }
+  const result = {
+    score: 0,
+    dimensions: {},
+    hits: [],
+    catchKnife: false,
+    maxScore: 0,
+    activeWeight: 0,
+    rejectedDimensions: [],
+  }
   let totalScore = 0
   let activeWeight = 0
 
-  for (const d of dims) {
+  for (const requested of requestedDimensions) {
+    const id = requested?.id
+    if (typeof id !== 'string' || !id) {
+      result.rejectedDimensions.push({ id: null, reason: 'invalid-dimension-id' })
+      continue
+    }
+    const canonical = canonicalDimensionsById.get(id)
+    const requiresForbiddenInput = (canonical?.requires ?? []).some((key) => forbiddenInputKeys.has(key))
+    if (!allowedDimensionIds.has(id) || forbiddenDimensionIds.has(id) || requiresForbiddenInput) {
+      const forbiddenReason = forbiddenDimensionIds.has(id)
+        ? 'forbidden-dimension-id'
+        : !allowedDimensionIds.has(id)
+          ? 'dimension-id-not-in-library'
+          : 'forbidden-indicator-input'
+      result.dimensions[id] = {
+        ratio: 0,
+        score: 0,
+        weight: Number.isFinite(requested?.weight) ? requested.weight : 0,
+        label: canonical?.label ?? String(requested?.label ?? id),
+        disabled: true,
+        forbidden: true,
+        forbiddenReason,
+      }
+      result.rejectedDimensions.push({ id, reason: forbiddenReason })
+      continue
+    }
+    if (seenDimensionIds.has(id)) {
+      result.rejectedDimensions.push({ id, reason: 'duplicate-dimension-id' })
+      continue
+    }
+    seenDimensionIds.add(id)
+    // The caller may tune only enabled/weight. Business semantics always come
+    // from the canonical library; never execute caller-supplied score/requires.
+    const d = {
+      ...canonical,
+      enabled: typeof requested?.enabled === 'boolean' ? requested.enabled : canonical.enabled,
+      weight: Number.isFinite(requested?.weight) && requested.weight >= 0 ? requested.weight : canonical.weight,
+    }
+    canonicalizedDimensions.push(d)
     if (!d.enabled || d.weight <= 0) {
       result.dimensions[d.id] = { ratio: 0, score: 0, weight: d.weight, label: d.label, disabled: true }
       continue
     }
-    const ready = d.requires.every((k) => safe[k] !== null && safe[k] !== undefined && (typeof safe[k] !== 'number' || Number.isFinite(safe[k])))
+    const ready = d.requires.every(
+      (k) => safe[k] !== null && safe[k] !== undefined && (typeof safe[k] !== 'number' || Number.isFinite(safe[k])),
+    )
     if (!ready) {
       result.dimensions[d.id] = { ratio: 0, score: 0, weight: d.weight, label: d.label, missing: true }
       continue
@@ -95,10 +150,13 @@ export function computeBuyScore(metrics, options = {}) {
     activeWeight += d.weight
   }
 
-  // 启用维度的"接飞刀豁免"标志
-  if (ctx.options.allowCatchKnife
-    && Number.isFinite(safe.zScore) && safe.zScore <= -1.5
-    && Number.isFinite(safe.regressionProbability) && safe.regressionProbability >= 0.85) {
+  // 样本内 AR 不能豁免下行趋势；要求独立留出验证状态和校准标识。
+  if (
+    ctx.options.allowCatchKnife &&
+    Number.isFinite(safe.zScore) &&
+    safe.zScore <= -1.5 &&
+    hasValidatedMeanReversion(safe)
+  ) {
     result.catchKnife = true
   }
 
@@ -107,24 +165,24 @@ export function computeBuyScore(metrics, options = {}) {
   result.activeWeight = activeWeight
 
   // 命中条件（维度评分 ≥ 80% 满分）
-  for (const d of dims) {
+  for (const d of canonicalizedDimensions) {
     const r = result.dimensions[d.id]
     if (!r || r.disabled || r.missing) continue
     if (r.ratio >= 0.8) {
       result.hits.push(formatHit(d.id, safe))
     }
   }
-  if (result.catchKnife) result.hits.push('接飞刀豁免（强回归）')
+  if (result.catchKnife) result.hits.push('独立留出校准豁免（人工开启）')
 
   return result
 }
 
 /**
- * 生成推荐股票池（按三档分级）。
+ * 生成研究观察池（按三档分级；保留旧函数名与 JSON 字段以兼容静态消费者）。
  *
  * options:
  *   - dimensions  评分维度数组
- *   - allowCatchKnife  接飞刀豁免开关
+ *   - allowCatchKnife  独立留出校准人工豁免开关（兼容旧字段名）
  *   - tiers       { focus, wait } 阈值
  *   - topN        每档最多展示数量
  *   - generatedAt  ISO 时间
@@ -180,62 +238,104 @@ export function generateRecommendedStockPool(candidates, options = {}) {
     topN,
     tiers,
     options: { allowCatchKnife },
-    dimensions: dimensions.map((d) => ({ id: d.id, label: d.label, weight: d.weight, enabled: d.enabled, optional: d.optional })),
+    dimensions: dimensions.map((d) => ({
+      id: d.id,
+      label: d.label,
+      weight: d.weight,
+      enabled: d.enabled,
+      optional: d.optional,
+    })),
     items,
     focusItems,
     waitItems,
     logic:
-      '本次推荐采用做市商多维对齐模型：每个维度可独立勾选并调整权重；buyScore 是「启用维度的原始加权和」' +
-      '（取消任何一个维度，总分上限自动下降）。当 buyScore ≥ 当前满分上限的 65% 进入「重点关注」，' +
-      '40%~65% 为「等待」（常见瓶颈是成本锚还在↓，但若 z ≤ -1.5σ 且回归概率 ≥ 85%，会触发"接飞刀豁免"）。',
-    riskNote: '左侧买入不代表立即反转，仍需注意继续下跌和趋势延续风险。维度分数高仅代表统计层面的偏离/低位，不构成投资建议。',
+      '本次观察池采用多维研究排序：每个维度可独立勾选并调整权重；诊断分数（JSON 兼容字段 buyScore）是「启用维度的原始加权和」' +
+      '（取消任何一个维度，总分上限自动下降）。当诊断分数 ≥ 当前满分上限的 65% 进入「研究关注」，' +
+      '40%~65% 为「等待」。z 分位只描述偏离极端度，不代表未来回归概率；成本锚仍下降时默认不豁免。',
+    riskNote: '本结果是观察排序，不代表立即反转或执行建议；动态 LP 指标是合成价格几何代理，不是做市商真实仓位。',
   }
 }
 
-// ── 派生计算（半衰期 / 持仓周期 / 买卖点） ────────────────────────────
+// ── 派生计算（半衰期 / 条件周期 / 研究参考坐标） ─────────────────────
 
 export function deriveRecommendedStockDecisionMetrics(metrics) {
   const out = {}
+  const tradingDaysPerYear = Number(metrics.tradingDaysPerYear)
+  const hasTdpy = Number.isFinite(tradingDaysPerYear) && tradingDaysPerYear > 0
+  const arSampleSize = Array.isArray(metrics.costDistanceSeries) ? metrics.costDistanceSeries.length : 0
+  const minimumArSamples = hasTdpy ? Math.max(3, Math.ceil(Math.sqrt(tradingDaysPerYear))) : null
   // 半衰期 + 速度
-  if (Array.isArray(metrics.costDistanceSeries) && metrics.costDistanceSeries.length >= 30) {
+  if (minimumArSamples && arSampleSize >= minimumArSamples) {
     const hl = meanReversionHalfLife({
       costDistanceSeries: metrics.costDistanceSeries,
-      tradingDaysPerYear: metrics.tradingDaysPerYear || 252,
+      tradingDaysPerYear,
     })
     if (hl) {
-      out.halfLifeDays = Number.isFinite(hl.halfLifeDays) ? round1(hl.halfLifeDays) : null
-      out.halfLifeSpeed = hl.speed
-      out.halfLifeRho = round2(hl.rho)
-      // 持仓周期 = HL × 2，回到锚 = HL × 3
-      if (Number.isFinite(out.halfLifeDays) && out.halfLifeDays > 0) {
-        out.holdingDays = Math.round(out.halfLifeDays * 2)
-        out.recoveryDays = Math.round(out.halfLifeDays * 3)
+      out.halfLifeSessions = Number.isFinite(hl.halfLifeSessions) ? round1(hl.halfLifeSessions) : null
+      out.arDecayLabel = hl.speed
+      out.arCoefficient = round2(hl.arCoefficient)
+      out.arSampleSize = hl.sampleSize
+      out.minimumArSamples = minimumArSamples
+      out.meanReversionMonotonicGate =
+        hl.isMeanReverting && hl.decayMode === 'monotonic-decay' && hl.arCoefficient > 0 && hl.arCoefficient < 1
+      out.meanReversionCalibrationStatus = 'sample-only'
+      out.meanReversionCalibrationId = null
+      // 周期只能由当时结构目标隐含的恢复比例推导；不再把 2×HL/3×HL
+      // 当成全局持仓周期。若目标不适用或模型门禁失败，数值保持为空并分别标状态，不伪装成缺输入。
+      if (out.meanReversionMonotonicGate && Number.isFinite(out.halfLifeSessions) && out.halfLifeSessions > 0) {
+        const recovery = deriveRecoveryHorizon({
+          cycleStartPrice: metrics.price,
+          anchorPrice: metrics.costAnchor,
+          targetPrice: metrics.costLow,
+          halfLifeSessions: out.halfLifeSessions,
+        })
+        out.formulaHorizonSessions = recovery.eligible ? recovery.modelHorizonSessions : null
+        out.holdingProjectionRaw = recovery.eligible ? round2(recovery.modelHorizonRaw) : null
+        out.recoveryFraction = recovery.eligible ? round2(recovery.recoveryFraction) : null
+        out.holdingProjectionStatus = recovery.status
+        out.holdingProjectionClaimClass = recovery.resultClaimClass
+        out.holdingProjectionReason = recovery.eligible ? null : recovery.reason
       }
     }
   }
-  // 波动率置信度（quality 字符串 → 数字 0~1）
+  // IID 正态近似下的相对标准误差启发式（relativeUncertainty + |z|），
+  // 不是稳健统计精度、置信度或胜率。
   if (Number.isFinite(metrics.annualVol) && Number.isFinite(metrics.tradingDays)) {
     const vc = volConfidence({ annualVol: metrics.annualVol, sampleSize: metrics.tradingDays })
     if (vc) {
-      const qualityScore = vc.quality === '高精度' ? 1 : vc.quality === '中精度' ? 0.7 : vc.quality === '低精度' ? 0.4 : 0.1
+      const qualityScore =
+        vc.relativeUncertainty <= 0.1
+          ? 1
+          : vc.relativeUncertainty <= 0.2
+            ? 0.7
+            : vc.relativeUncertainty <= 0.3
+              ? 0.4
+              : 0.1
       // 与 |z| 极端度合成：|z|≥3 上调 +0.2
-      const zBoost = Number.isFinite(metrics.zScore) ? Math.min(0.3, Math.max(0, (Math.abs(metrics.zScore) - 1) * 0.1)) : 0
-      out.volConfidenceQuality = vc.quality
-      out.volConfidenceScore = clamp01(qualityScore + zBoost)
+      const zBoost = Number.isFinite(metrics.zScore)
+        ? Math.min(0.3, Math.max(0, (Math.abs(metrics.zScore) - 1) * 0.1))
+        : 0
+      out.volSampleQuality = vc.quality
+      out.volSampleQualityScore = clamp01(qualityScore + zBoost)
     }
   }
-  // 买卖点：买点 = Delta 上沿、卖点 = 成本带下沿
-  if (Number.isFinite(metrics.costAnchor) && Number.isFinite(metrics.annualVol) && metrics.annualVol > 0) {
+  // 研究坐标：Delta 上沿 / 成本带下沿；不是买卖点。
+  if (
+    Number.isFinite(metrics.costAnchor) &&
+    Number.isFinite(metrics.annualVol) &&
+    metrics.annualVol > 0 &&
+    Number.isFinite(out.formulaHorizonSessions)
+  ) {
     const deltaBands = getDeltaBands({
       entryPrice: metrics.costAnchor,
-      holdingDays: out.holdingDays || 30,
+      formulaHorizonSessions: out.formulaHorizonSessions,
       iv: metrics.annualVol,
-      targetReturn: 0.3,
-      tradingDaysPerYear: metrics.tradingDaysPerYear || 252,
+      deltaSlope: 0.3,
+      tradingDaysPerYear,
     })
-    if (deltaBands?.long?.high) out.entryTargetPrice = round2(deltaBands.long.high)
+    if (deltaBands?.long?.high) out.deltaReferencePrice = round2(deltaBands.long.high)
   }
-  if (Number.isFinite(metrics.costLow)) out.takeProfitPrice = round2(metrics.costLow)
+  if (Number.isFinite(metrics.costLow)) out.costBandReferencePrice = round2(metrics.costLow)
   return out
 }
 

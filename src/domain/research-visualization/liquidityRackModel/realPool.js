@@ -1,4 +1,4 @@
-// 真实池数据：把 lpOnchain 链上快照折算成 binCount 长度的权重数组。
+// 真实 tick 数据与池报价校准代理。聚合报价不能伪装成 tick 深度。
 
 import { normalizeBinCount } from './utils.js'
 
@@ -6,17 +6,32 @@ export function buildRealPoolProfile({ range, lpOnchain, binCount }) {
   const pool = lpOnchain?.pool ?? null
   const routes = normalizeQuoteRoutes(lpOnchain)
   const activeRoutes = routes.filter((route) => route.quotePrice >= range.lower && route.quotePrice <= range.upper)
-  if (!activeRoutes.length) {
-    return {
-      hasSignal: false,
-      pool,
-      pools: lpOnchain?.pools ?? [],
-      routes,
-      quotePrice: routes[0]?.quotePrice ?? null,
-      weights: Array.from({ length: normalizeBinCount(binCount) }, () => 0),
-    }
-  }
   const count = normalizeBinCount(binCount)
+  const tickEvidenceIsReal =
+    lpOnchain?.tickEvidence === 'tick-real' || lpOnchain?.capabilities?.canCompareTickDistribution === true
+  const ticks = tickEvidenceIsReal ? normalizeTicks(lpOnchain?.ticks, range) : []
+  const weights = tickWeights({ ticks, range, count })
+  const calibrationWeights = quoteKernelWeights({ activeRoutes, range, count })
+  return {
+    hasSignal: weights.some((value) => value > 0),
+    hasCalibrationSignal: calibrationWeights.some((value) => value > 0),
+    evidence: weights.some((value) => value > 0) ? 'tick-real' : activeRoutes.length ? 'price-kernel-proxy' : 'missing',
+    pool,
+    pools: lpOnchain?.pools ?? [],
+    routes,
+    ticks,
+    quotePrice: activeRoutes[0]?.quotePrice ?? routes[0]?.quotePrice ?? null,
+    quoteSymbol: activeRoutes[0]?.quoteSymbol ?? lpOnchain?.quoteSymbol ?? null,
+    liquidity: pool?.liquidity ?? null,
+    blockNumber: lpOnchain?.blockNumber ?? null,
+    coverage: lpOnchain?.poolCoverage ?? null,
+    weights,
+    calibrationWeights,
+  }
+}
+
+function quoteKernelWeights({ activeRoutes, range, count }) {
+  if (!activeRoutes.length) return Array.from({ length: count }, () => 0)
   const step = (range.upper - range.lower) / count
   const routeWeightTotal = activeRoutes.reduce((sum, route) => sum + route.weight, 0) || activeRoutes.length
   const raw = Array.from({ length: count }, (_, i) => {
@@ -30,18 +45,43 @@ export function buildRealPoolProfile({ range, lpOnchain, binCount }) {
     }, 0)
   })
   const total = raw.reduce((sum, value) => sum + value, 0)
-  return {
-    hasSignal: total > 0,
-    pool,
-    pools: lpOnchain?.pools ?? [],
-    routes,
-    quotePrice: activeRoutes[0]?.quotePrice ?? null,
-    quoteSymbol: activeRoutes[0]?.quoteSymbol ?? lpOnchain?.quoteSymbol ?? null,
-    liquidity: pool?.liquidity ?? null,
-    blockNumber: lpOnchain?.blockNumber ?? null,
-    coverage: lpOnchain?.poolCoverage ?? null,
-    weights: total > 0 ? raw.map((value) => value / total) : raw,
-  }
+  return total > 0 ? raw.map((value) => value / total) : raw
+}
+
+function normalizeTicks(ticks, range) {
+  if (!Array.isArray(ticks)) return []
+  return ticks
+    .map((tick) => ({
+      lowerPrice: Number(tick?.lowerPrice),
+      upperPrice: Number(tick?.upperPrice),
+      liquidity: Math.abs(Number(tick?.liquidityGross ?? tick?.liquidityNet ?? tick?.liquidity)),
+    }))
+    .filter(
+      (tick) =>
+        Number.isFinite(tick.lowerPrice) &&
+        Number.isFinite(tick.upperPrice) &&
+        tick.lowerPrice > 0 &&
+        tick.upperPrice > tick.lowerPrice &&
+        Number.isFinite(tick.liquidity) &&
+        tick.liquidity > 0 &&
+        tick.upperPrice >= range.lower &&
+        tick.lowerPrice <= range.upper,
+    )
+}
+
+function tickWeights({ ticks, range, count }) {
+  if (!ticks.length) return Array.from({ length: count }, () => 0)
+  const step = (range.upper - range.lower) / count
+  const raw = Array.from({ length: count }, (_, index) => {
+    const lower = range.lower + step * index
+    const upper = lower + step
+    return ticks.reduce((sum, tick) => {
+      const overlap = Math.max(0, Math.min(upper, tick.upperPrice) - Math.max(lower, tick.lowerPrice))
+      return sum + overlap * tick.liquidity
+    }, 0)
+  })
+  const total = raw.reduce((sum, value) => sum + value, 0)
+  return total > 0 ? raw.map((value) => value / total) : raw
 }
 
 function normalizeQuoteRoutes(lpOnchain) {

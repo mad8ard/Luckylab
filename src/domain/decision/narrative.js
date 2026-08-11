@@ -9,8 +9,8 @@ export function summarizeRegime(payload) {
   const { costDistance, costWindow } = payload
   if (!Number.isFinite(costDistance)) return '载入 K 线后判断'
 
-  const window = Number.isFinite(costWindow) && costWindow > 0 ? Math.round(costWindow) : 60
-  const baseline = `近 ${window} 日均价`
+  const baseline =
+    Number.isFinite(costWindow) && costWindow > 0 ? `近 ${Math.round(costWindow)} 个交易会话均价` : '自适应前缀成本均价'
   const distance = pct(costDistance)
 
   if (costDistance < -0.05) return `低于${baseline} ${distance}，处于成本带下方`
@@ -20,14 +20,17 @@ export function summarizeRegime(payload) {
   return '贴近均价，未出现明显成本偏离'
 }
 
-export function summarizeRegression(payload) {
+export function summarizeDeviation(payload) {
   if (!payload || typeof payload !== 'object') return null
-
-  const { regressionProb } = payload
-  if (!Number.isFinite(regressionProb)) return null
-
-  return `历史上类似偏离，${Math.round(regressionProb * 100)}% 概率回归均价`
+  const { deviationPercentile, twoSidedTailProbability } = payload
+  if (!Number.isFinite(deviationPercentile)) return null
+  const tail = Number.isFinite(twoSidedTailProbability)
+    ? `，双尾参考质量 ${Math.round(twoSidedTailProbability * 100)}%`
+    : ''
+  return `正态参考偏离百分位 ${Math.round(deviationPercentile * 100)}%${tail}；这不是未来回归概率`
 }
+
+export const summarizeRegression = summarizeDeviation
 
 export function summarizeReason(payload) {
   if (!payload || typeof payload !== 'object') return '等待 K 线数据'
@@ -49,7 +52,5 @@ export function summarizeReason(payload) {
   }
 
   if (Math.abs(costDistance) < 0.01) return '价格贴近均价'
-  return costDistance < 0
-    ? `低于均价 ${distance}`
-    : `高于均价 ${distance}`
+  return costDistance < 0 ? `低于均价 ${distance}` : `高于均价 ${distance}`
 }

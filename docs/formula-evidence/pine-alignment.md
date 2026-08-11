@@ -1,72 +1,95 @@
-# Pine ↔ 网站 数值对齐凭证
+# Pine ↔ Domain 因果对齐凭证
 
-> 真相源：`src/domain/**`（Vue 项目工作台）
-> 对齐文件：`bl-esw-pinbar-market-lab.pine`
+> Domain 真相源：`src/domain/**`
+> Canonical Pine：`bl-esw-pinbar-market-lab.pine`
+> 独立 JS twin：`scripts/verify-pine-equivalence.mjs`
 > 自动断言：`src/test/pine-equivalence.test.js`
-> 双胞胎 JS：`scripts/verify-pine-equivalence.mjs`
 
-## 1. 默认配置一致性
+## 1. 时间单位契约
 
-| 项目 | Pine 默认 | JS 默认（src/domain） | 一致性 |
-|------|-----------|------------------------|---------|
-| `cost_len` | 60 | `deriveWindows(n=500+).cost = 60` | ✓ |
-| `recent_len` | 20 | `deriveWindows(n=500+).recent = 20` | ✓ |
-| `vol_len` | 60 | `deriveWindows(n=500+).vol = 60` | ✓ |
-| `holding_days` | 30 | `holdingDays` UI 默认 30 | ✓ |
-| `trading_days` | 365 | `tradingDaysPerYear` 默认 365 | ✓ |
-| `target_return_pct` | 30 | `getDeltaBands.targetReturn` 默认 0.30 | ✓ |
-| `lp_range_width` | 0.10 | `formulaPath.rangeWidth` 默认 0.10 | ✓ |
-| `lp_skew` | 1.0 | `formulaPath.skew` 默认 1.0 | ✓ |
-| `auto_adapt` | **false** | JS 不切档 | ✓ |
-| `relax_mode` | false | JS 没有 | ✓ |
-| `adaptive_cost` | false | JS 用单一 cost 锚 | ✓ |
+Pine 的一根 bar、本地日线的一行和公式中的一步都是一个交易会话（trading session），不是自然日。
 
-## 2. 公式对齐节点
+| 意义           | Pine 生产字段                  | JS twin 生产字段               | Domain canonical                 |
+| -------------- | ------------------------------ | ------------------------------ | -------------------------------- |
+| 每年交易会话数 | `trading_sessions_per_year`    | `trading_sessions_per_year`    | `tradingDaysPerYear`（年化约定） |
+| AR(1) 半衰期   | `half_life_sessions`           | `half_life_sessions`           | `halfLifeSessions`               |
+| 未取整恢复周期 | `formula_horizon_raw_sessions` | `formula_horizon_raw_sessions` | `modelHorizonRaw` / session unit |
+| 可消费恢复周期 | `formula_horizon_sessions`     | `formula_horizon_sessions`     | `formulaHorizonSessions`         |
 
-| Pine 节点 | JS 真相源 | 对齐方式 |
-|-----------|-----------|----------|
-| `cost_anchor` | `weightedTypicalCost(rows)` in `cost.js` | 同公式（typical price × volume / Σvolume） |
-| `cost_low / cost_high` | `rollingCost.lower/upper` in `cost.js` | 同 `bandWidth` 公式 + sample stdev |
-| `lp_lower / lp_upper` | `lpLower / lpUpper` in `formulaPath.js` | 同 `costAnchor × (1 ± rangeWidth × skew)` |
-| `annual_vol` | `annualVol` in `cost.js` | sample stdev × √trading_days |
-| `atr_pct` | `atrPercent` in `cost.js` | simple-mean of 14 TR / close |
-| `long_cost / long_high / long_low` | `getDeltaBands.long.*` in `options.js` | 同 wave 公式（`entryPrice = cost_anchor`，`iv = annual_vol`，可被 `iv_override` 覆盖）|
-| `z_score` | `deviationScore.z` in `core.js` | 同 cost_distance / period_vol |
-| `match_pct` | `2·Φ(|z|) - 1` 用 `normalCdf` | Pine 用 Abramowitz 7.1.26 erf 近似 |
-| `position_label` | `orderPlan.js` 状态字符串 | "高于成本带" / "低于成本带" / "成本带内" |
+Canonical Pine 和 JS twin 不输出 `half_life_days` 或 `formula_horizon_days`。旧 day 名称不得进入数值比较、信号或执行链。
 
-## 3. 容差表（自动断言）
+## 2. Prefix-causal 窗口
 
-| 指标 | 容差（相对） | 来源 |
-|------|--------------|------|
-| `cost_anchor` | < 0.05% | 浮点累加顺序 |
-| `cost_low / cost_high` | < 0.10% | stdev 累积浮点误差 |
-| `lp_lower / lp_upper` | < 0.05% | 同 cost_anchor |
-| `annual_vol` | < 0.20% | sample stdev 浮点误差 |
-| `atr_pct` | < 0.30% | TR 序列首尾边界差异 |
-| `match_pct` | < 0.50% | Abramowitz 近似 ~7.5e-8 + z_score 累积误差 |
-| `long_cost / long_high / long_low` | < 0.30% | 受 annual_vol 传递影响 |
+每个历史点只使用当时可见前缀：
 
-## 4. 已知偏差（可接受范围内）
+```text
+prefix_n = bar_index + 1
+cost_window = max(5, floor(sqrt(prefix_n)))
+recent_window = max(3, floor(sqrt(cost_window)))
+vol_window = cost_window
+ATR window = recent_window
+```
 
-- 前 60 根 K 线（cost_len 窗口未填满）：Pine 输出 `na`，JS 在 `returnBasis < 5` 时 fallback 全历史，本轮接受
-- `volume <= 0`（如指数）：JS 回退等权 typical；Pine `cost_main_anchor_raw` 在 `not has_volume` 时降级到 `ta.sma`，行为对齐
-- `wave >= 1`（极高波动）：JS `getDeltaBands` 返回 null；Pine `delta_ok = false`，画线为 na
-- **数据时点差**：网站使用静态 CSV 数据集（每日批量刷新），TradingView 是实时连续数据。两端在同一交易日开盘时偏差最小，盘中或刚收盘时网站可能落后 1-2 根 K 线。这会让 60 期 VWAP `cost_anchor` 偏差大致 = `(TV 现价 / 网站现价 - 1) / 60`。AAPL 2026-05-23 实测：网站现价 302.25 vs TV 309.47（+2.39%），`cost_anchor` 268.23 vs 268.97（+0.276%），符合预期传染量级，**不是公式问题**。验证方法：等网站数据集刷新到当日，或在 TV 上用 `Replay` 模式对齐到网站数据集 deadline 那根 bar。
+追加未来 K 线不能改写历史窗口或历史成本状态。`cost_window` 未填满时只使用当时已观测会话，不填充未来值。
 
-## 5. 扩展开关启用后的偏离方向
+## 3. 动态周期公式
 
-| 开关 | 启用后 | 偏离方向 |
-|------|--------|----------|
-| `auto_adapt` | profile 按 `annual_vol_ratio` 自动切换 | `min_edge / cost_slope_threshold` 在波动率分位数 > 1.25 或 < 0.80 时偏离 JS |
-| `relax_mode` | edge_sigma × 0.65、momentum_sigma -0.30、cost_slope_sigma × 0.75 | 信号触发更宽松，**JS 没有等价开关，启用即明确偏离** |
-| `adaptive_cost` | cost_fast × 0.35 + cost_main × 0.45 + cost_slow × 0.20 | `cost_anchor` 在三档差异大时偏离 JS 单档；`cost_low/high` 同步偏离 |
+```text
+rho = sum(x_t * x_(t-1)) / sum(x_(t-1)^2)
+half_life_sessions = ln(2) / -ln(rho)
+side = close > cost_anchor ? short : long
+target = side == long ? cost_low : cost_high
+direction = side == long ? 1 : -1
+q = ((target - cycle_start) * direction) / ((cost_anchor - cycle_start) * direction)
+formula_horizon_raw_sessions = half_life_sessions * log2(1 / (1 - q))
+formula_horizon_sessions = ceil(formula_horizon_raw_sessions)
+```
 
-## 6. 维护契约
+其中 `rho` 是 expanding、through-origin 的前缀样本估计。`cycle_start` 先取当前自适应成本窗口内的 low（long）或 high（short）极值；若当前目标不严格位于该极值和成本锚之间，则从当前点向前回扫最近一次 `low < 当日动态 cost_low`（long）或 `high > 当日动态 cost_high`（short），并以当前 `target / cost_anchor` 重新验证严格结构。回扫比较是逐日边界穿越，不是要求相邻 K 线发生 crossover/crossunder。
 
-任何修改 `bl-esw-pinbar-market-lab.pine` 计算公式的 PR 必须：
+只有以下条件全部成立时才输出 GetDelta、z 和信号：
 
-1. 跑 `pnpm run verify:pine` 全绿（包含文本检查 + 数值断言）
-2. 同步修改 `scripts/verify-pine-equivalence.mjs` 中的 JS 双胞胎
-3. 在 PR 描述里附 TradingView GOOG 1D 截图，对照 `0xff.tools` 网站工作台同标的，证明 `Cost / Ann Vol / ATR% / Position / Match / State / LP Range` 视觉一致
-4. 如果引入新的容差，更新本文件 §3 表
+- `0 < rho < 1`
+- long 满足 `cycle_start < cost_low < cost_anchor`，或 short 满足 `cycle_start > cost_high > cost_anchor`
+- `0 < q < 1`
+- `formula_horizon_sessions > 0`
+- 至少 5 个因果对数收益观测且年化波动率为正
+- GetDelta `wave` 严格位于 `(0, 1)`
+
+`rho` 是样本估计，`H` 是冻结目标下的条件情景坐标，两者都不是对实际持有时间的保证。
+
+## 4. 公式节点对齐
+
+| Pine 节点                                      | Domain 真相源                      | 对齐方式                                                               |
+| ---------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------- |
+| `cost_anchor`                                  | `weightedTypicalCost` in `cost.js` | typical price × volume / Σvolume；零成交量回退等权 typical             |
+| `cost_low / cost_high`                         | `rollingCost.lower/upper`          | 同 prefix 窗口、sample stdev 和 0.5% 最小带宽                          |
+| `annual_vol`                                   | `buildMarketState.annualVol`       | prefix sample stdev × √`trading_sessions_per_year`                     |
+| `atr_pct`                                      | `buildMarketState.atrPercent`      | `recent_window` 内 simple-mean TR / close                              |
+| `rho / half_life_sessions`                     | `meanReversionHalfLife`            | expanding AR(1)-through-origin                                         |
+| `recovery_fraction / formula_horizon_sessions` | `buildFormulaPath`                 | 同一双边动态目标、窗口极值/动态边界回扫和恢复恒等式                    |
+| `long_cost / long_high / long_low`             | `buildFormulaPath.delta*`          | `entryPrice=cost_anchor`、实现波动率、`delta_slope`                    |
+| `z_score / match_pct`                          | `deviationScore`                   | 同 `formula_horizon_sessions` 周期化；match 是偏离极端度，不是回归概率 |
+
+## 5. 自动验证
+
+`pnpm run verify:pine` 同时执行：
+
+1. 静态契约：禁止固定 holding/cost/recent/vol 输入、day 单位字段和 `targetReturn` 别名。
+2. 窗口与周期恒等式：检查 prefix/sqrt 窗口、recent ATR、双边目标、窗口极值、动态边界回扫和 `rho/q` 双门禁。
+3. 数值等价：对 GOOG、AAPL、600519、BTCUSDT 比较 JS twin 与 `buildMarketState` 的最新前缀。
+4. 动态周期：对每个标的最近可用前缀比较 side、target、cycle start/source、`rho`、`half_life_sessions`、`q`、`formula_horizon_sessions`、GetDelta 和 z；另锁定 long/short × 窗口极值/边界回扫四条分支。
+5. 失效路径：周期门禁不成立时，确认 GetDelta、z 和信号为空。
+
+JS twin 是独立复刻，不直接调用 `cost.js` 或 `formulaPath.js` 的被测函数，避免循环自证。自动比较使用 `1e-10` 相对容差，目的是阻止代码口径漂移，不代表 TradingView 与本地数据源会完全同步。
+
+## 6. 边界与废弃项
+
+- TradingView 是连续数据，网站是静态 CSV 快照；数据截止时点不同时不能把数值差异归因于公式。
+- `auto_adapt` 和 `relax_mode` 是默认关闭的 Pine 显式扩展；开启后信号门槛会偏离 Domain，但不能绕过周期有效性门禁。
+- `bl-esw-pinbar-market-lab-cdx.pine`、`*-pro-cc.pine` 和 `*-pro-osc-cc.pine` 现在是无输出、无信号、无告警的兼容占位脚本；完整旧源码已隔离到 `research/archive/pine/`，只作历史审计，不具公式或执行权限。
+- 本次未保留 day 命名的输出 adapter；如日后必须兼容，只能在独立 deprecated adapter 中标明 `legacyAliasOf`，且测试不得消费该 adapter。
+
+## 7. 维护契约
+
+修改 canonical Pine 计算链时必须同步 JS twin、静态 verifier、equivalence test 和本文档，并在提交前运行 `pnpm run verify:pine`。

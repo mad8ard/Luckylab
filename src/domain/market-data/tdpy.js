@@ -1,11 +1,11 @@
 const TDPY = {
   hk: { value: 242, basis: 'hk', label: '港股 242' },
   cn: { value: 242, basis: 'cn', label: 'A 股 242' },
-  fallback: { value: 365, basis: 'fallback', label: '默认 365' },
+  missing: { value: null, basis: 'missing-input', label: '待识别' },
 }
 
 export function inferTdpy(sample) {
-  if (!sample || typeof sample !== 'object') return { ...TDPY.fallback }
+  if (!sample || typeof sample !== 'object') return { ...TDPY.missing }
 
   const market = sample.market
   const symbol = String(sample.symbol || '').toUpperCase()
@@ -16,5 +16,5 @@ export function inferTdpy(sample) {
   if (market === 'A股') return { ...TDPY.cn }
   if (/^\d{6}$/.test(symbol)) return { ...TDPY.cn }
 
-  return { ...TDPY.fallback }
+  return { ...TDPY.missing }
 }

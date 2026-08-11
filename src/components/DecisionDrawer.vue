@@ -1,6 +1,8 @@
 <script setup>
 import { computed } from 'vue'
 import { summarizeReason } from '../domain/decision/narrative.js'
+import { formatFormulaBlockReason } from '../domain/formula-research/formulaInputLabels.js'
+import { buildOrderPlanReviewPresentation } from '../domain/formula-research/formulaPresentation.js'
 import { buildTraderChecklist } from '../domain/workbench/traderChecklist.js'
 import { persistedRef } from '../composables/usePersisted.js'
 import DisclosureSection from './DisclosureSection.vue'
@@ -26,7 +28,18 @@ const props = defineProps({
 
 const emit = defineEmits(['set-profile', 'set-auto-profile'])
 
-const DEFAULT_SECTION_ORDER = ['sample', 'account', 'facts', 'triggers', 'orders', 'replay', 'profile', 'checklist', 'reason', 'portfolio']
+const DEFAULT_SECTION_ORDER = [
+  'sample',
+  'account',
+  'facts',
+  'triggers',
+  'orders',
+  'replay',
+  'profile',
+  'checklist',
+  'reason',
+  'portfolio',
+]
 const sectionOrder = persistedRef('lab.decisionSectionOrder.v2', DEFAULT_SECTION_ORDER)
 
 const reasonText = computed(() => {
@@ -41,22 +54,28 @@ const reasonText = computed(() => {
   })
 })
 
-const ordersTitle = computed(() =>
-  props.graph?.decision?.timing?.side === 'sell' ? '模拟卖出单' : '模拟买入单'
-)
+const ordersTitle = computed(() => (props.graph?.decision?.timing?.side === 'sell' ? '模拟卖出单' : '模拟买入单'))
 
 const checklist = computed(() => buildTraderChecklist({ graph: props.graph, market: props.market }))
 const primaryOrders = computed(() => props.graph?.plan?.primaryOrders ?? [])
-const matchText = computed(() => `匹配 ${Math.round((props.graph?.decision?.signalStrength ?? 0) * 100)}%`)
-const factMeta = computed(() => props.graph?.decision?.state || '等待数据')
-const hasPositionFacts = computed(() => [
-  props.graph?.position?.firstNotional,
-  primaryOrders.value[0]?.price,
-  props.graph?.position?.stopPrice,
-  props.graph?.position?.targetPrice,
-  props.graph?.position?.riskBudget,
-  props.graph?.position?.stopDistance,
-].some(Number.isFinite))
+const orderReview = computed(() => buildOrderPlanReviewPresentation(props.graph))
+const extremenessText = computed(() => `偏离极端度 ${Math.round((props.graph?.decision?.signalStrength ?? 0) * 100)}%`)
+const factMeta = computed(() => {
+  const decision = props.graph?.decision
+  if (!decision) return '等待数据'
+  const execution = decision.executionStatus === 'simulation-only' ? '仅模拟' : '不可执行'
+  return `${decision.state} · 候选${decision.candidateStatus ?? '等待'} · ${execution}`
+})
+const hasPositionFacts = computed(() =>
+  [
+    props.graph?.position?.firstNotional,
+    primaryOrders.value[0]?.price,
+    props.graph?.position?.stopPrice,
+    props.graph?.position?.targetPrice,
+    props.graph?.position?.riskBudget,
+    props.graph?.position?.stopDistance,
+  ].some(Number.isFinite),
+)
 const triggerMeta = computed(() => {
   const triggered = props.graph?.decision?.triggeredConditions?.length ?? 0
   const blocked = props.graph?.decision?.blockedReasons?.length ?? 0
@@ -66,11 +85,11 @@ const triggerMeta = computed(() => {
 })
 const replayMeta = computed(() => {
   if (!props.replayEnabled) return '未启用'
-  if (props.replay?.status === 'missing-account-input') return '缺输入'
+  if (['missing-account-input', 'missing-replay-fee-input'].includes(props.replay?.status)) return '缺输入'
   return `${props.replay?.tradeCount ?? 0} 次`
 })
-const hasRunnableProfileReplay = computed(() =>
-  props.replayEnabled && props.profileReplays.some(item => !item.replay?.status)
+const hasRunnableProfileReplay = computed(
+  () => props.replayEnabled && props.profileReplays.some((item) => !item.replay?.status),
 )
 const accountMeta = computed(() => {
   const capital = Math.max(Number(props.input?.capital) || 0, 0)
@@ -80,8 +99,8 @@ const accountMeta = computed(() => {
   if (base > 0) return '仅底仓'
   return '缺输入'
 })
-const activeProfileLabel = computed(() =>
-  props.profileList.find(p => p.id === props.activeProfileId)?.label ?? props.activeProfileId
+const activeProfileLabel = computed(
+  () => props.profileList.find((p) => p.id === props.activeProfileId)?.label ?? props.activeProfileId,
 )
 const sampleMeta = computed(() => {
   const count = props.rows.length
@@ -91,19 +110,29 @@ const sampleMeta = computed(() => {
 const normalizedSectionOrder = computed(() => {
   const stored = Array.isArray(sectionOrder.value) ? sectionOrder.value : []
   const known = new Set(DEFAULT_SECTION_ORDER)
-  const ordered = stored.filter(id => known.has(id))
-  return [...ordered, ...DEFAULT_SECTION_ORDER.filter(id => !ordered.includes(id))]
+  const ordered = stored.filter((id) => known.has(id))
+  return [...ordered, ...DEFAULT_SECTION_ORDER.filter((id) => !ordered.includes(id))]
 })
-const visibleSectionOrder = computed(() => normalizedSectionOrder.value.filter((id) => {
-  if (id === 'portfolio') return props.portfolioEnabled
-  if (id === 'replay') return props.replayEnabled
-  return true
-}))
+const visibleSectionOrder = computed(() =>
+  normalizedSectionOrder.value.filter((id) => {
+    if (id === 'portfolio') return props.portfolioEnabled
+    if (id === 'replay') return props.replayEnabled
+    return true
+  }),
+)
 
-function money(v) { return Number.isFinite(v) ? new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 2 }).format(v) : '—' }
-function pct(v) { return Number.isFinite(v) ? `${(v * 100).toFixed(1)}%` : '—' }
-function sectionPosition(id) { return visibleSectionOrder.value.indexOf(id) }
-function sectionStyle(id) { return { order: sectionPosition(id) } }
+function money(v) {
+  return Number.isFinite(v) ? new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 2 }).format(v) : '—'
+}
+function pct(v) {
+  return Number.isFinite(v) ? `${(v * 100).toFixed(1)}%` : '—'
+}
+function sectionPosition(id) {
+  return visibleSectionOrder.value.indexOf(id)
+}
+function sectionStyle(id) {
+  return { order: sectionPosition(id) }
+}
 function canMoveSection(id, delta) {
   const index = sectionPosition(id)
   return index >= 0 && index + delta >= 0 && index + delta < visibleSectionOrder.value.length
@@ -141,9 +170,15 @@ function moveSection(id, delta) {
           <em>{{ observationDate || rows.at(-1)?.date || '—' }}</em>
         </header>
         <div class="dd-context-grid">
-          <div><span>K 线</span><strong>{{ rows.length }}</strong></div>
-          <div><span>现价</span><strong>{{ money(market?.markPrice) }}</strong></div>
-          <div><span>成本锚</span><strong>{{ money(market?.costAnchor) }}</strong></div>
+          <div>
+            <span>K 线</span><strong>{{ rows.length }}</strong>
+          </div>
+          <div>
+            <span>现价</span><strong>{{ money(market?.markPrice) }}</strong>
+          </div>
+          <div>
+            <span>成本锚</span><strong>{{ money(market?.costAnchor) }}</strong>
+          </div>
         </div>
       </article>
     </DisclosureSection>
@@ -172,7 +207,7 @@ function moveSection(id, delta) {
 
     <DisclosureSection
       title="行情状态"
-      :meta="`${factMeta} · ${matchText}`"
+      :meta="`${factMeta} · ${extremenessText}`"
       movable
       :can-move-up="canMoveSection('facts', -1)"
       :can-move-down="canMoveSection('facts', 1)"
@@ -182,17 +217,32 @@ function moveSection(id, delta) {
     >
       <article class="dd-action-card">
         <header>
-          <strong>{{ graph?.decision?.state || '等待数据' }}</strong>
-          <em>{{ matchText }}</em>
+          <strong>市场结构 · {{ graph?.decision?.state || '等待数据' }}</strong>
+          <em title="正态参考下的偏离极端度，不是胜率">{{ extremenessText }}</em>
         </header>
         <div v-if="hasPositionFacts" class="dd-action-grid">
-          <div><span>首笔金额</span><strong>{{ money(graph?.position?.firstNotional) }}</strong></div>
-          <div><span>挂单价</span><strong>{{ money(primaryOrders[0]?.price) }}</strong></div>
-          <div><span>失效</span><strong>{{ money(graph?.position?.stopPrice) }}</strong></div>
-          <div><span>目标</span><strong>{{ money(graph?.position?.targetPrice) }}</strong></div>
-          <div><span>风险预算</span><strong>{{ money(graph?.position?.riskBudget) }}</strong></div>
-          <div><span>失效距离</span><strong>{{ pct(graph?.position?.stopDistance) }}</strong></div>
+          <div>
+            <span>模拟首笔</span><strong>{{ money(graph?.position?.firstNotional) }}</strong>
+          </div>
+          <div>
+            <span>挂单价</span><strong>{{ money(primaryOrders[0]?.price) }}</strong>
+          </div>
+          <div>
+            <span>失效</span><strong>{{ money(graph?.position?.stopPrice) }}</strong>
+          </div>
+          <div>
+            <span>目标</span><strong>{{ money(graph?.position?.targetPrice) }}</strong>
+          </div>
+          <div>
+            <span>模拟风险预算</span><strong>{{ money(graph?.position?.riskBudget) }}</strong>
+          </div>
+          <div>
+            <span>失效距离</span><strong>{{ pct(graph?.position?.stopDistance) }}</strong>
+          </div>
         </div>
+        <p v-if="hasPositionFacts" class="dd-empty-note">
+          名义金额按正态参考极端度缩放，仅用于情景模拟，不是胜率或实盘仓位建议。
+        </p>
         <p v-else class="dd-empty-note">未生成模拟挂单。当前只展示价格位置和触发状态，不显示名义、风险预算或目标价。</p>
       </article>
     </DisclosureSection>
@@ -207,17 +257,17 @@ function moveSection(id, delta) {
       @move-up="moveSection('triggers', -1)"
       @move-down="moveSection('triggers', 1)"
     >
-      <div class="dd-risk-row">
-        <span>失效线</span>
-        <strong>{{ money(graph?.plan?.invalidation?.lower) }} / {{ money(graph?.plan?.invalidation?.upper) }}</strong>
+      <div v-for="item in orderReview.conditions" :key="`${orderReview.mode}-${item}`" class="dd-risk-row">
+        <span>{{ orderReview.label }}</span>
+        <strong>{{ item }}</strong>
       </div>
       <div v-for="item in graph?.decision?.triggeredConditions ?? []" :key="item" class="dd-risk-row">
         <span>已触发</span>
-        <strong>{{ item }}</strong>
+        <strong>{{ formatFormulaBlockReason(item) }}</strong>
       </div>
       <div v-for="item in graph?.decision?.blockedReasons ?? []" :key="item" class="dd-risk-row">
         <span>未触发</span>
-        <strong>{{ item }}</strong>
+        <strong>{{ formatFormulaBlockReason(item) }}</strong>
       </div>
     </DisclosureSection>
 
@@ -281,18 +331,30 @@ function moveSection(id, delta) {
       @move-down="moveSection('profile', 1)"
     >
       <div class="dd-profile-tabs">
-        <button :class="{ active: autoProfile }" :disabled="!replayEnabled" @click="emit('set-auto-profile', true)">回放选档</button>
+        <button :class="{ active: autoProfile }" :disabled="!replayEnabled" @click="emit('set-auto-profile', true)">
+          回放选档
+        </button>
         <button
           v-for="p in profileList"
           :key="p.id"
           :class="{ active: !autoProfile && activeProfileId === p.id }"
           @click="emit('set-profile', p.id)"
-        >{{ p.label }}</button>
+        >
+          {{ p.label }}
+        </button>
       </div>
-      <p v-if="!replayEnabled" class="replay-empty">现货路径回放未启用。策略档位只使用手动选择，不由回放结果反向改写信号条件。</p>
-      <p v-else-if="!hasRunnableProfileReplay" class="replay-empty">缺少账户资金或底仓名义，暂不显示策略档位路径评分。</p>
+      <p v-if="!replayEnabled" class="replay-empty">
+        现货路径回放未启用。策略档位只使用手动选择，不由回放结果反向改写信号条件。
+      </p>
+      <p v-else-if="!hasRunnableProfileReplay" class="replay-empty">
+        缺少账户资金或底仓名义，暂不显示策略档位路径评分。
+      </p>
       <ul v-else class="dd-profile-grid">
-        <li v-for="item in profileReplays" :key="item.profile.id" :class="{ active: item.profile.id === activeProfileId }">
+        <li
+          v-for="item in profileReplays"
+          :key="item.profile.id"
+          :class="{ active: item.profile.id === activeProfileId }"
+        >
           <span>{{ item.profile.label }}</span>
           <strong>{{ pct(item.replay.returnOnUsedNotional) }}</strong>
           <em>回撤 {{ money(item.replay.maxDrawdown) }} · {{ item.replay.tradeCount }} 次</em>
@@ -314,7 +376,12 @@ function moveSection(id, delta) {
       @move-up="moveSection('replay', -1)"
       @move-down="moveSection('replay', 1)"
     >
-      <ReplayPanel :replay="replay" :profile-replays="profileReplays" :active-profile-id="activeProfileId" :input="input" />
+      <ReplayPanel
+        :replay="replay"
+        :profile-replays="profileReplays"
+        :active-profile-id="activeProfileId"
+        :input="input"
+      />
     </DisclosureSection>
 
     <DisclosureSection
@@ -334,43 +401,4 @@ function moveSection(id, delta) {
   </div>
 </template>
 
-<style>
-.dd-drawer { display: grid; gap: 0; min-width: 0; }
-.dd-drawer > * { min-width: 0; }
-.dd-reason-text { margin: 0; font-size: 0.95rem; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere; }
-.dd-action-card { padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-alt); min-width: 0; }
-.dd-context-card { display: grid; gap: 8px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-alt); min-width: 0; }
-.dd-context-card header { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; min-width: 0; }
-.dd-context-card header strong { font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dd-context-card header em { flex-shrink: 0; color: var(--muted); font-style: normal; font-size: 0.68rem; font-variant-numeric: tabular-nums; }
-.dd-context-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.dd-context-grid div { display: grid; gap: 1px; min-width: 0; }
-.dd-context-grid span { color: var(--muted); font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
-.dd-context-grid strong { font-size: 0.8rem; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dd-account-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-.dd-account-inputs label { display: grid; gap: 3px; min-width: 0; }
-.dd-account-inputs span { color: var(--muted); font-size: 0.62rem; font-weight: 800; text-transform: uppercase; }
-.dd-account-inputs input { min-width: 0; min-height: 28px; border: 1px solid var(--line); border-radius: 5px; padding: 3px 7px; background: var(--bg); color: var(--ink); font-variant-numeric: tabular-nums; }
-.dd-action-card header { display: flex; gap: 8px; align-items: baseline; margin-bottom: 8px; flex-wrap: wrap; }
-.dd-action-card header strong { font-size: 1rem; }
-.dd-action-card header em { font-style: normal; color: var(--muted); font-size: 0.72rem; padding: 1px 7px; border: 1px solid var(--line); border-radius: 999px; white-space: nowrap; }
-.dd-action-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-.dd-action-grid div { display: grid; gap: 1px; min-width: 0; }
-.dd-action-grid span { color: var(--muted); font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
-.dd-action-grid strong { font-size: 0.84rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.dd-empty-note { margin: 0; color: var(--muted); font-size: 0.72rem; line-height: 1.45; }
-.dd-risk-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 5px; background: var(--panel); min-width: 0; }
-.dd-risk-row span { color: var(--muted); font-size: 0.66rem; font-weight: 800; text-transform: uppercase; flex-shrink: 0; }
-.dd-risk-row strong { font-size: 0.82rem; font-variant-numeric: tabular-nums; text-align: right; overflow-wrap: anywhere; }
-.dd-risk-row strong.green { color: var(--green); }
-.dd-risk-row strong.red { color: var(--red); }
-.dd-profile-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; }
-.dd-profile-tabs button { min-width: 0; min-height: 28px; padding: 3px 4px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); color: var(--ink); font-size: 0.7rem; font-weight: 700; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dd-profile-tabs button.active { border-color: var(--green); background: var(--surface-active); }
-.dd-profile-grid { display: grid; gap: 4px; padding: 0; margin: 0; list-style: none; }
-.dd-profile-grid li { display: grid; grid-template-columns: minmax(40px, auto) 1fr minmax(0, 1.4fr); gap: 6px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); font-size: 0.72rem; align-items: baseline; min-width: 0; }
-.dd-profile-grid li.active { border-color: var(--green); background: var(--surface-active); }
-.dd-profile-grid span { color: var(--muted); font-weight: 800; }
-.dd-profile-grid strong { font-variant-numeric: tabular-nums; }
-.dd-profile-grid em { font-style: normal; color: var(--muted); font-size: 0.64rem; overflow-wrap: anywhere; }
-</style>
+<style src="../styles/decision-drawer.css"></style>

@@ -1,0 +1,142 @@
+@media (max-width: 768px) {
+  .hq-terminal-chrome {
+    padding: 5px 6px;
+  }
+  .hq-terminal-toolbar {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    overflow: visible;
+    padding: 0;
+    mask-image: none;
+  }
+  .hq-periods,
+  .hq-style-control,
+  .hq-quick-draw,
+  .hq-view-actions,
+  .hq-data-note {
+    display: none;
+  }
+  .hq-indicator-layers {
+    display: contents;
+  }
+  .hq-mobile-period,
+  .hq-mobile-draw-trigger,
+  .hq-layer-trigger {
+    min-width: 0;
+    min-height: 52px;
+    margin: 0;
+    padding: 4px 5px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+  }
+  .hq-mobile-period {
+    position: relative;
+    display: grid;
+  }
+  .hq-mobile-period > span {
+    position: absolute;
+    z-index: 1;
+    top: 4px;
+    left: 7px;
+    pointer-events: none;
+  }
+  .hq-mobile-period select {
+    width: 100%;
+    max-width: none;
+    min-height: 44px;
+    padding: 14px 2px 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font-weight: 850;
+  }
+  .hq-layer-trigger,
+  .hq-mobile-draw-trigger {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1px;
+    align-content: center;
+    text-align: left;
+  }
+  .hq-layer-label-desktop {
+    display: none;
+  }
+  .hq-layer-label-mobile {
+    display: inline;
+  }
+  .hq-layer-trigger strong,
+  .hq-mobile-draw-trigger strong {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--green);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .hq-tool-backdrop {
+    background: rgba(10, 20, 18, 0.46);
+  }
+  .hq-layer-panel,
+  .hq-draw-panel {
+    inset: auto 6px max(6px, env(safe-area-inset-bottom));
+    width: auto;
+    max-height: 76dvh;
+    translate: none;
+    border-radius: 10px;
+  }
+  .hq-lab-toggle-grid,
+  .hq-native-slots,
+  .hq-draw-groups {
+    grid-template-columns: 1fr;
+  }
+  .hq-lab-toggle.parent {
+    grid-column: auto;
+  }
+  .hq-lab-toggle.child {
+    margin-left: 0;
+  }
+  .hq-lab-toggle,
+  .hq-native-slots select,
+  .hq-terminal-state button {
+    min-height: 44px;
+  }
+  .hq-draw-style-control {
+    justify-content: space-between;
+  }
+  .hq-draw-style-control select {
+    min-height: 44px;
+  }
+  .hq-draw-groups button {
+    min-height: 56px;
+  }
+  .hq-draw-panel > footer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .hq-native-draw-launch {
+    display: none;
+  }
+  .hq-chart-canvas {
+    min-height: 0;
+  }
+  .UMyChart_DrawTool_Dialog_Div,
+  .UMyChart_SearchIndex_Dialog_Div,
+  .UMyChart_ModifyIndexParam_Dialog_Div {
+    max-width: calc(100vw - 12px) !important;
+    box-sizing: border-box;
+  }
+}
+
+@media (pointer: coarse) {
+  .hq-terminal-toolbar button,
+  .hq-terminal-toolbar select {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hq-loader {
+    animation-duration: 1400ms;
+  }
+}

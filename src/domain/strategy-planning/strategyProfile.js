@@ -1,23 +1,38 @@
 const baseProfiles = {
   conservative: {
-    id: 'conservative', label: '保守',
-    edgeSigma: 1.15, momentumSigma: 0.5, costSlopeSigma: 0.75,
-    riskPct: 0.006, exposurePct: 0.18,
-    firstWeight: 0.30, cooldownFactor: 2.5,
+    id: 'conservative',
+    label: '保守',
+    edgeSigma: 1.15,
+    momentumSigma: 0.5,
+    costSlopeSigma: 0.75,
+    riskPct: 0.006,
+    exposurePct: 0.18,
+    firstWeight: 0.3,
+    cooldownFactor: 2.5,
     cutLossSigma: 1.2,
   },
   balanced: {
-    id: 'balanced', label: '均衡',
-    edgeSigma: 1.0, momentumSigma: 0.25, costSlopeSigma: 0.6,
-    riskPct: 0.01, exposurePct: 0.25,
-    firstWeight: 0.35, cooldownFactor: 2.0,
+    id: 'balanced',
+    label: '均衡',
+    edgeSigma: 1.0,
+    momentumSigma: 0.25,
+    costSlopeSigma: 0.6,
+    riskPct: 0.01,
+    exposurePct: 0.25,
+    firstWeight: 0.35,
+    cooldownFactor: 2.0,
     cutLossSigma: 1.2,
   },
   aggressive: {
-    id: 'aggressive', label: '激进',
-    edgeSigma: 0.75, momentumSigma: 0, costSlopeSigma: 0.45,
-    riskPct: 0.016, exposurePct: 0.40,
-    firstWeight: 0.45, cooldownFactor: 1.25,
+    id: 'aggressive',
+    label: '激进',
+    edgeSigma: 0.75,
+    momentumSigma: 0,
+    costSlopeSigma: 0.45,
+    riskPct: 0.016,
+    exposurePct: 0.4,
+    firstWeight: 0.45,
+    cooldownFactor: 1.25,
     cutLossSigma: 1.1,
   },
 }
@@ -61,10 +76,13 @@ export function buildCustomProfile(input = {}) {
 }
 
 export function scaleProfileToMarket(profile, market) {
-  const atr = market?.atrPercent || 0.02
-  const annVol = market?.annualVol || 0.4
-  const dailyVol = annVol / Math.sqrt(365)
-  const volRatio = dailyVol / 0.02
+  const atr = Number.isFinite(market?.atrPercent) ? Math.max(market.atrPercent, 0) : 0
+  const annVol = Number.isFinite(market?.annualVol) ? Math.max(market.annualVol, 0) : 0
+  const tdpy =
+    Number.isFinite(market?.tradingDaysPerYear) && market.tradingDaysPerYear > 0 ? market.tradingDaysPerYear : null
+  const dailyVol = tdpy && annVol > 0 ? annVol / Math.sqrt(tdpy) : atr
+  const volRatio = atr > 0 ? dailyVol / atr : 1
+  const recentWindow = Number.isFinite(market?.windowSpec?.recent) ? market.windowSpec.recent : 1
 
   return {
     ...profile,
@@ -78,8 +96,9 @@ export function scaleProfileToMarket(profile, market) {
     exposureMin: Math.max(profile.exposurePct * 0.4, 0.05),
     exposureMax: Math.max(profile.exposurePct, 0.15),
     firstWeight: profile.firstWeight,
-    buyCooldown: Math.max(Math.round(profile.cooldownFactor * 3), 2),
-    sellCooldown: Math.max(Math.round(profile.cooldownFactor), 1),
+    buyCooldown: Math.max(Math.round(profile.cooldownFactor * recentWindow), 1),
+    sellCooldown: Math.max(Math.round(profile.cooldownFactor * Math.sqrt(recentWindow)), 1),
+    cooldownWindowSource: market?.windowSpec?.mode ?? 'missing-window-fallback-one-session',
     cutMomentumAtr: profile.cutLossSigma,
     cutMomentumMin: Math.max(profile.cutLossSigma * dailyVol * 0.4, 0.015),
   }

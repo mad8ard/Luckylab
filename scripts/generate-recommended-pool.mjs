@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 生成「今日推荐股票池」快照（v3 多维 + 半衰期 + 接飞刀豁免）
+// 生成「今日研究观察池」快照（v3 多维 + AR 样本门禁 + 独立留出校准边界）
 
 import { readFile, readdir, mkdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
@@ -7,14 +7,13 @@ import { fileURLToPath } from 'node:url'
 
 import { parseCsvText } from '../src/domain/market-data/ohlcv.js'
 import { buildMarketStatePath } from '../src/domain/market-data/cost.js'
-import { computeKDJ } from '../src/domain/indicators/kdj.js'
-import { computeRSI } from '../src/domain/indicators/rsi.js'
+import { inferTdpy } from '../src/domain/market-data/tdpy.js'
 import { uniswapV3Inventory } from '../src/domain/formulas/lp.js'
 import {
   buildScoreConfig,
   deriveRecommendedStockDecisionMetrics,
   generateRecommendedStockPool,
-  regressionProbabilityFromZ,
+  deviationReferenceFromZ,
 } from '../src/domain/strategy-planning/recommendedStockPool.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -26,10 +25,9 @@ const LATEST_PATH = join(ROOT, 'src', 'data', 'recommended-pool-latest.json')
 const WHITELIST_PATH = join(ROOT, 'src', 'data', 'social-security-q1-whitelist.json')
 
 const TOP_N = numberArg('--top', 10)
-const RANGE_WIDTH = numberArg('--range-width', 0.10)
+const RANGE_WIDTH = numberArg('--range-width', 0.1)
 const LIQUIDITY = numberArg('--liquidity', 1)
-const HISTORY_DAYS_1Y = numberArg('--history-days', 252)
-const HISTORY_DAYS_3Y = HISTORY_DAYS_1Y * 3
+const HISTORY_SESSIONS_OVERRIDE = optionalNumberArg('--history-sessions')
 
 main().catch((err) => {
   console.error(err)
@@ -49,14 +47,18 @@ async function main() {
   let skipCount = 0
   for (const entry of index) {
     const file = String(entry.url ?? '').replace(/^\/(?:data|datasets)\//, '')
-    if (!file || !csvSet.has(file)) { skipCount += 1; continue }
+    if (!file || !csvSet.has(file)) {
+      skipCount += 1
+      continue
+    }
     try {
       const text = await readFile(join(DATA_DIR, file), 'utf8')
       const rows = parseCsvText(text)
-      if (rows.length < 60) { skipCount += 1; continue }
-
       const metrics = computeMetricsForRows(rows, entry, whitelist)
-      if (!metrics) { skipCount += 1; continue }
+      if (!metrics) {
+        skipCount += 1
+        continue
+      }
       const derivedMetrics = deriveRecommendedStockDecisionMetrics(metrics)
       candidates.push({
         symbol: entry.symbol,
@@ -88,8 +90,8 @@ async function main() {
       topN: TOP_N,
       rangeWidth: RANGE_WIDTH,
       liquidity: LIQUIDITY,
-      historyDays1y: HISTORY_DAYS_1Y,
-      historyDays3y: HISTORY_DAYS_3Y,
+      historyWindowMode: HISTORY_SESSIONS_OVERRIDE ? 'explicit-scenario' : 'market-tdpy-derived',
+      historySessionsOverride: HISTORY_SESSIONS_OVERRIDE,
     },
     counts: {
       indexEntries: index.length,
@@ -111,8 +113,8 @@ async function main() {
   await writeFile(LATEST_PATH, `${JSON.stringify(payload, null, 2)}\n`, 'utf8')
 
   console.log(
-    `推荐股票池生成完毕：focus=${pool.focusItems.length} / wait=${pool.waitItems.length}，` +
-    `processed=${okCount}, skipped=${skipCount}, whitelist=${whitelist.size}, dated=${datedPath}`,
+    `研究观察池生成完毕：focus=${pool.focusItems.length} / wait=${pool.waitItems.length}，` +
+      `processed=${okCount}, skipped=${skipCount}, whitelist=${whitelist.size}, dated=${datedPath}`,
   )
 }
 
@@ -130,7 +132,10 @@ async function loadWhitelist() {
 
 function computeMetricsForRows(rows, entry, whitelist) {
   const market = entry.market
-  const tdpy = inferTdpy(market)
+  const tdpy = inferTdpy({ symbol: entry.symbol, market }).value
+  const historySessions1y = HISTORY_SESSIONS_OVERRIDE ?? tdpy
+  const historySessions3y = historySessions1y * 3
+  const minimumEvidenceSamples = Math.max(3, Math.ceil(Math.sqrt(tdpy)))
   const last = rows.at(-1)
   if (!last) return null
 
@@ -138,37 +143,35 @@ function computeMetricsForRows(rows, entry, whitelist) {
   const lastMarket = marketStatePath.at(-1)
   if (!lastMarket) return null
 
-  const kdj = computeKDJ(rows).at(-1)
-  const rsi = computeRSI(rows).at(-1)
-
   // 1 年 lpValue 序列 → 当前百分位
-  const lpValues1y = collectLpValues(rows, marketStatePath, HISTORY_DAYS_1Y)
+  const lpValues1y = collectLpValues(rows, marketStatePath, historySessions1y)
   // 3 年 lpValue 序列 → max/min 比值
-  const lpValues3y = collectLpValues(rows, marketStatePath, HISTORY_DAYS_3Y)
+  const lpValues3y = collectLpValues(rows, marketStatePath, historySessions3y)
 
   const currentLp = computeLpAt({ price: last.close, anchor: lastMarket.costAnchor })
   if (!currentLp) return null
 
-  const lpValuePercentile = lpValues1y.length >= 30
-    ? percentileOf(lpValues1y, currentLp.value)
-    : null
+  const lpValuePercentile =
+    lpValues1y.length >= minimumEvidenceSamples ? percentileOf(lpValues1y, currentLp.value) : null
 
-  const lpRatio3y = lpValues3y.length >= 60
-    ? Math.max(...lpValues3y) / Math.max(Math.min(...lpValues3y), 1e-12)
-    : null
+  const lpRatio3y =
+    lpValues3y.length >= minimumEvidenceSamples
+      ? Math.max(...lpValues3y) / Math.max(Math.min(...lpValues3y), 1e-12)
+      : null
 
   // z 值
-  const halfWidth = lastMarket.costHigh > lastMarket.costAnchor
-    ? lastMarket.costHigh - lastMarket.costAnchor
-    : (lastMarket.costLow < lastMarket.costAnchor ? lastMarket.costAnchor - lastMarket.costLow : null)
-  const zScore = halfWidth && halfWidth > 0
-    ? (last.close - lastMarket.costAnchor) / halfWidth
-    : null
-  const regressionProbability = zScore !== null ? regressionProbabilityFromZ(zScore) : null
+  const halfWidth =
+    lastMarket.costHigh > lastMarket.costAnchor
+      ? lastMarket.costHigh - lastMarket.costAnchor
+      : lastMarket.costLow < lastMarket.costAnchor
+        ? lastMarket.costAnchor - lastMarket.costLow
+        : null
+  const zScore = halfWidth && halfWidth > 0 ? (last.close - lastMarket.costAnchor) / halfWidth : null
+  const deviationReference = zScore !== null ? deviationReferenceFromZ(zScore) : null
 
   // costDistance 序列（用于半衰期）
   const distSeries = []
-  const distStart = Math.max(0, marketStatePath.length - HISTORY_DAYS_1Y)
+  const distStart = Math.max(0, marketStatePath.length - historySessions1y)
   for (let i = distStart; i < marketStatePath.length; i += 1) {
     const ms = marketStatePath[i]
     if (Number.isFinite(ms?.costDistance)) distSeries.push(ms.costDistance)
@@ -180,10 +183,8 @@ function computeMetricsForRows(rows, entry, whitelist) {
     costLow: lastMarket.costLow,
     costHigh: lastMarket.costHigh,
     costDistance: lastMarket.costDistance,
-    costSlope5: lastMarket.costSlope5,
+    costSlopeRecent: lastMarket.costSlopeRecent,
     annualVol: lastMarket.annualVol,
-    j: kdj?.j ?? null,
-    rsi: rsi?.raw ?? null,
     lpZone: currentLp.zone,
     lpValue: currentLp.value,
     lpValuePercentile,
@@ -191,11 +192,18 @@ function computeMetricsForRows(rows, entry, whitelist) {
     lpValueMax1y: lpValues1y.length ? Math.max(...lpValues1y) : null,
     lpValueRatio3y: lpRatio3y,
     zScore,
-    regressionProbability,
-    anchorDirection: directionOfSlope(lastMarket.costSlope5),
+    deviationPercentile: deviationReference?.deviationPercentile ?? null,
+    twoSidedTailProbability: deviationReference?.twoSidedTailProbability ?? null,
+    deviationSemantics: deviationReference?.semantics ?? null,
+    annualVolSource: 'historical-realized-scenario-sigma',
+    lpProxySemantics: 'dynamic-range-synthetic-price-geometry-not-fixed-position',
+    anchorDirection: directionOfSlope(lastMarket.costSlopeRecent),
     costDistanceSeries: distSeries,
     tradingDays: distSeries.length,
     tradingDaysPerYear: tdpy,
+    historySessions1y,
+    historySessions3y,
+    minimumEvidenceSamples,
     socialSecurityWhitelisted: whitelist.has(entry.symbol),
     observationDate: last.date,
   }
@@ -238,13 +246,16 @@ function directionOfSlope(slope) {
   return 'flat'
 }
 
-function inferTdpy(market) {
-  return 252
-}
-
 function numberArg(name, fallback) {
   const idx = process.argv.indexOf(name)
   if (idx < 0) return fallback
   const value = Number(process.argv[idx + 1])
   return Number.isFinite(value) && value > 0 ? value : fallback
+}
+
+function optionalNumberArg(name) {
+  const idx = process.argv.indexOf(name)
+  if (idx < 0) return null
+  const value = Number(process.argv[idx + 1])
+  return Number.isFinite(value) && value > 0 ? Math.round(value) : null
 }

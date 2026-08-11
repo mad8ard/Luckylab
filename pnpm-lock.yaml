@@ -11,6 +11,12 @@ importers:
       d3-dsv:
         specifier: ^3.0.1
         version: 3.0.1
+      hqchart:
+        specifier: ^1.1.15912
+        version: 1.1.15912
+      jquery:
+        specifier: ^3.7.1
+        version: 3.7.1
       lightweight-charts:
         specifier: ^5.2.0
         version: 5.2.0
@@ -855,6 +861,9 @@ packages:
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
+  hqchart@1.1.15912:
+    resolution: {integrity: sha512-ihTtSpBoPO85CXj2Tg3PsUNZvThRORU5xROOduPJxXv7/S+ZUsy8oyRfj+O3DCgTG7Al3vkWjhBWhqKd7YHOHw==}
+
   html-encoding-sniffer@6.0.0:
     resolution: {integrity: sha512-CV9TW3Y3f8/wT0BRFc1/KAVQ3TUHiXmaAb6VW9vtiMFf7SLoMd1PdAc4W3KFOFETBJUb90KatHqlsZMWV+R9Gg==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
@@ -922,6 +931,9 @@ packages:
 
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
+
+  jquery@3.7.1:
+    resolution: {integrity: sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg==}
 
   js-beautify@1.15.4:
     resolution: {integrity: sha512-9/KXeZUKKJwqCXUdBxFJ3vPh467OCckSBmYDwSK/EtV090K+iMJ7zx2S3HLVDIWFQdqMIsZWbnaGiba18aWhaA==}
@@ -2261,6 +2273,8 @@ snapshots:
 
   hookable@5.5.3: {}
 
+  hqchart@1.1.15912: {}
+
   html-encoding-sniffer@6.0.0:
     dependencies:
       '@exodus/bytes': 1.15.0
@@ -2317,6 +2331,8 @@ snapshots:
       '@isaacs/cliui': 8.0.2
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
+
+  jquery@3.7.1: {}
 
   js-beautify@1.15.4:
     dependencies:

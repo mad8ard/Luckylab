@@ -1,6 +1,6 @@
-# 每个 A股/港股交易日收盘后刷新价格表
+# 每个美股交易日收盘后刷新价格表
 # 触发时刻：UTC 周二-周六 02:00 = 北京时间周二-周六 10:00
-# 北京时间 10:00 跑数据时，前一日收盘数据已稳定 5+ 小时
+# 美股夏令时收盘 04:00（北京时间），冬令时 05:00（北京时间）；10:00 跑数据已稳定 5+ 小时
 # 复用项目里的 `pnpm run refresh:market-data`：fetch -> convert -> generate -> check
 name: Refresh Market Data
 
@@ -54,7 +54,7 @@ jobs:
       - name: Refresh market data
         env:
           # 可选：在仓库 Settings -> Secrets and variables -> Actions 配置
-          # 配置后 yfinance/akshare 在部分数据源失败时会回落到 Alpha Vantage
+          # 配置后 Nasdaq/AkShare 在美股部分失败时会回落到 Alpha Vantage
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
         run: pnpm run refresh:market-data
 

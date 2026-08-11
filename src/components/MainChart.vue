@@ -2,16 +2,32 @@
 import { createChart } from 'lightweight-charts'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import ChartStatusBar from './ChartStatusBar.vue'
+import ChartDisplayTools from './ChartDisplayTools.vue'
+import ChartDrawingToolbar from './ChartDrawingToolbar.vue'
 import MainChartHoverLegend from './MainChartHoverLegend.vue'
 import StockChipProfileOverlay from './StockChipProfileOverlay.vue'
+import WorkbenchSummary from './WorkbenchSummary.vue'
+import { latestFinitePathPoint, resolvePreferredPath } from './mainChartLegendMeta.js'
 import { computeKDJ } from '../domain/indicators/kdj.js'
 import { computeRSI } from '../domain/indicators/rsi.js'
 import { buildChartMarkers } from '../domain/research-visualization/chartMarkers.js'
 import { useStockChipViewport } from '../composables/useStockChipViewport.js'
 import { useBreakpoint } from '../composables/useBreakpoint.js'
-import { buildChartOptions, finiteOrNull, regimeColor, themeOptions } from '../composables/mainChartTheme.js'
+import {
+  buildChartOptions,
+  chartInteractionOptions,
+  mainPriceScaleOptions,
+  regimeColor,
+  themeOptions,
+} from '../composables/mainChartTheme.js'
+import { ChartDrawingsPrimitive } from '../composables/ChartDrawingsPrimitive.js'
+import { useChartDrawings } from '../composables/useChartDrawings.js'
 import { useMainChartLegend } from '../composables/useMainChartLegend.js'
 import { useMainChartSeries } from '../composables/useMainChartSeries.js'
+import {
+  toLightweightLineSegments,
+  toLightweightPathLineSegments,
+} from '../infrastructure/charting/lightweightResearchAdapter.js'
 
 const { isMobile } = useBreakpoint()
 
@@ -23,23 +39,47 @@ const props = defineProps({
   replay: { type: Object, required: true },
   market: { type: Object, default: null },
   decision: { type: Object, default: null },
+  position: { type: Object, default: null },
+  summary: { type: Object, default: null },
+  drawingScope: { type: String, default: '' },
   overlays: { type: Object, required: true },
   input: { type: Object, required: true },
 })
 
-const emit = defineEmits(['cursor-change', 'param-change'])
+const emit = defineEmits(['cursor-change', 'param-change', 'set-overlay'])
 
 const el = ref(null)
-const showStockChipProfile = computed(() => props.overlays.stockChipProfile !== false)
+const drawingLayer = ref(null)
+const showStockChipProfile = computed(() => props.overlays.stockChipProfile !== false && !isMobile.value)
 let chart = null
+let drawingsPrimitive = null
 let themeObserver = null
 let resizeObserver = null
+let fittedDataSignature = ''
+let fittedRows = null
+let fittedScope = ''
 
 const chartSeries = useMainChartSeries({
   getChart: () => chart,
   getProps: () => props,
 })
-const { series, seriesMeta, applyOverlays, getPaneLayout, getMarkersApi } = chartSeries
+const { series, seriesMeta, applyOverlays, setLineSegments, getPaneLayout, getMarkersApi } = chartSeries
+const drawing = useChartDrawings({
+  getChart: () => chart,
+  getSeries: () => series,
+  getPrimitive: () => drawingsPrimitive,
+  getScope: () => props.drawingScope,
+  getLayer: () => drawingLayer.value,
+})
+const {
+  tool: drawingTool,
+  drawings: chartDrawingItems,
+  canUndo: canUndoDrawing,
+  canRedo: canRedoDrawing,
+  canDelete: canDeleteDrawing,
+  inputActive: drawingInputActive,
+  helpText: drawingHelpText,
+} = drawing
 
 const stockChipViewport = useStockChipViewport({
   getChart: () => chart,
@@ -48,11 +88,7 @@ const stockChipViewport = useStockChipViewport({
   getPaneIndex: () => getPaneLayout().main,
   isEnabled: () => showStockChipProfile.value,
 })
-const {
-  hoverIndex,
-  hoverLegend,
-  handleCrosshair: handleCrosshairBase,
-} = useMainChartLegend({
+const { hoverLegend, handleCrosshair: handleCrosshairBase } = useMainChartLegend({
   getRows: () => props.rows,
   getSeries: () => series,
   getSeriesMeta: () => seriesMeta,
@@ -62,6 +98,9 @@ const {
 onMounted(() => {
   chart = createChart(el.value, chartOptions())
   applyOverlays()
+  drawingsPrimitive = new ChartDrawingsPrimitive()
+  series.candle.attachPrimitive(drawingsPrimitive)
+  drawing.attach()
   syncChart()
   chart.subscribeCrosshairMove(handleCrosshair)
   chart.timeScale().subscribeVisibleLogicalRangeChange(stockChipViewport.queue)
@@ -76,13 +115,24 @@ onBeforeUnmount(() => {
   resizeObserver?.disconnect()
   themeObserver?.disconnect()
   stockChipViewport.dispose()
+  drawing.dispose()
+  if (drawingsPrimitive && series.candle) series.candle.detachPrimitive(drawingsPrimitive)
   chart?.timeScale().unsubscribeVisibleLogicalRangeChange(stockChipViewport.queue)
   chart?.unsubscribeCrosshairMove(handleCrosshair)
   chart?.remove()
 })
 
 watch(
-  () => [props.rows, props.costPath, props.formulaPath, props.entryPrice, props.replay, props.decision],
+  () => [
+    props.rows,
+    props.drawingScope,
+    props.costPath,
+    props.formulaPath,
+    props.entryPrice,
+    props.replay,
+    props.decision,
+    props.position,
+  ],
   () => {
     applyOverlays()
     syncChart()
@@ -105,68 +155,47 @@ watch(showStockChipProfile, (on) => {
     stockChipViewport.stopMonitor()
   }
 })
+watch(drawingInputActive, () => applyDrawingInteractionMode())
 
 function syncChart() {
   if (!chart || !series.candle) return
+  const nextDataSignature = chartDataSignature(props.rows)
+  const nextScope = props.drawingScope.trim()
+  const shouldFit = props.rows !== fittedRows || nextDataSignature !== fittedDataSignature || nextScope !== fittedScope
   const dark = document.documentElement.classList.contains('dark')
   // 主题相关的 layout/grid/rightPriceScale/timeScale 配置统一从 themeOptions 取
   chart.applyOptions(themeOptions(dark))
+  series.candle.priceScale().applyOptions(mainPriceScaleOptions())
   series.candle.setData(
     props.rows.map((row) => ({ time: row.date, open: row.open, high: row.high, low: row.low, close: row.close })),
   )
-  if (series.cost)
-    setLine(
-      series.cost,
-      pathValues(
-        'costAnchor',
-        props.costPath.map((r) => r.anchor),
-      ),
-    )
-  if (series.costUpper)
-    setLine(
-      series.costUpper,
-      pathValues(
-        'costUpper',
-        props.costPath.map((r) => r.upper),
-      ),
-    )
-  if (series.costLower)
-    setLine(
-      series.costLower,
-      pathValues(
-        'costLower',
-        props.costPath.map((r) => r.lower),
-      ),
-    )
-  if (series.deltaUpper)
-    setLine(
-      series.deltaUpper,
-      props.formulaPath.map((r) => r.deltaUpper),
-    )
-  if (series.deltaLower)
-    setLine(
-      series.deltaLower,
-      props.formulaPath.map((r) => r.deltaLower),
-    )
-  if (series.lpLower)
-    setLine(
-      series.lpLower,
-      props.formulaPath.map((r) => r.lpLowerPrice),
-    )
-  if (series.lpUpper)
-    setLine(
-      series.lpUpper,
-      props.formulaPath.map((r) => r.lpUpperPrice),
-    )
-  if (series.lpRealPrice)
-    setLine(
-      series.lpRealPrice,
-      props.formulaPath.map((r) => r.lpRealPrice),
-    )
+  if (series.cost) setPreferredPathLine('cost', 'costAnchor', 'anchor')
+  if (series.costUpper) setPreferredPathLine('costUpper', 'costUpper', 'upper')
+  if (series.costLower) setPreferredPathLine('costLower', 'costLower', 'lower')
+  if (series.deltaUpper) setPathLine('deltaUpper', props.formulaPath, 'deltaUpper')
+  if (series.deltaLower) setPathLine('deltaLower', props.formulaPath, 'deltaLower')
+  if (series.lpLower) setPathLine('lpLower', props.formulaPath, 'lpLowerPrice')
+  if (series.lpUpper) setPathLine('lpUpper', props.formulaPath, 'lpUpperPrice')
+  if (series.lpRealPrice) setPathLine('lpRealPrice', props.formulaPath, 'lpRealPrice')
   if (series.entry)
     setLine(
-      series.entry,
+      'entry',
       props.rows.map(() => props.entryPrice),
+    )
+  if (series.mark)
+    setLine(
+      'mark',
+      props.rows.map(() => props.rows.at(-1)?.close),
+    )
+  if (series.target)
+    setLine(
+      'target',
+      props.rows.map(() => props.position?.targetPrice),
+    )
+  if (series.stop)
+    setLine(
+      'stop',
+      props.rows.map(() => props.position?.stopPrice),
     )
   if (series.volume) {
     series.volume.setData(
@@ -178,106 +207,64 @@ function syncChart() {
     )
   }
   if (series.regime) {
+    const costByDate = new Map((props.costPath ?? []).map((point) => [point?.date, point]))
     series.regime.setData(
-      props.rows.map((row, i) => {
-        const cost = props.costPath[i]
+      props.rows.map((row) => {
+        const cost = costByDate.get(row.date)
         const zone = cost ? regimeColor(row.close, cost) : null
         return zone ? { time: row.date, value: 1, color: zone } : { time: row.date, value: 0 }
       }),
     )
   }
-  if (series.bsDelta)
-    setLine(
-      series.bsDelta,
-      props.formulaPath.map((r) => r.optionDelta),
-    )
-  if (series.bsGamma)
-    setLine(
-      series.bsGamma,
-      props.formulaPath.map((r) => r.optionGamma),
-    )
-  if (series.bsTheta)
-    setLine(
-      series.bsTheta,
-      props.formulaPath.map((r) => r.optionThetaDaily),
-    )
+  if (series.bsDelta) setPathLine('bsDelta', props.formulaPath, 'optionDelta')
+  if (series.bsGamma) setPathLine('bsGamma', props.formulaPath, 'optionGamma')
+  if (series.bsTheta) setPathLine('bsTheta', props.formulaPath, 'optionThetaPerSession')
   if (series.greeksZero)
     setLine(
-      series.greeksZero,
+      'greeksZero',
       props.rows.map(() => 0),
     )
-  if (series.lpDelta)
-    setLine(
-      series.lpDelta,
-      props.formulaPath.map((r) => r.lpNormalizedDelta),
-    )
-  if (series.lpValue)
-    setLine(
-      series.lpValue,
-      props.formulaPath.map((r) => r.lpValue),
-    )
-  if (series.lpRealDiv)
-    setLine(
-      series.lpRealDiv,
-      props.formulaPath.map((r) => r.lpRealDivergence),
-    )
-  if (series.lpPoolTurnover) setLatestPoint(series.lpPoolTurnover, props.formulaPath.at(-1)?.lpPoolTurnover24h)
-  if (series.lpPoolConcentration)
-    setLatestPoint(series.lpPoolConcentration, props.formulaPath.at(-1)?.lpPoolTopReserveShare)
-  if (series.lpCe)
-    setLine(
-      series.lpCe,
-      props.formulaPath.map((r) => r.capitalEfficiency),
-    )
+  if (series.lpDelta) setPathLine('lpDelta', props.formulaPath, 'lpNormalizedDelta')
+  if (series.lpValue) setPathLine('lpValue', props.formulaPath, 'lpValue')
+  if (series.lpRealDiv) setPathLine('lpRealDiv', props.formulaPath, 'lpRealDivergence')
+  if (series.lpPoolTurnover) setLatestPoint('lpPoolTurnover', props.formulaPath, 'lpPoolTurnover24h')
+  if (series.lpPoolConcentration) setLatestPoint('lpPoolConcentration', props.formulaPath, 'lpPoolTopReserveShare')
+  if (series.lpCe) setPathLine('lpCe', props.formulaPath, 'capitalEfficiency')
   if (series.lpZero)
     setLine(
-      series.lpZero,
+      'lpZero',
       props.rows.map(() => 0),
     )
-  if (series.fundingProxy)
-    setLine(
-      series.fundingProxy,
-      props.formulaPath.map((r) => r.fundingProxy),
-    )
-  if (series.netCarry)
-    setLine(
-      series.netCarry,
-      props.formulaPath.map((r) => r.netCarry),
-    )
+  if (series.cumulativeFundingProxy) setPathLine('cumulativeFundingProxy', props.formulaPath, 'cumulativeFundingProxy')
+  if (series.netCarry) setPathLine('netCarry', props.formulaPath, 'netCarry')
   if (series.carryZero)
     setLine(
-      series.carryZero,
+      'carryZero',
       props.rows.map(() => 0),
     )
-  if (series.equity) {
-    const equityByDate = new Map((props.replay?.equityCurve ?? []).map((p) => [p.date, p.equity]))
-    series.equity.setData(
-      props.rows
-        .map((row) => ({ time: row.date, value: equityByDate.has(row.date) ? equityByDate.get(row.date) : null }))
-        .filter((p) => p.value !== null),
+  if (series.equity) setPathLine('equity', props.replay?.equityCurve, 'equity')
+  if (series.equityZero)
+    setLine(
+      'equityZero',
+      props.rows.map(() => 0),
     )
-  }
-  if (series.equityZero) {
-    series.equityZero.setData(props.rows.map((row) => ({ time: row.date, value: 0 })))
-  }
   if (series.kdjK || series.kdjJ) {
     const kdj = computeKDJ(props.rows)
     if (series.kdjK) {
-      series.kdjK.setData(
-        kdj
-          .map((r) => ({ time: r.date, value: r.k !== null && r.d !== null ? (r.k + r.d) / 2 : null }))
-          .filter((p) => p.value !== null),
+      setPathLine(
+        'kdjK',
+        kdj.map((row) => ({
+          ...row,
+          mean: Number.isFinite(row.k) && Number.isFinite(row.d) ? (row.k + row.d) / 2 : null,
+        })),
+        'mean',
       )
     }
-    if (series.kdjJ) {
-      series.kdjJ.setData(kdj.map((r) => ({ time: r.date, value: finiteOrNull(r.j) })).filter((p) => p.value !== null))
-    }
+    if (series.kdjJ) setPathLine('kdjJ', kdj, 'j')
   }
   if (series.rsi) {
     const rsi = computeRSI(props.rows)
-    series.rsi.setData(
-      rsi.map((r) => ({ time: r.date, value: finiteOrNull(r.custom) })).filter((p) => p.value !== null),
-    )
+    setPathLine('rsi', rsi, 'custom')
   }
   // markers：replay trades + 当前决策点 + 研究层状态
   const markersApi = getMarkersApi()
@@ -292,25 +279,32 @@ function syncChart() {
       }),
     )
   }
-  chart.timeScale().fitContent()
+  if (shouldFit) {
+    chart.timeScale().fitContent()
+    fittedRows = props.rows
+    fittedDataSignature = nextDataSignature
+    fittedScope = nextScope
+  }
+  drawing.refresh()
   stockChipViewport.queue()
 }
 
-function setLine(lineSeries, values) {
-  lineSeries.setData(
-    props.rows.map((row, i) => ({ time: row.date, value: finiteOrNull(values[i]) })).filter((p) => p.value !== null),
-  )
+function setLine(key, values) {
+  setLineSegments(key, toLightweightLineSegments(props.rows, values))
 }
 
-function setLatestPoint(lineSeries, value) {
-  const last = props.rows.at(-1)
-  const next = finiteOrNull(value)
-  lineSeries.setData(last && next !== null ? [{ time: last.date, value: next }] : [])
+function setPathLine(key, path, field) {
+  setLineSegments(key, toLightweightPathLineSegments(props.rows, path, field))
 }
 
-function pathValues(field, fallback = []) {
-  const values = props.formulaPath.map((row) => row?.[field])
-  return values.some(Number.isFinite) ? values : fallback
+function setPreferredPathLine(key, primaryField, fallbackField) {
+  const selected = resolvePreferredPath(props.formulaPath, primaryField, props.costPath, fallbackField)
+  setPathLine(key, selected.path, selected.field)
+}
+
+function setLatestPoint(key, path, field) {
+  const point = latestFinitePathPoint(props.rows, path, field)
+  setLineSegments(key, point ? [[point]] : [])
 }
 
 function handleCrosshair(param) {
@@ -321,7 +315,24 @@ function handleCrosshair(param) {
 function resize() {
   if (!chart || !el.value) return
   chart.resize(el.value.clientWidth, el.value.clientHeight)
+  drawing.refresh()
   stockChipViewport.queue()
+}
+
+function resetViewport() {
+  chart?.timeScale().fitContent()
+  drawing.refresh()
+}
+
+function applyDrawingInteractionMode() {
+  chart?.applyOptions(chartInteractionOptions(drawingInputActive.value))
+  if (drawingInputActive.value) stockChipViewport.stopMonitor()
+  else if (showStockChipProfile.value) stockChipViewport.startMonitor()
+}
+
+function confirmClearDrawings() {
+  if (!chartDrawingItems.value.length) return
+  if (window.confirm('清空当前标的的全部手绘标注？清空后仍可撤销。')) drawing.clearDrawings()
 }
 
 function chartOptions() {
@@ -333,52 +344,57 @@ function chartOptions() {
   })
 }
 
-// 移动端点按图表时合成 mousemove，复用桌面端 crosshair 流。
-function onMobileTap(e) {
-  if (!isMobile.value) return
-  const touch = e.touches?.[0]
-  if (!touch) return
-  const evt = new MouseEvent('mousemove', {
-    clientX: touch.clientX,
-    clientY: touch.clientY,
-    bubbles: true,
-  })
-  e.target.dispatchEvent(evt)
+function chartDataSignature(rows) {
+  if (!rows.length) return ''
+  return `${rows[0]?.date ?? ''}|${rows.at(-1)?.date ?? ''}|${rows.length}`
 }
 </script>
 
 <template>
   <div class="main-chart-shell">
-    <div ref="el" class="main-chart-canvas" @touchstart.passive="onMobileTap" />
-
-    <!-- Hover 图例：拆到子组件，本文件只构造 hoverLegend 对象 -->
-    <MainChartHoverLegend :legend="hoverLegend" />
-    <StockChipProfileOverlay v-if="showStockChipProfile" :rows="rows" :viewport="stockChipViewport.viewport.value" />
-
-    <ChartStatusBar :input="input" @change="(field, v) => emit('param-change', field, v)" />
+    <div class="main-chart-chrome">
+      <div class="chart-context-rail">
+        <WorkbenchSummary :model="summary" compact />
+        <slot name="engine-switch" />
+      </div>
+      <div class="chart-control-deck">
+        <ChartDrawingToolbar
+          :tool="drawingTool"
+          :count="chartDrawingItems.length"
+          :can-undo="canUndoDrawing"
+          :can-redo="canRedoDrawing"
+          :can-delete="canDeleteDrawing"
+          :help-text="drawingHelpText"
+          @set-tool="drawing.setTool"
+          @undo="drawing.undo"
+          @redo="drawing.redo"
+          @delete="drawing.deleteSelected"
+          @clear="confirmClearDrawings"
+          @fit="resetViewport"
+        />
+        <ChartDisplayTools
+          :overlays="overlays"
+          :chip-available="!isMobile"
+          @set-overlay="(key, value) => emit('set-overlay', key, value)"
+        />
+        <ChartStatusBar :input="input" @change="(field, v) => emit('param-change', field, v)" />
+      </div>
+    </div>
+    <div class="main-chart-stage">
+      <div ref="el" class="main-chart-canvas" />
+      <div
+        ref="drawingLayer"
+        class="chart-drawing-input"
+        :class="{ active: drawingInputActive }"
+        :data-tool="drawingTool"
+        @pointerdown="drawing.onPointerDown"
+        @pointermove="drawing.onPointerMove"
+        @pointerup="drawing.onPointerUp"
+        @pointercancel="drawing.onPointerCancel"
+        @lostpointercapture="drawing.onLostPointerCapture"
+      />
+      <MainChartHoverLegend :legend="hoverLegend" />
+      <StockChipProfileOverlay v-if="showStockChipProfile" :rows="rows" :viewport="stockChipViewport.viewport.value" />
+    </div>
   </div>
 </template>
-
-<style>
-.main-chart-shell {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-}
-.main-chart-canvas {
-  width: 100%;
-  height: 100%;
-}
-
-/* 移动端：在父容器够高时主图铺满（继承桌面 height: 100%），父容器若意外塌缩，60vh 兜底。 */
-@media (max-width: 768px) {
-  .main-chart-shell {
-    min-height: 60vh;
-  }
-  .main-chart-canvas {
-    min-height: 60vh;
-  }
-}
-</style>

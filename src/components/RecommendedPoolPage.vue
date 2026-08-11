@@ -40,7 +40,19 @@ function dateText(v) {
 }
 
 function tierTitle(kind) {
-  return kind === 'focus' ? '重点关注' : '等待观察'
+  return kind === 'focus' ? '研究关注' : '等待观察'
+}
+
+function holdingHorizonText(metrics) {
+  const sessions = Number(metrics?.formulaHorizonSessions)
+  if (Number.isFinite(sessions) && sessions > 0) return `${Math.ceil(sessions)} 个交易会话*`
+  return (
+    {
+      'not-applicable': '当前结构不适用',
+      'model-gate-failed': '模型门禁失败',
+      'missing-input': '缺输入',
+    }[metrics?.holdingProjectionStatus] ?? '待公式推导'
+  )
 }
 </script>
 
@@ -49,15 +61,13 @@ function tierTitle(kind) {
     <header class="pool-header">
       <div>
         <p class="pool-kicker">Market Lab</p>
-        <h1>推荐股票池</h1>
+        <h1>研究观察池</h1>
       </div>
       <a class="pool-link" href="/">主工作台</a>
     </header>
 
-    <section v-if="loading" class="pool-state">加载推荐池数据...</section>
-    <section v-else-if="error" class="pool-state pool-error">
-      推荐池数据读取失败：{{ error }}
-    </section>
+    <section v-if="loading" class="pool-state">加载研究观察池数据...</section>
+    <section v-else-if="error" class="pool-state pool-error">研究观察池数据读取失败：{{ error }}</section>
 
     <template v-else>
       <section class="pool-summary">
@@ -70,7 +80,7 @@ function tierTitle(kind) {
           <strong>{{ pool.totalCandidates }}</strong>
         </div>
         <div>
-          <span>重点</span>
+          <span>研究关注</span>
           <strong>{{ focusItems.length }}</strong>
         </div>
         <div>
@@ -80,6 +90,7 @@ function tierTitle(kind) {
       </section>
 
       <section class="pool-dims">
+        <span>评分研究池 · 非执行建议</span>
         <span v-for="dim in dimensions" :key="dim.id">{{ dim.label }} {{ dim.weight }}</span>
       </section>
 
@@ -90,7 +101,7 @@ function tierTitle(kind) {
           :class="{ 'is-active': mobileTab === 'focus' }"
           @click="mobileTab = 'focus'"
         >
-          重点关注
+          研究关注
         </button>
         <button
           type="button"
@@ -118,9 +129,9 @@ function tierTitle(kind) {
               <span>标的</span>
               <span>得分</span>
               <span>价格</span>
-              <span>LP</span>
+              <span>几何代理P</span>
               <span>Z</span>
-              <span>周期</span>
+              <span>公式周期</span>
             </div>
             <div v-for="item in group.items" :key="item.symbol" class="pool-row">
               <span>
@@ -131,7 +142,7 @@ function tierTitle(kind) {
               <span>{{ fmt(item.metrics?.price, 2) }}</span>
               <span>{{ pct(item.metrics?.lpValuePercentile) }}</span>
               <span>{{ fmt(item.metrics?.zScore, 2) }}σ</span>
-              <span>{{ fmt(item.metrics?.holdingDays, 0) }}天</span>
+              <span>{{ holdingHorizonText(item.metrics) }}</span>
             </div>
           </div>
         </article>
@@ -141,6 +152,7 @@ function tierTitle(kind) {
         <h2>策略说明</h2>
         <p>{{ pool.logic }}</p>
         <p>{{ pool.riskNote }}</p>
+        <p>* 公式周期以交易会话计，是结构目标、成本锚与 AR 半衰期共同推导的条件情景，不是持仓期预测。</p>
       </section>
     </template>
   </main>
@@ -152,7 +164,14 @@ function tierTitle(kind) {
   background: #f7f4ec;
   color: #171714;
   padding: 24px;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
 }
 
 .pool-header,

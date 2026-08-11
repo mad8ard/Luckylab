@@ -1,9 +1,13 @@
 <script setup>
 import { computed, onMounted, watch } from 'vue'
+import LpResearchScenarioInput from './LpResearchScenarioInput.vue'
+import PathScenarioProjectionControl from './PathScenarioProjectionControl.vue'
 
 const props = defineProps({
   input: { type: Object, required: true },
 })
+
+const emit = defineEmits(['set-path-scenario', 'set-lp-scenario-field'])
 
 const strategies = [
   { id: 'single', label: '单腿', hint: '单个 call / put' },
@@ -43,14 +47,24 @@ const widthP = computed({
 
 const rfrP = computed({
   get: () => toPercent(props.input.riskFreeRate),
-  set: (v) => { props.input.riskFreeRate = fromPercent(v, 4) },
+  set: (v) => {
+    props.input.riskFreeRate = fromPercent(v, 4)
+  },
 })
 
 const premiumInput = computed({
-  get: () => positive(props.input.optionPremium) ?? '',
+  get: () => optionalFinite(props.input.optionPremium) ?? '',
   set: (v) => {
-    const next = Number(v)
-    props.input.optionPremium = Number.isFinite(next) && next > 0 ? next : 0
+    const next = optionalFinite(v)
+    props.input.optionPremium = next !== null && next >= 0 ? next : null
+  },
+})
+
+const feeIncomeInput = computed({
+  get: () => optionalFinite(props.input.feeIncomeQuote) ?? '',
+  set: (v) => {
+    const next = optionalFinite(v)
+    props.input.feeIncomeQuote = next !== null && next >= 0 ? next : null
   },
 })
 
@@ -67,7 +81,10 @@ const summary = computed(() => {
 })
 
 onMounted(() => ensureOptionDefaults())
-watch(() => props.input.entryPrice, () => ensureOptionDefaults())
+watch(
+  () => props.input.entryPrice,
+  () => ensureOptionDefaults(),
+)
 
 function setStrategy(id) {
   props.input.optionStrategy = id
@@ -96,14 +113,16 @@ function setWidth(value) {
 }
 
 function ensureOptionDefaults() {
-  if (!['single', 'vertical', 'straddle', 'strangle', 'collar'].includes(props.input.optionStrategy)) props.input.optionStrategy = 'single'
+  if (!['single', 'vertical', 'straddle', 'strangle', 'collar'].includes(props.input.optionStrategy))
+    props.input.optionStrategy = 'single'
   if (!['put', 'call'].includes(props.input.optionType)) props.input.optionType = 'put'
   if (!['long', 'short'].includes(props.input.optionSide)) props.input.optionSide = 'long'
   if (!positive(props.input.optionQuantity)) props.input.optionQuantity = 1
   if (!positive(props.input.optionMultiplier)) props.input.optionMultiplier = 1
   if (!positive(props.input.optionWidthPct)) props.input.optionWidthPct = 0.05
   if (!nonNegative(props.input.riskFreeRate)) props.input.riskFreeRate = 0.04
-  if (!positive(props.input.strikePrice) && positive(props.input.entryPrice)) props.input.strikePrice = round(props.input.entryPrice)
+  if (!positive(props.input.strikePrice) && positive(props.input.entryPrice))
+    props.input.strikePrice = round(props.input.entryPrice)
   if (needsSecondStrike.value && !positive(props.input.strikePrice2)) syncStrikesFromWidth(true)
 }
 
@@ -131,6 +150,12 @@ function positive(value) {
 function nonNegative(value) {
   const n = Number(value)
   return Number.isFinite(n) && n >= 0
+}
+
+function optionalFinite(value) {
+  if (value === null || value === undefined || value === '') return null
+  const n = Number(value)
+  return Number.isFinite(n) ? n : null
 }
 
 function round(value) {
@@ -178,7 +203,7 @@ function fmt(value) {
 
     <div class="opi-summary">
       <b>{{ summary }}</b>
-      <span>仅用于组合敏感度、到期损益和 LP payoff 对照。</span>
+      <span>仅用于组合敏感度、到期损益和 LP payoff 对照；期限必须独立输入，不能复用持仓恢复周期。</span>
     </div>
 
     <div class="opi-controls">
@@ -224,7 +249,16 @@ function fmt(value) {
         <span>乘数</span>
         <input v-model.number="input.optionMultiplier" type="number" min="0.0001" step="1" />
       </label>
+      <label>
+        <span>距到期交易会话</span>
+        <input v-model.number="input.optionTenorSessions" type="number" min="1" step="1" placeholder="必填" />
+      </label>
     </div>
+
+    <PathScenarioProjectionControl
+      :enabled="input.pathUsesScenarioInputs === true"
+      @change="(value) => emit('set-path-scenario', value)"
+    />
 
     <details class="opi-advanced">
       <summary>高级输入</summary>
@@ -242,8 +276,8 @@ function fmt(value) {
           <input v-model.number="widthP" type="number" min="0.1" step="0.5" />
         </label>
         <label>
-          <span>流动性宽度</span>
-          <input v-model.number="input.rangeWidth" type="number" min="0.001" step="0.01" />
+          <span>同周期路径手续费（报价币）</span>
+          <input v-model="feeIncomeInput" type="number" min="0" step="0.01" placeholder="必填；无费用填 0" />
         </label>
       </div>
       <div class="opi-widths">
@@ -251,39 +285,148 @@ function fmt(value) {
         <button type="button" @click="setWidth(0.05)">5%</button>
         <button type="button" @click="setWidth(0.1)">10%</button>
       </div>
+
+      <LpResearchScenarioInput :input="input" @change="(field, value) => emit('set-lp-scenario-field', field, value)" />
     </details>
   </div>
 </template>
 
 <style>
-.opi-card { display: grid; gap: 10px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-alt); }
-.opi-head { display: flex; justify-content: space-between; gap: 10px; align-items: end; }
-.opi-head div { display: grid; gap: 1px; }
-.opi-head span { color: var(--green); font-size: 0.62rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; }
-.opi-head strong { font-size: 0.95rem; }
-.opi-head small { color: var(--muted); font-size: 0.64rem; font-weight: 800; text-align: right; }
+.opi-card {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-alt);
+}
+.opi-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: end;
+}
+.opi-head div {
+  display: grid;
+  gap: 1px;
+}
+.opi-head span {
+  color: var(--green);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.opi-head strong {
+  font-size: 0.95rem;
+}
+.opi-head small {
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-align: right;
+}
 .opi-strategies,
 .opi-controls,
 .opi-segment,
-.opi-widths { display: flex; gap: 5px; flex-wrap: wrap; }
+.opi-widths {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
 .opi-strategies button,
 .opi-controls button,
-.opi-widths button { min-height: 28px; padding: 4px 8px; border-radius: 5px; font-size: 0.72rem; }
+.opi-widths button {
+  min-height: 28px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 0.72rem;
+}
 .opi-strategies button.active,
-.opi-segment button.active { border-color: var(--green); background: var(--surface-active); color: var(--green); }
-.opi-summary { display: grid; gap: 2px; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
-.opi-summary b { font-size: 0.78rem; }
-.opi-summary span { color: var(--muted); font-size: 0.66rem; line-height: 1.35; }
-.opi-controls { align-items: center; }
-.opi-segment { padding: 2px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
-.opi-segment button { min-height: 24px; border: 0; background: transparent; padding: 3px 8px; font-size: 0.7rem; }
-.opi-ghost { margin-left: auto; }
-.opi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.opi-grid label { display: grid; gap: 2px; min-width: 0; }
-.opi-grid span { color: var(--muted); font-size: 0.62rem; font-weight: 800; text-transform: uppercase; }
-.opi-grid input { min-width: 0; min-height: 28px; padding: 3px 7px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); color: var(--ink); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
-.opi-advanced { border-top: 1px solid var(--line); padding-top: 6px; }
-.opi-advanced summary { color: var(--muted); cursor: pointer; font-size: 0.68rem; font-weight: 800; }
-.opi-advanced[open] { display: grid; gap: 8px; }
-.opi-widths button { min-height: 24px; padding: 2px 8px; font-size: 0.68rem; }
+.opi-segment button.active {
+  border-color: var(--green);
+  background: var(--surface-active);
+  color: var(--green);
+}
+.opi-summary {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+}
+.opi-summary b {
+  font-size: 0.78rem;
+}
+.opi-summary span {
+  color: var(--muted);
+  font-size: 0.66rem;
+  line-height: 1.35;
+}
+.opi-controls {
+  align-items: center;
+}
+.opi-segment {
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+}
+.opi-segment button {
+  min-height: 24px;
+  border: 0;
+  background: transparent;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+}
+.opi-ghost {
+  margin-left: auto;
+}
+.opi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.opi-grid label {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.opi-grid span {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.opi-grid input {
+  min-width: 0;
+  min-height: 28px;
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+.opi-advanced {
+  border-top: 1px solid var(--line);
+  padding-top: 6px;
+}
+.opi-advanced summary {
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+.opi-advanced[open] {
+  display: grid;
+  gap: 8px;
+}
+.opi-widths button {
+  min-height: 24px;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+}
 </style>

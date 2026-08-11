@@ -47,14 +47,14 @@ export function gapModeLabel(mode) {
 
 export function viewModeLabel(mode, hasRealSignal = true) {
   if (!hasRealSignal && mode !== 'simulate')
-    return `${{ real: '真实', compare: '对照', gap: '缺口' }[mode] ?? '对照'}待接入`
-  return { simulate: '模拟', real: '真实', compare: '对照', gap: '缺口' }[mode] ?? '对照'
+    return `${{ real: 'tick', compare: '对照', gap: '缺口' }[mode] ?? '对照'} 待接入`
+  return { simulate: '模拟', real: '真实 tick', compare: '对照', gap: '缺口' }[mode] ?? '对照'
 }
 
 export function shareLabel(mode, hasRealSignal = true, gapMode = 'shortfall') {
-  if (!hasRealSignal) return '模型权重'
+  if (!hasRealSignal) return '目标分配权重'
   return (
-    { simulate: '模型权重', real: '池状态信号', compare: '模型 / 真实', gap: gapModeLabel(gapMode) }[mode] ??
-    '模型 / 真实'
+    { simulate: '目标分配权重', real: 'tick 深度权重', compare: '模型 / tick', gap: gapModeLabel(gapMode) }[mode] ??
+    '模型 / tick'
   )
 }

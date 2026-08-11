@@ -104,7 +104,7 @@ Source files should stay under 500 lines when possible. `pnpm run build` runs si
 
 ## Data and Formula Status
 
-The static data directory currently contains 160+ CSV samples. Datasets are exposed through `src/data/stock-index.json` and `src/domain/market-data/ohlcv.js`; the build checks that index entries and files stay consistent.
+The static data directory currently contains 400 indexed CSV samples. Datasets are exposed through `src/data/stock-index.json` and `src/domain/market-data/ohlcv.js`; the build checks that index entries and files stay consistent.
 
 Market data refresh is intentionally offline-first:
 
@@ -114,7 +114,7 @@ pnpm run plan:market-data
 pnpm run refresh:market-data
 ```
 
-`scripts/fetch-market-data.py` builds a local OHLCV workbook from real providers: BaoStock first for A-shares, yfinance / akshare for Hong Kong instruments. The default coverage policy keeps daily data from `2021-01-01` to now; instruments without that much history keep the latest two years. `scripts/convert-stocks-xlsx.mjs` converts that workbook into `public/data/*.csv` and merges refreshed entries into `src/data/stock-index.json`, so a partial provider run does not shrink the right-side market list. Use `--replace-index` only when intentionally rebuilding the whole index. `scripts/fetch-lp-onchain-data.mjs` writes Uniswap v3 pool / optional position snapshots into `src/data/lp-onchain-snapshots.json`. `scripts/csv2js.mjs` then bundles the CSV files into `src/data/generated/` so Vite owns data delivery on Amplify instead of relying on runtime `/data/*.csv` fetches.
+`scripts/fetch-market-data.py` builds a local OHLCV workbook from real providers: BaoStock with AkShare fallback for A-shares; AkShare-adjusted data with adjusted Tencent fallback for Hong Kong. The default coverage policy keeps completed daily bars from `2021-01-01` to now; instruments without that much history keep the latest two years. `scripts/convert-stocks-xlsx.mjs` converts that workbook into `public/data/*.csv` and merges refreshed entries into `src/data/stock-index.json`, so a partial provider run does not shrink the right-side market list. Use `--replace-index` only when intentionally rebuilding the whole index. `scripts/fetch-lp-onchain-data.mjs` writes Uniswap v3 pool / optional position snapshots into `src/data/lp-onchain-snapshots.json`. `scripts/csv2js.mjs` then bundles the CSV files into `src/data/generated/` so Vite owns data delivery on Amplify instead of relying on runtime `/data/*.csv` fetches.
 
 中文辅助：不要把 CSV 当成线上运行时接口。刷新数据后必须重新跑 `generate:data`，让 Amplify 发布 JS 化的数据资产。
 

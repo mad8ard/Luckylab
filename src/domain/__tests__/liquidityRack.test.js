@@ -6,7 +6,14 @@ describe('buildLiquidityRackModel', () => {
   it('构建价格仓查询模型，不修改挂单计划', () => {
     const rows = Array.from({ length: 80 }, (_, i) => {
       const close = 100 + Math.sin(i / 8) * 8
-      return { date: `2024-01-${String((i % 28) + 1).padStart(2, '0')}`, open: close - 1, high: close + 2, low: close - 2, close, volume: 1000 }
+      return {
+        date: `2024-01-${String((i % 28) + 1).padStart(2, '0')}`,
+        open: close - 1,
+        high: close + 2,
+        low: close - 2,
+        close,
+        volume: 1000,
+      }
     })
     const costPath = rows.map((row) => ({ date: row.date, anchor: 100, lower: 92, upper: 108 }))
     const formulaPath = rows.map((row) => ({ date: row.date, deltaLower: 90, deltaUpper: 112 }))
@@ -14,7 +21,7 @@ describe('buildLiquidityRackModel', () => {
       { side: 'buy', role: '试仓', price: 94, notional: 1000 },
       { side: 'sell', role: '减压', price: 109, notional: 500 },
     ]
-    const graph = { inputs: { entryPrice: 100 }, plan: { primaryOrders } }
+    const graph = { inputs: { entryPrice: 100, iv: 0.35, tradingDaysPerYear: 252 }, plan: { primaryOrders } }
 
     const model = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 79, binCount: 72 })
 
@@ -28,10 +35,17 @@ describe('buildLiquidityRackModel', () => {
     expect(model.orderTicks).toHaveLength(2)
     expect(model.status).toBe('research-only')
     expect(model.inputMode).toBe('hybrid-model')
+    expect(model.windowSpec).toEqual({
+      mode: 'visible-prefix',
+      visiblePrefixRows: 80,
+      requestedWindowSessions: null,
+      appliedRows: 80,
+      futureRowsUsed: false,
+    })
     expect(model.viewMode).toBe('compare')
     expect(model.effectiveViewMode).toBe('simulate')
-    expect(model.shareLabel).toBe('模型权重')
-    expect(model.viewLabel).toBe('对照待接入')
+    expect(model.shareLabel).toBe('目标分配权重')
+    expect(model.viewLabel).toBe('对照 待接入')
     expect(model.meta.lpModeLabel).toBe('待匹配')
     expect(model.meta.dataLabel).toContain('未匹配链上池级快照')
     expect(model.components.reduce((sum, component) => sum + component.normalizedWeight, 0)).toBeCloseTo(1)
@@ -39,6 +53,38 @@ describe('buildLiquidityRackModel', () => {
     expect(model.fingerprintStats.orderShare).toBeGreaterThan(0)
     expect(model.shelves.some((shelf) => shelf.componentShare.orders > 0)).toBe(true)
     expect(graph.plan.primaryOrders).toBe(primaryOrders)
+
+    const viewportModel = buildLiquidityRackModel({
+      rows,
+      costPath,
+      formulaPath,
+      graph,
+      activeIndex: 79,
+      visibleWindow: 12,
+    })
+    expect(viewportModel.windowSpec).toMatchObject({
+      mode: 'viewport-explicit',
+      requestedWindowSessions: 12,
+      appliedRows: 12,
+      futureRowsUsed: false,
+    })
+  })
+
+  it('缺少波动率或交易日基准时阻断模型目标仓，不制造默认形状', () => {
+    const rows = [{ date: '2024-01-01', open: 100, high: 105, low: 95, close: 100, volume: 1000 }]
+    const model = buildLiquidityRackModel({
+      rows,
+      costPath: [{ date: rows[0].date, anchor: 100, lower: 95, upper: 105 }],
+      formulaPath: [{ date: rows[0].date, deltaLower: 90, deltaUpper: 110 }],
+      graph: { inputs: { entryPrice: 100 }, plan: { primaryOrders: [] } },
+      activeIndex: 0,
+    })
+
+    expect(model.status).toBe('blocked')
+    expect(model.executionStatus).toBe('blocked')
+    expect(model.inputMode).toBe('missing-input')
+    expect(model.missingInputs).toEqual(['volatility', 'tradingDaysPerYear'])
+    expect(model.shelves).toEqual([])
   })
 
   it('标注池级链上数据与目标仓模型比例的边界', () => {
@@ -55,29 +101,47 @@ describe('buildLiquidityRackModel', () => {
       formulaPath,
       activeIndex: 1,
       graph: {
-        inputs: { entryPrice: 100 },
+        inputs: { entryPrice: 100, iv: 0.35, tradingDaysPerYear: 252 },
         plan: { primaryOrders: [] },
         lpOnchain: {
           inputMode: 'pool-real',
           quotePrice: 102,
           pool: { label: 'WETH / USDT 0.05%', tickSpacing: 10, liquidity: '1000' },
           quoteRoutes: [
-            { quoteSymbol: 'USDT', quotePrice: 102, weight: 8, pools: [{ label: 'WETH / USDT 0.05%', tickSpacing: 10, reserveUsd: 100 }] },
-            { quoteSymbol: 'USDC', quotePrice: 101.8, weight: 6, pools: [{ label: 'WETH / USDC 0.05%', tickSpacing: 10, reserveUsd: 80 }] },
+            {
+              quoteSymbol: 'USDT',
+              quotePrice: 102,
+              weight: 8,
+              pools: [{ label: 'WETH / USDT 0.05%', tickSpacing: 10, reserveUsd: 100 }],
+            },
+            {
+              quoteSymbol: 'USDC',
+              quotePrice: 101.8,
+              weight: 6,
+              pools: [{ label: 'WETH / USDC 0.05%', tickSpacing: 10, reserveUsd: 80 }],
+            },
           ],
-          poolCoverage: { poolCount: 2, routeCount: 2, quoteSymbols: ['USDT', 'USDC'], reserveUsd: 180, volumeUsd24h: 40 },
+          poolCoverage: {
+            poolCount: 2,
+            routeCount: 2,
+            quoteSymbols: ['USDT', 'USDC'],
+            reserveUsd: 180,
+            volumeUsd24h: 40,
+          },
         },
       },
     })
 
     expect(model.meta.dataLabel).toContain('2 个池 / 2 条 USDT+USDC 路径')
     expect(model.meta.dataLabel).toContain('蓄水')
-    expect(model.meta.dataLabel).toContain('校准模型目标仓')
+    expect(model.meta.dataLabel).toContain('仅校准报价与覆盖')
     expect(model.realProfile.routes).toHaveLength(2)
-    expect(model.realProfile.hasSignal).toBe(true)
-    expect(model.shelves.reduce((sum, shelf) => sum + shelf.realShare, 0)).toBeCloseTo(1)
+    expect(model.realProfile.hasSignal).toBe(false)
+    expect(model.realProfile.hasCalibrationSignal).toBe(true)
+    expect(model.realProfile.evidence).toBe('price-kernel-proxy')
+    expect(model.shelves.reduce((sum, shelf) => sum + shelf.realShare, 0)).toBe(0)
     expect(model.meta.nextInputs).toContain('补充 tick 分布 / liquidityGross / liquidityNet 或区间深度')
-    expect(model.meta.nextInputs).toContain('接入钱包 Position NFT 区间和本金')
+    expect(model.meta.nextInputs).toContain('接入完整 Position NFT 区间和本金')
   })
 
   it('支持模拟、真实、对照和缺口权重视图', () => {
@@ -88,32 +152,64 @@ describe('buildLiquidityRackModel', () => {
     const costPath = rows.map((row) => ({ date: row.date, anchor: 100, lower: 90, upper: 110 }))
     const formulaPath = rows.map((row) => ({ date: row.date, deltaLower: 88, deltaUpper: 115 }))
     const graph = {
-      inputs: { entryPrice: 100 },
+      inputs: { entryPrice: 100, iv: 0.35, tradingDaysPerYear: 252 },
       plan: { primaryOrders: [] },
       lpOnchain: {
         inputMode: 'pool-real',
+        tickEvidence: 'tick-real',
         quotePrice: 102,
         pool: { label: 'WETH / USDT 0.05%', tickSpacing: 10, liquidity: '1000' },
         quoteRoutes: [
-          { quoteSymbol: 'USDT', quotePrice: 102, weight: 8, pools: [{ label: 'WETH / USDT 0.05%', tickSpacing: 10, reserveUsd: 100 }] },
-          { quoteSymbol: 'USDC', quotePrice: 101.8, weight: 6, pools: [{ label: 'WETH / USDC 0.05%', tickSpacing: 10, reserveUsd: 80 }] },
+          {
+            quoteSymbol: 'USDT',
+            quotePrice: 102,
+            weight: 8,
+            pools: [{ label: 'WETH / USDT 0.05%', tickSpacing: 10, reserveUsd: 100 }],
+          },
+          {
+            quoteSymbol: 'USDC',
+            quotePrice: 101.8,
+            weight: 6,
+            pools: [{ label: 'WETH / USDC 0.05%', tickSpacing: 10, reserveUsd: 80 }],
+          },
         ],
         poolCoverage: { poolCount: 2, routeCount: 2, quoteSymbols: ['USDT', 'USDC'], reserveUsd: 180 },
+        ticks: [
+          { lowerPrice: 88, upperPrice: 98, liquidityGross: 80 },
+          { lowerPrice: 98, upperPrice: 108, liquidityGross: 140 },
+          { lowerPrice: 108, upperPrice: 116, liquidityGross: 45 },
+        ],
       },
     }
 
-    const simulated = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'simulate' })
+    const simulated = buildLiquidityRackModel({
+      rows,
+      costPath,
+      formulaPath,
+      graph,
+      activeIndex: 1,
+      viewMode: 'simulate',
+    })
     const real = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'real' })
-    const compared = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'compare' })
+    const compared = buildLiquidityRackModel({
+      rows,
+      costPath,
+      formulaPath,
+      graph,
+      activeIndex: 1,
+      viewMode: 'compare',
+    })
     const gap = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'gap' })
 
-    expect(simulated.shareLabel).toBe('模型权重')
-    expect(real.shareLabel).toBe('池状态信号')
-    expect(compared.shareLabel).toBe('模型 / 真实')
+    expect(simulated.shareLabel).toBe('目标分配权重')
+    expect(real.shareLabel).toBe('tick 深度权重')
+    expect(compared.shareLabel).toBe('模型 / tick')
     expect(gap.shareLabel).toBe('缺口')
     expect(real.shelves.some((shelf) => shelf.densityShare === shelf.realShare && shelf.realShare > 0)).toBe(true)
     expect(compared.shelves.some((shelf) => shelf.densityShare === shelf.modelShare && shelf.realShare > 0)).toBe(true)
-    expect(gap.shelves.some((shelf) => shelf.densityShare === Math.max(shelf.modelShare - shelf.realShare, 0))).toBe(true)
+    expect(gap.shelves.some((shelf) => shelf.densityShare === Math.max(shelf.modelShare - shelf.realShare, 0))).toBe(
+      true,
+    )
   })
 
   it('缺口视图支持缺口、偏差和反差三种差值风格', () => {
@@ -124,31 +220,67 @@ describe('buildLiquidityRackModel', () => {
     const costPath = rows.map((row) => ({ date: row.date, anchor: 100, lower: 90, upper: 110 }))
     const formulaPath = rows.map((row) => ({ date: row.date, deltaLower: 88, deltaUpper: 115 }))
     const graph = {
-      inputs: { entryPrice: 100 },
+      inputs: { entryPrice: 100, iv: 0.35, tradingDaysPerYear: 252 },
       plan: { primaryOrders: [] },
       lpOnchain: {
         inputMode: 'pool-real',
+        tickEvidence: 'tick-real',
         quotePrice: 102,
         pool: { label: 'WETH / USDT 0.05%', tickSpacing: 10, liquidity: '1000' },
         quoteRoutes: [
-          { quoteSymbol: 'USDT', quotePrice: 102, weight: 8, pools: [{ label: 'WETH / USDT 0.05%', tickSpacing: 10, reserveUsd: 100 }] },
-          { quoteSymbol: 'USDC', quotePrice: 101.8, weight: 6, pools: [{ label: 'WETH / USDC 0.05%', tickSpacing: 10, reserveUsd: 80 }] },
+          {
+            quoteSymbol: 'USDT',
+            quotePrice: 102,
+            weight: 8,
+            pools: [{ label: 'WETH / USDT 0.05%', tickSpacing: 10, reserveUsd: 100 }],
+          },
+          {
+            quoteSymbol: 'USDC',
+            quotePrice: 101.8,
+            weight: 6,
+            pools: [{ label: 'WETH / USDC 0.05%', tickSpacing: 10, reserveUsd: 80 }],
+          },
         ],
         poolCoverage: { poolCount: 2, routeCount: 2, quoteSymbols: ['USDT', 'USDC'], reserveUsd: 180 },
+        ticks: [
+          { lowerPrice: 88, upperPrice: 98, liquidityGross: 80 },
+          { lowerPrice: 98, upperPrice: 108, liquidityGross: 140 },
+          { lowerPrice: 108, upperPrice: 116, liquidityGross: 45 },
+        ],
       },
     }
 
     const shortfall = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'gap' })
-    const signed = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'gap', gapMode: 'signed' })
-    const absolute = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'gap', gapMode: 'absolute' })
+    const signed = buildLiquidityRackModel({
+      rows,
+      costPath,
+      formulaPath,
+      graph,
+      activeIndex: 1,
+      viewMode: 'gap',
+      gapMode: 'signed',
+    })
+    const absolute = buildLiquidityRackModel({
+      rows,
+      costPath,
+      formulaPath,
+      graph,
+      activeIndex: 1,
+      viewMode: 'gap',
+      gapMode: 'absolute',
+    })
     const negativeSignedShelf = signed.shelves.find((shelf) => shelf.realGap < 0)
 
     expect(shortfall.gapModeLabel).toBe('缺口')
     expect(signed.gapModeLabel).toBe('偏差')
     expect(absolute.gapModeLabel).toBe('反差')
-    expect(shortfall.shelves.every((shelf) => shelf.gapShare === Math.max(shelf.modelShare - shelf.realShare, 0))).toBe(true)
+    expect(shortfall.shelves.every((shelf) => shelf.gapShare === Math.max(shelf.modelShare - shelf.realShare, 0))).toBe(
+      true,
+    )
     expect(signed.shelves.every((shelf) => shelf.gapShare === shelf.modelShare - shelf.realShare)).toBe(true)
-    expect(absolute.shelves.every((shelf) => shelf.gapShare === Math.abs(shelf.modelShare - shelf.realShare))).toBe(true)
+    expect(absolute.shelves.every((shelf) => shelf.gapShare === Math.abs(shelf.modelShare - shelf.realShare))).toBe(
+      true,
+    )
     expect(negativeSignedShelf?.gapShare).toBeLessThan(0)
     expect(negativeSignedShelf?.densityShare).toBeCloseTo(Math.abs(negativeSignedShelf.gapShare))
   })
@@ -160,16 +292,20 @@ describe('buildLiquidityRackModel', () => {
     ]
     const costPath = rows.map((row) => ({ date: row.date, anchor: 100, lower: 90, upper: 110 }))
     const formulaPath = rows.map((row) => ({ date: row.date, deltaLower: 88, deltaUpper: 115 }))
-    const graph = { inputs: { entryPrice: 100 }, plan: { primaryOrders: [] }, lpOnchain: { inputMode: 'fallback' } }
+    const graph = {
+      inputs: { entryPrice: 100, iv: 0.35, tradingDaysPerYear: 252 },
+      plan: { primaryOrders: [] },
+      lpOnchain: { inputMode: 'fallback' },
+    }
 
     const model = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'real' })
 
     expect(model.viewMode).toBe('real')
     expect(model.effectiveViewMode).toBe('simulate')
     expect(model.hasRealSignal).toBe(false)
-    expect(model.shareLabel).toBe('模型权重')
-    expect(model.viewLabel).toBe('真实待接入')
-    expect(model.meta.title).toBe('真实层待匹配')
+    expect(model.shareLabel).toBe('目标分配权重')
+    expect(model.viewLabel).toBe('tick 待接入')
+    expect(model.meta.title).toBe('真实 tick 深度待接入')
     expect(model.meta.lpModeLabel).toBe('待匹配')
     expect(model.shelves.some((shelf) => shelf.densityShare === shelf.modelShare && shelf.modelShare > 0)).toBe(true)
   })
@@ -181,16 +317,20 @@ describe('buildLiquidityRackModel', () => {
     ]
     const costPath = rows.map((row) => ({ date: row.date, anchor: 100, lower: 90, upper: 110 }))
     const formulaPath = rows.map((row) => ({ date: row.date, deltaLower: 88, deltaUpper: 115 }))
-    const graph = { inputs: { entryPrice: 100 }, plan: { primaryOrders: [] }, lpOnchain: { inputMode: 'fallback' } }
+    const graph = {
+      inputs: { entryPrice: 100, iv: 0.35, tradingDaysPerYear: 252 },
+      plan: { primaryOrders: [] },
+      lpOnchain: { inputMode: 'fallback' },
+    }
 
     const model = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'gap' })
 
     expect(model.viewMode).toBe('gap')
     expect(model.effectiveViewMode).toBe('simulate')
     expect(model.hasRealSignal).toBe(false)
-    expect(model.shareLabel).toBe('模型权重')
-    expect(model.viewLabel).toBe('缺口待接入')
-    expect(model.meta.title).toBe('真实层待匹配')
+    expect(model.shareLabel).toBe('目标分配权重')
+    expect(model.viewLabel).toBe('缺口 待接入')
+    expect(model.meta.title).toBe('真实 tick 深度待接入')
     expect(model.shelves.some((shelf) => shelf.densityShare === shelf.modelShare && shelf.modelShare > 0)).toBe(true)
   })
 
@@ -211,6 +351,8 @@ describe('buildLiquidityRackModel', () => {
     expect(signal.totals.aboveShortfall).toBeCloseTo(0.18)
     expect(signal.totals.belowCrowded).toBeCloseTo(0.16)
     expect(signal.confidence).toBeGreaterThan(0)
+    expect(signal.mismatchIntensity).toBe(signal.confidence)
+    expect(signal.confidenceSemantics).toBe('normalized-model-real-mismatch-intensity-not-probability')
   })
 
   it('真实层缺失时机会算法保持待校准状态', () => {
@@ -224,5 +366,6 @@ describe('buildLiquidityRackModel', () => {
     expect(signal.label).toBe('等待真实层')
     expect(signal.zones.shortfall).toEqual([])
     expect(signal.confidence).toBe(0)
+    expect(signal.mismatchIntensity).toBe(0)
   })
 })

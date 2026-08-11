@@ -28,15 +28,15 @@ function zoneLabel(zone) {
 </script>
 
 <template>
-  <section :class="['lf-opportunity', `tone-${signal.tone || 'pending'}`]" aria-label="流动性情绪机会信号">
+  <section :class="['lf-opportunity', `tone-${signal.tone || 'pending'}`]" aria-label="流动性模型与真实深度错配信号">
     <header>
-      <span>情绪信号</span>
+      <span>错配信号</span>
       <strong>{{ signal.label }}</strong>
-      <b>{{ pct(signal.confidence) }}</b>
+      <b title="模型权重与真实 tick 深度的归一化错配强度，不是概率">错配 {{ pct(signal.mismatchIntensity) }}</b>
     </header>
     <div class="lf-opportunity-main">
       <div>
-        <span>交易机会</span>
+        <span>研究提示</span>
         <strong>{{ signal.action }}</strong>
       </div>
       <div>

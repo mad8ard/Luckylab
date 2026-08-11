@@ -5,69 +5,152 @@
  * MainChart.vue 在 buildLegend 时把它当作只读字典查询。
  */
 
-// 每个 series 的展示 metadata（title/color/unit/group）
-export const SERIES_META = {
-  cost:        { title: '成本锚',           color: '#0e7558', unit: 'price', group: 'price' },
-  costUpper:   { title: '成本上沿',         color: '#8b5a16', unit: 'price', group: 'price' },
-  costLower:   { title: '成本下沿',         color: '#274f9f', unit: 'price', group: 'price' },
-  deltaUpper:  { title: 'GetDelta 上沿',    color: '#9a4f00', unit: 'price', group: 'price' },
-  deltaLower:  { title: 'GetDelta 下沿',    color: '#1f5fbf', unit: 'price', group: 'price' },
-  lpLower:     { title: 'LP 区间下沿',      color: '#7a5cff', unit: 'price', group: 'price' },
-  lpUpper:     { title: 'LP 区间上沿',      color: '#7a5cff', unit: 'price', group: 'price' },
-  lpRealPrice: { title: '链上池价',         color: '#8b5a16', unit: 'price', group: 'price' },
-  entry:       { title: '入场价',           color: '#b3261e', unit: 'price', group: 'price' },
-  bsDelta:     { title: '期权 Delta',       color: '#a93226', unit: 'num',   group: 'greeks' },
-  bsGamma:     { title: '期权 Gamma',       color: '#8b5a16', unit: 'num',   group: 'greeks' },
-  bsTheta:     { title: '期权 Theta/日',    color: '#274f9f', unit: 'num',   group: 'greeks' },
-  lpDelta:     { title: 'LP 库存暴露',      color: '#0e7558', unit: 'ratio', group: 'lp' },
-  lpValue:     { title: 'LP 库存价值',      color: '#7a5cff', unit: 'price', group: 'lp' },
-  lpRealDiv:   { title: '链上池价偏离',     color: '#8b5a16', unit: 'pct',   group: 'lp' },
-  lpPoolTurnover: { title: '真实池24h换手',  color: '#b3261e', unit: 'pct',   group: 'lp' },
-  lpPoolConcentration: { title: '主池资金占比', color: '#274f9f', unit: 'ratio', group: 'lp' },
-  lpCe:        { title: '资本效率',         color: '#8b5a16', unit: 'num',   group: 'lp' },
-  fundingProxy:{ title: 'Funding 估算',     color: '#a93226', unit: 'pct',   group: 'carry' },
-  netCarry:    { title: '净持有收益',       color: '#0e7558', unit: 'pct',   group: 'carry' },
-  equity:      { title: '回放权益',         color: '#1f5fbf', unit: 'price', group: 'equity' },
-  kdjK:        { title: 'KDJ K/D 均',       color: '#cc8400', unit: 'num',   group: 'kdj' },
-  kdjJ:        { title: 'KDJ J',            color: '#4e4e4e', unit: 'num',   group: 'kdj' },
-  rsi:         { title: 'RSI',              color: '#2e2e2e', unit: 'num',   group: 'rsi' },
+import { MARKET_LAB_SERIES_STYLES } from '../domain/research-visualization/marketLabSeriesStyles.js'
+
+const GROUPS = {
+  cost: 'price',
+  costUpper: 'price',
+  costLower: 'price',
+  deltaUpper: 'price',
+  deltaLower: 'price',
+  lpLower: 'price',
+  lpUpper: 'price',
+  lpRealPrice: 'price',
+  entry: 'price',
+  mark: 'price',
+  target: 'price',
+  stop: 'price',
+  bsDelta: 'greeks',
+  bsGamma: 'greeks',
+  bsTheta: 'greeks',
+  lpDelta: 'lp',
+  lpValue: 'lp',
+  lpRealDiv: 'lp',
+  lpPoolTurnover: 'lp',
+  lpPoolConcentration: 'lp',
+  lpCe: 'lp',
+  cumulativeFundingProxy: 'carry',
+  netCarry: 'carry',
+  equity: 'equity',
+  kdjK: 'kdj',
+  kdjJ: 'kdj',
+  rsi: 'rsi',
+}
+
+// Light 图例与两个图表引擎共用 domain 中的名称、颜色和单位。
+export const SERIES_META = Object.freeze(
+  Object.fromEntries(
+    Object.entries(MARKET_LAB_SERIES_STYLES).map(([key, item]) => [
+      key,
+      Object.freeze({ title: item.label, color: item.color, unit: item.unit, group: GROUPS[key] }),
+    ]),
+  ),
+)
+
+/**
+ * 与 MainChart 画线一致：primary 只要整条路径出现过有限值，就整条采用 primary；
+ * 只有 primary 全空时才整条回退，避免在同一条线里逐点拼接两个口径。
+ */
+export function resolvePreferredPathValues(primaryPath, primaryField, fallbackPath, fallbackField) {
+  const selected = resolvePreferredPath(primaryPath, primaryField, fallbackPath, fallbackField)
+  return selected.path.map((row) => row?.[selected.field])
+}
+
+export function resolvePreferredPath(primaryPath, primaryField, fallbackPath, fallbackField) {
+  const primary = Array.isArray(primaryPath) ? primaryPath : []
+  if (pathHasFiniteValue(primary, primaryField)) return { path: primary, field: primaryField }
+  return { path: Array.isArray(fallbackPath) ? fallbackPath : [], field: fallbackField }
+}
+
+/** latest-only 快照必须落在 path 自己的观察日，而不是完整 rows 的最后一日。 */
+export function latestFinitePathPoint(_rows, path, field) {
+  if (!Array.isArray(path) || !path.length) return null
+  const index = path.length - 1
+  const value = path[index]?.[field]
+  const time = path[index]?.date
+  return Number.isFinite(value) && time !== null && time !== undefined && time !== '' ? { time, value } : null
 }
 
 /**
  * hover 时按 idx 从 formulaPath/costPath/entryPrice 反查某 series 的兜底值
  * （首选是 lightweight-charts 的 param.seriesData，失败时走这条路径）
  *
- * ctx 形如 `{ formulaPath, costPath, entryPrice }`，可以直接传入 Vue 的 props（响应式 proxy 会自动 unwrap），
- * 或任意纯对象。函数只读取这三个字段，不会写入。
+ * ctx 形如 `{ rows, formulaPath, costPath, entryPrice }`，可以直接传入 Vue 的 props（响应式 proxy 会自动 unwrap），
+ * 或任意纯对象。存在带日期的 rows/path 时按日期关联；旧的无日期测试夹具才回退索引读取。
  */
 export function fallbackValue(key, idx, ctx = {}) {
-  const fp = ctx.formulaPath?.[idx]
-  const cp = ctx.costPath?.[idx]
+  const fp = pathRowAtObservation(ctx.formulaPath, idx, ctx.rows)
   switch (key) {
-    case 'cost':        return cp?.anchor ?? fp?.costAnchor
-    case 'costUpper':   return cp?.upper  ?? fp?.costUpper
-    case 'costLower':   return cp?.lower  ?? fp?.costLower
-    case 'deltaUpper':  return fp?.deltaUpper
-    case 'deltaLower':  return fp?.deltaLower
-    case 'lpLower':     return fp?.lpLowerPrice
-    case 'lpUpper':     return fp?.lpUpperPrice
-    case 'lpRealPrice': return fp?.lpRealPrice
-    case 'entry':       return ctx.entryPrice
-    case 'bsDelta':     return fp?.optionDelta
-    case 'bsGamma':     return fp?.optionGamma
-    case 'bsTheta':     return fp?.optionThetaDaily
-    case 'lpDelta':     return fp?.lpNormalizedDelta
-    case 'lpValue':     return fp?.lpValue
-    case 'lpRealDiv':   return fp?.lpRealDivergence
+    case 'cost':
+      return preferredPathValue(ctx, idx, 'costAnchor', 'anchor')
+    case 'costUpper':
+      return preferredPathValue(ctx, idx, 'costUpper', 'upper')
+    case 'costLower':
+      return preferredPathValue(ctx, idx, 'costLower', 'lower')
+    case 'deltaUpper':
+      return fp?.deltaUpper
+    case 'deltaLower':
+      return fp?.deltaLower
+    case 'lpLower':
+      return fp?.lpLowerPrice
+    case 'lpUpper':
+      return fp?.lpUpperPrice
+    case 'lpRealPrice':
+      return fp?.lpRealPrice
+    case 'entry':
+      return ctx.entryPrice
+    case 'mark':
+      return ctx.rows?.at(-1)?.close
+    case 'target':
+      return ctx.position?.targetPrice
+    case 'stop':
+      return ctx.position?.stopPrice
+    case 'bsDelta':
+      return fp?.optionDelta
+    case 'bsGamma':
+      return fp?.optionGamma
+    case 'bsTheta':
+      return fp?.optionThetaPerSession
+    case 'lpDelta':
+      return fp?.lpNormalizedDelta
+    case 'lpValue':
+      return fp?.lpValue
+    case 'lpRealDiv':
+      return fp?.lpRealDivergence
     case 'lpPoolTurnover':
-      return idx === ctx.formulaPath?.length - 1 ? fp?.lpPoolTurnover24h : null
+      return fp && fp === ctx.formulaPath?.at(-1) ? fp.lpPoolTurnover24h : null
     case 'lpPoolConcentration':
-      return idx === ctx.formulaPath?.length - 1 ? fp?.lpPoolTopReserveShare : null
-    case 'lpCe':        return fp?.capitalEfficiency
-    case 'fundingProxy':return fp?.fundingProxy
-    case 'netCarry':    return fp?.netCarry
-    default:            return null
+      return fp && fp === ctx.formulaPath?.at(-1) ? fp.lpPoolTopReserveShare : null
+    case 'lpCe':
+      return fp?.capitalEfficiency
+    case 'cumulativeFundingProxy':
+      return fp?.cumulativeFundingProxy
+    case 'netCarry':
+      return fp?.netCarry
+    default:
+      return null
   }
+}
+
+function preferredPathValue(ctx, idx, primaryField, fallbackField) {
+  const selected = resolvePreferredPath(ctx.formulaPath, primaryField, ctx.costPath, fallbackField)
+  return pathRowAtObservation(selected.path, idx, ctx.rows)?.[selected.field]
+}
+
+function pathRowAtObservation(path, idx, rows) {
+  if (!Array.isArray(path)) return undefined
+  const date = rows?.[idx]?.date
+  if (date !== null && date !== undefined && date !== '') {
+    for (let index = path.length - 1; index >= 0; index -= 1) {
+      if (path[index]?.date === date) return path[index]
+    }
+    return undefined
+  }
+  return path[idx]
+}
+
+function pathHasFiniteValue(path, field) {
+  return path.some((row) => Number.isFinite(row?.[field]))
 }
 
 /** 把扁平 indicators 数组按 group 聚合，并保持稳定的展示顺序 */

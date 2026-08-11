@@ -7,7 +7,7 @@
 //   - 状态用 localStorage 持久化，URL 的 ?weights=... / ?enabled=... 也支持
 //   - 不靠 SPA：DOM 仍包含「初始默认配置」下的全部 focus/wait 内容，OpenClaw 抓取仍能读取
 
-import { readFile, mkdir, writeFile, copyFile } from 'node:fs/promises'
+import { readFile, readdir, mkdir, writeFile, copyFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -47,31 +47,97 @@ if (generatedDate) {
   await copyFile(join(PUBLIC_DIR, 'data.json'), join(datedDir, 'data.json'))
 }
 
-console.log(`生成静态推荐页：${join(PUBLIC_DIR, 'index.html')}（focus=${focusItems.length} / wait=${waitItems.length} / total=${candidatesAll.length}）`)
+const quarantinedArchives = await quarantineLegacyPublicSnapshots(generatedDate)
+
+console.log(
+  `生成静态推荐页：${join(PUBLIC_DIR, 'index.html')}（focus=${focusItems.length} / wait=${waitItems.length} / total=${candidatesAll.length} / legacy=${quarantinedArchives}）`,
+)
+
+async function quarantineLegacyPublicSnapshots(currentDate) {
+  const entries = await readdir(PUBLIC_DIR, { withFileTypes: true })
+  const legacyDates = entries
+    .filter((entry) => entry.isDirectory() && /^\d{4}-\d{2}-\d{2}$/.test(entry.name) && entry.name !== currentDate)
+    .map((entry) => entry.name)
+
+  for (const date of legacyDates) {
+    const datedDir = join(PUBLIC_DIR, date)
+    const contract = {
+      status: 'legacy-contract',
+      generatedDate: date,
+      executable: false,
+      message: '该公开快照使用已废止的概率与执行语义，已隔离；请使用当前研究观察池。',
+    }
+    await writeFile(join(datedDir, 'data.json'), `${JSON.stringify(contract, null, 2)}\n`, 'utf8')
+    await writeFile(join(datedDir, 'index.html'), renderLegacyArchiveNotice(contract), 'utf8')
+  }
+
+  return legacyDates.length
+}
+
+function renderLegacyArchiveNotice(contract) {
+  return `<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>历史观察池合同已隔离 ${escapeHtml(contract.generatedDate)}</title>
+<style>
+  body { margin: 0; background: #f8fafc; color: #172033; font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  main { max-width: 680px; margin: 12vh auto; padding: 28px; background: white; border: 1px solid #dfe6ef; border-radius: 12px; }
+  h1 { margin-top: 0; font-size: 1.3rem; }
+  p { color: #526174; }
+  a { color: #0f5bd8; }
+</style>
+</head>
+<body><main>
+  <h1>历史观察池合同已隔离</h1>
+  <p>${escapeHtml(contract.generatedDate)} 的公开快照包含已废止的概率与执行语义，不能继续作为筛选、回归或交易结论。</p>
+  <p>内部原始快照仍保留用于审计；公开入口只提供当前的研究安全合同。</p>
+  <a href="../">打开当前研究观察池</a>
+</main></body>
+</html>`
+}
 
 function renderPage({ pool, focusItems, waitItems, candidatesAll, dimensionsMeta, generatedAt, generatedDate }) {
   const total = Number(pool.totalCandidates ?? 0)
   const logic = escapeHtml(pool.logic ?? '')
-  const riskNote = escapeHtml(pool.riskNote ?? '左侧买入不代表立即反转，仍需注意继续下跌和趋势延续风险。')
-  const tiers = pool.tiers ?? { focus: 0.65, wait: 0.40 }
-  const allowCatchKnife = pool.options?.allowCatchKnife !== false
+  const riskNote = escapeHtml(pool.riskNote ?? '研究排序不代表立即反转或执行建议，仍需注意继续下跌和趋势延续风险。')
+  const tiers = pool.tiers ?? { focus: 0.65, wait: 0.4 }
+  const allowCatchKnife = pool.options?.allowCatchKnife === true
 
   const defaultMaxScore = dimensionsMeta.filter((d) => d.enabled).reduce((s, d) => s + (d.weight || 0), 0)
   const focusCutoff = Math.round(defaultMaxScore * tiers.focus)
   const waitCutoff = Math.round(defaultMaxScore * tiers.wait)
 
-  const focusBlock = renderTierBlock('focus', '重点关注', `≥ ${focusCutoff} 分（${(tiers.focus * 100).toFixed(0)}% 满分）`, focusItems, dimensionsMeta)
-  const waitBlock = renderTierBlock('wait', '等待', `${waitCutoff} ~ ${focusCutoff - 1} 分（${(tiers.wait * 100).toFixed(0)}% ~ ${(tiers.focus * 100).toFixed(0)}%）`, waitItems, dimensionsMeta)
+  const focusBlock = renderTierBlock(
+    'focus',
+    '研究关注',
+    `≥ ${focusCutoff} 分（${(tiers.focus * 100).toFixed(0)}% 满分）`,
+    focusItems,
+    dimensionsMeta,
+  )
+  const waitBlock = renderTierBlock(
+    'wait',
+    '等待',
+    `${waitCutoff} ~ ${focusCutoff - 1} 分（${(tiers.wait * 100).toFixed(0)}% ~ ${(tiers.focus * 100).toFixed(0)}%）`,
+    waitItems,
+    dimensionsMeta,
+  )
 
-  const dimensionRows = dimensionsMeta.map((d) => `
+  const dimensionRows = dimensionsMeta
+    .map(
+      (d) => `
     <tr data-dim="${escapeHtml(d.id)}">
       <td><label><input type="checkbox" data-dim-enabled="${escapeHtml(d.id)}" ${d.enabled ? 'checked' : ''}/> ${escapeHtml(d.label)}</label></td>
       <td><input type="range" min="0" max="50" step="1" value="${d.weight}" data-dim-weight="${escapeHtml(d.id)}"/></td>
       <td><input type="number" min="0" max="100" step="1" value="${d.weight}" data-dim-weight-num="${escapeHtml(d.id)}" class="w-num"/></td>
     </tr>
-  `).join('')
+  `,
+    )
+    .join('')
 
-  // 嵌入数据 + 维度元信息 + 默认 tiers + 接飞刀
+  // 嵌入数据 + 维度元信息 + 默认 tiers + 独立留出校准人工门禁
   const embed = {
     candidates: candidatesAll,
     dimensions: dimensionsMeta,
@@ -85,7 +151,7 @@ function renderPage({ pool, focusItems, waitItems, candidatesAll, dimensionsMeta
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex,nofollow" />
-<title>今日推荐股票池 ${escapeHtml(generatedDate)}</title>
+<title>今日研究观察池 ${escapeHtml(generatedDate)}</title>
 <style>
   :root { color-scheme: light; }
   * { box-sizing: border-box; }
@@ -179,17 +245,17 @@ function renderPage({ pool, focusItems, waitItems, candidatesAll, dimensionsMeta
 <body>
 <main data-pool-tab="focus">
   <header class="page-head">
-    <h1>今日推荐股票池</h1>
+    <h1>今日研究观察池</h1>
     <p class="meta">
       更新时间：<time datetime="${escapeHtml(pool.generatedAt ?? '')}"><strong>${escapeHtml(generatedAt)}</strong></time>
       ${generatedDate ? `· 日期：<strong>${escapeHtml(generatedDate)}</strong>` : ''}
-      · 重点关注：<strong id="focus-count">${focusItems.length}</strong> 只
+      · 研究关注：<strong id="focus-count">${focusItems.length}</strong> 只
       · 等待：<strong id="wait-count">${waitItems.length}</strong> 只
       ${total ? `· 候选池：<strong>${total}</strong> 只` : ''}
     </p>
   </header>
 
-  <p class="logic"><span class="label">推荐逻辑</span>${logic}</p>
+  <p class="logic"><span class="label">排序逻辑</span>${logic}</p>
 
   <details class="config" id="config-panel">
     <summary>权重调整（勾选维度 / 拖动滑块 / 修改阈值，结果实时刷新）</summary>
@@ -203,7 +269,7 @@ function renderPage({ pool, focusItems, waitItems, candidatesAll, dimensionsMeta
       <div class="config-actions">
         <label>focus 阈值 <input type="number" id="threshold-focus" min="0" max="100" step="1" value="${Math.round(tiers.focus * 100)}" style="width:60px;padding:2px 6px;border:1px solid #d1d5db;border-radius:4px"/>% 满分</label>
         <label>wait 阈值 <input type="number" id="threshold-wait" min="0" max="100" step="1" value="${Math.round(tiers.wait * 100)}" style="width:60px;padding:2px 6px;border:1px solid #d1d5db;border-radius:4px"/>% 满分</label>
-        <label><input type="checkbox" id="catch-knife" ${allowCatchKnife ? 'checked' : ''}/> 接飞刀豁免（z ≤ -1.5σ 且回归 ≥ 85% 时锚↓不硬扣）</label>
+        <label><input type="checkbox" id="catch-knife" ${allowCatchKnife ? 'checked' : ''}/> 独立留出校准人工豁免（样本内单调 AR 不足；z 极端度不构成回归概率）</label>
         <button id="reset-config">重置默认</button>
         <span class="config-summary" id="config-summary"></span>
       </div>
@@ -211,7 +277,7 @@ function renderPage({ pool, focusItems, waitItems, candidatesAll, dimensionsMeta
   </details>
 
   <div class="pool-mobile-tabs" role="tablist" aria-label="股票池分组">
-    <button type="button" role="tab" data-pool-tab-button="focus" aria-selected="true">重点关注</button>
+    <button type="button" role="tab" data-pool-tab-button="focus" aria-selected="true">研究关注</button>
     <button type="button" role="tab" data-pool-tab-button="wait" aria-selected="false">等待观察</button>
   </div>
 
@@ -281,27 +347,31 @@ function renderMetrics(m) {
     ['当前价格', fmtPrice(m.price)],
     ['距锚', fmtPct(m.costDistance)],
     ['z 偏离', Number.isFinite(m.zScore) ? `${m.zScore.toFixed(2)}σ` : '—'],
-    ['回归概率', Number.isFinite(m.regressionProbability) ? `${(m.regressionProbability * 100).toFixed(1)}%` : '—'],
-    ['lpValue P', Number.isFinite(m.lpValuePercentile) ? `${(m.lpValuePercentile * 100).toFixed(1)}%` : '—'],
-    ['3 年 ratio', Number.isFinite(m.lpValueRatio3y) ? `${m.lpValueRatio3y.toFixed(2)}×` : '—'],
-  ].map(([k, v]) => `<div><dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd></div>`).join('')
+    ['偏离百分位', Number.isFinite(m.deviationPercentile) ? `${(m.deviationPercentile * 100).toFixed(1)}%` : '—'],
+    ['几何代理 P', Number.isFinite(m.lpValuePercentile) ? `${(m.lpValuePercentile * 100).toFixed(1)}%` : '—'],
+    ['代理 3 年 ratio', Number.isFinite(m.lpValueRatio3y) ? `${m.lpValueRatio3y.toFixed(2)}×` : '—'],
+  ]
+    .map(([k, v]) => `<div><dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd></div>`)
+    .join('')
 }
 
 function renderDimBars(item, dimensionsMeta) {
   const dimensions = item.dimensions ?? {}
-  return dimensionsMeta.map((d) => {
-    const dim = dimensions[d.id]
-    if (!dim) return ''
-    const rawText = dim.disabled ? '关' : dim.missing ? '—' : `${(dim.ratio * 100).toFixed(0)}%`
-    const cls = dim.disabled ? 'disabled' : dim.missing ? 'miss' : (dim.ratio < 0.3 ? 'low' : '')
-    const width = dim.disabled || dim.missing ? 0 : clampPercent(dim.ratio * 100)
-    return `<div class="dim-bar ${cls}"><span class="label">${escapeHtml(d.label)} <strong>${escapeHtml(rawText)}</strong></span><div class="track"><div class="fill" style="width:${width}%"></div></div></div>`
-  }).join('')
+  return dimensionsMeta
+    .map((d) => {
+      const dim = dimensions[d.id]
+      if (!dim) return ''
+      const rawText = dim.disabled ? '关' : dim.missing ? '—' : `${(dim.ratio * 100).toFixed(0)}%`
+      const cls = dim.disabled ? 'disabled' : dim.missing ? 'miss' : dim.ratio < 0.3 ? 'low' : ''
+      const width = dim.disabled || dim.missing ? 0 : clampPercent(dim.ratio * 100)
+      return `<div class="dim-bar ${cls}"><span class="label">${escapeHtml(d.label)} <strong>${escapeHtml(rawText)}</strong></span><div class="track"><div class="fill" style="width:${width}%"></div></div></div>`
+    })
+    .join('')
 }
 
 function renderHits(hits) {
   if (!hits.length) return '<span style="color:#6b7280">未达拉满阈值</span>'
-  return `<ul class="tag-list">${hits.map((h) => `<li class="${String(h).includes('接飞刀') ? 'knife' : ''}">${escapeHtml(h)}</li>`).join('')}</ul>`
+  return `<ul class="tag-list">${hits.map((h) => `<li class="${String(h).includes('校准豁免') ? 'knife' : ''}">${escapeHtml(h)}</li>`).join('')}</ul>`
 }
 
 function fmtPrice(v) {
@@ -331,10 +401,7 @@ function escapeHtml(text) {
 }
 
 function serializeForScript(value) {
-  return JSON.stringify(value)
-    .replaceAll('</', '<\\/')
-    .replaceAll('\u2028', '\\u2028')
-    .replaceAll('\u2029', '\\u2029')
+  return JSON.stringify(value).replaceAll('</', '<\\/').replaceAll('\u2028', '\\u2028').replaceAll('\u2029', '\\u2029')
 }
 
 function formatTimestamp(value) {
@@ -354,7 +421,7 @@ function browserScript() {
   var candidates = data.candidates || [];
   var defaultDims = (data.dimensions || []).map(function (d) { return Object.assign({}, d); });
   var defaultTiers = data.tiers || { focus: 0.65, wait: 0.40 };
-  var defaultAllowKnife = data.options && data.options.allowCatchKnife !== false;
+  var defaultAllowKnife = Boolean(data.options && data.options.allowCatchKnife === true);
 
   // localStorage 持久化
   var STORAGE_KEY = 'recommendedPool.config.v1';
@@ -423,30 +490,32 @@ function browserScript() {
     zScore:            function (m) { return inverseLinear(m.zScore, -3.0, 0); },
     lpZone:            function (m) { return zoneScore(m.lpZone); },
     costSlope: function (m, ctx) {
-      var linear = forwardLinear(m.costSlope5, -0.025, 0.005);
+      var linear = forwardLinear(m.costSlopeRecent, -0.025, 0.005);
       if (ctx.allowCatchKnife && isFinite(m.zScore) && m.zScore <= -1.5
-        && isFinite(m.regressionProbability) && m.regressionProbability >= 0.85) {
+        && m.meanReversionMonotonicGate === true
+        && m.meanReversionCalibrationStatus === 'holdout-validated'
+        && typeof m.meanReversionCalibrationId === 'string' && m.meanReversionCalibrationId.trim()
+        && isFinite(m.arCoefficient) && m.arCoefficient > 0 && m.arCoefficient < 1) {
         return Math.max(linear, 0.5);
       }
       return linear;
     },
-    jValue:    function (m) { return inverseLinear(m.j, 0, 20); },
-    rsi:       function (m) { return inverseLinear(m.rsi, 0, 35); },
     lpRatio3y: function (m) { return forwardLinear(m.lpValueRatio3y, 1.2, 2.5); },
-    halfLife:  function (m) { return isFinite(m.halfLifeDays) && m.halfLifeDays > 0 ? inverseLinear(m.halfLifeDays, 30, 120) : 0; },
-    volConfidence: function (m) { return clamp01(m.volConfidenceScore); },
+    halfLife: function (m) {
+      if (m.meanReversionMonotonicGate !== true || !isFinite(m.formulaHorizonSessions) || m.formulaHorizonSessions <= 0 || !isFinite(m.tradingDays) || m.tradingDays <= 0) return 0;
+      return 1 / (1 + m.formulaHorizonSessions / Math.sqrt(m.tradingDays));
+    },
+    volConfidence: function (m) { return clamp01(m.volSampleQualityScore); },
     socialSecurityWhitelist: function (m) { return m.socialSecurityWhitelisted ? 1 : null; },
   };
   var REQUIRES = {
     lpValuePercentile: ['lpValuePercentile'],
     zScore: ['zScore'],
     lpZone: ['lpZone'],
-    costSlope: ['costSlope5'],
-    jValue: ['j'],
-    rsi: ['rsi'],
+    costSlope: ['costSlopeRecent'],
     lpRatio3y: ['lpValueRatio3y'],
-    halfLife: ['halfLifeDays'],
-    volConfidence: ['volConfidenceScore'],
+    halfLife: ['halfLifeSessions', 'meanReversionMonotonicGate'],
+    volConfidence: ['volSampleQualityScore'],
     socialSecurityWhitelist: ['socialSecurityWhitelisted'],
   };
 
@@ -479,7 +548,10 @@ function browserScript() {
       activeWeight += d.weight;
     });
     var catchKnife = ctx.allowCatchKnife && isFinite(m.zScore) && m.zScore <= -1.5
-      && isFinite(m.regressionProbability) && m.regressionProbability >= 0.85;
+      && m.meanReversionMonotonicGate === true
+      && m.meanReversionCalibrationStatus === 'holdout-validated'
+      && typeof m.meanReversionCalibrationId === 'string' && m.meanReversionCalibrationId.trim()
+      && isFinite(m.arCoefficient) && m.arCoefficient > 0 && m.arCoefficient < 1;
     var finalScore = Math.round(totalScore * 10) / 10;
     var maxScore = Math.round(activeWeight * 10) / 10;
     Object.keys(dimsResult).forEach(function (id) {
@@ -487,21 +559,19 @@ function browserScript() {
       if (!r || r.disabled || r.missing) return;
       if (r.ratio >= 0.8) hits.push(formatHit(id, m));
     });
-    if (catchKnife) hits.push('接飞刀豁免（强回归）');
+    if (catchKnife) hits.push('独立留出校准豁免（人工开启）');
     return { score: finalScore, maxScore: maxScore, dimensions: dimsResult, hits: hits, catchKnife: catchKnife };
   }
 
   function formatHit(id, m) {
     switch (id) {
-      case 'lpValuePercentile': return 'lpValue P' + (m.lpValuePercentile * 100).toFixed(1) + '%';
+      case 'lpValuePercentile': return '合成几何 P' + (m.lpValuePercentile * 100).toFixed(1) + '%';
       case 'zScore':            return 'z=' + m.zScore.toFixed(2) + 'σ';
-      case 'lpZone':            return 'token0 折价囤货';
+      case 'lpZone':            return '合成区间下侧';
       case 'costSlope':         return '成本锚↑';
-      case 'jValue':            return 'J=' + m.j.toFixed(2);
-      case 'rsi':               return 'RSI=' + m.rsi.toFixed(2);
-      case 'lpRatio3y':         return 'LP 3 年 ' + m.lpValueRatio3y.toFixed(2) + '×';
-      case 'halfLife':          return 'HL=' + Math.round(m.halfLifeDays) + '天';
-      case 'volConfidence':     return '半衰期可信';
+      case 'lpRatio3y':         return '几何代理 3 年 ' + m.lpValueRatio3y.toFixed(2) + '×';
+      case 'halfLife':          return 'HL=' + Math.round(m.halfLifeSessions) + '会话';
+      case 'volConfidence':     return '波动样本质量';
       case 'socialSecurityWhitelist': return '社保 Q1 白名单';
       default: return id;
     }
@@ -527,49 +597,44 @@ function browserScript() {
     var m = item.metrics; var lines = [];
     var ratio = item.maxScore > 0 ? item.score / item.maxScore : 0;
     var scoreStr = item.score.toFixed(1) + '/' + item.maxScore.toFixed(0) + ' 分（' + (ratio * 100).toFixed(0) + '%）';
-    if (ratio >= 0.85) lines.push(item.label + ' 综合 ' + scoreStr + '。做市商模型告诉你：你在历史最低价囤满了货。');
-    else if (ratio >= 0.65) lines.push(item.label + ' 综合 ' + scoreStr + '。多个维度对齐，左侧关注价值高。');
-    else if (ratio >= 0.40) lines.push(item.label + ' 综合 ' + scoreStr + '。有亮点但缺关键确认，等一等。');
-    else lines.push(item.label + ' 综合 ' + scoreStr + '。维度未对齐，暂不入选。');
+    if (ratio >= 0.85) lines.push(item.label + ' 综合 ' + scoreStr + '，进入高分观察组。');
+    else if (ratio >= 0.65) lines.push(item.label + ' 综合 ' + scoreStr + '，多个研究维度对齐。');
+    else if (ratio >= 0.40) lines.push(item.label + ' 综合 ' + scoreStr + '，仍缺关键确认。');
+    else lines.push(item.label + ' 综合 ' + scoreStr + '，当前不进入观察池。');
 
     if (isFinite(m.lpValuePercentile)) {
       var p = m.lpValuePercentile, pPct = (p * 100).toFixed(1);
-      if (p <= 0.05) lines.push('lpValue 近一年 P' + pPct + '%——历史最便宜区间。');
-      else if (p <= 0.30) lines.push('lpValue P' + pPct + '%，处于近一年低位。');
-      else if (p <= 0.70) lines.push('lpValue P' + pPct + '%，位置中性。');
-      else lines.push('lpValue P' + pPct + '%——现在进货不划算。');
+      lines.push('动态区间合成几何代理位于近一年 P' + pPct + '%；它不是固定 LP 头寸或做市商库存。');
     }
     if (isFinite(m.lpValueRatio3y)) {
       var r = m.lpValueRatio3y;
-      lines.push('3 年 max/min=' + r.toFixed(2) + '×' + (r >= 2 ? '（翻过倍，真周期低点）' : '（未翻倍，可能是价值陷阱）') + '。');
+      lines.push('合成几何代理 3 年 max/min=' + r.toFixed(2) + '×；受价格尺度影响，不能单独判定周期底。');
     }
-    if (isFinite(m.zScore) && isFinite(m.regressionProbability)) {
-      var z = m.zScore, prob = (m.regressionProbability * 100).toFixed(1);
-      if (z <= -2.5) lines.push('z=' + z.toFixed(2) + 'σ，回归概率 ' + prob + '%，统计学回归力道极强。');
-      else if (z <= -1.5) lines.push('z=' + z.toFixed(2) + 'σ，回归概率 ' + prob + '%，信号不错。');
-      else if (z <= 0.5) lines.push('z=' + z.toFixed(2) + 'σ，价格贴在锚附近。');
-      else lines.push('z=' + z.toFixed(2) + 'σ，已偏离到锚之上。');
+    if (isFinite(m.zScore)) {
+      var z = m.zScore;
+      var percentile = isFinite(m.deviationPercentile) ? '，偏离百分位 ' + (m.deviationPercentile * 100).toFixed(1) + '%' : '';
+      lines.push('z=' + z.toFixed(2) + 'σ' + percentile + '；只描述极端度，不是未来回归概率。');
     }
-    if (m.lpZone === 'token0') lines.push('LP 仓位 100% ' + item.label + '（zone=token0），打折囤货。');
-    else if (m.lpZone === 'token1') lines.push('LP 仓位已卖成现金（zone=token1）。');
-    else if (m.lpZone === 'range') lines.push('LP 在 range 区间内做市。');
+    if (m.lpZone === 'token0') lines.push('当前价格位于合成 CK 区间下侧（token0 proxy）。');
+    else if (m.lpZone === 'token1') lines.push('当前价格位于合成 CK 区间上侧（token1 proxy）。');
+    else if (m.lpZone === 'range') lines.push('当前价格位于合成 CK 区间内；未建模路径手续费。');
 
-    if (isFinite(m.costSlope5)) {
+    if (isFinite(m.costSlopeRecent)) {
       var dir = m.anchorDirection;
-      if (dir === 'up') lines.push('成本锚 ' + fmtPct(m.costSlope5) + '（↑），趋势已掉头。');
-      else if (dir === 'flat') lines.push('成本锚 ' + fmtPct(m.costSlope5) + '（→），底部已焊住。');
+      if (dir === 'up') lines.push('成本锚自适应近期斜率 ' + fmtPct(m.costSlopeRecent) + '（↑），趋势已掉头。');
+      else if (dir === 'flat') lines.push('成本锚自适应近期斜率 ' + fmtPct(m.costSlopeRecent) + '（→），底部已焊住。');
       else if (dir === 'down') {
-        if (item.catchKnife) lines.push('成本锚 ' + fmtPct(m.costSlope5) + '（↓），但触发"接飞刀豁免"。');
-        else lines.push('成本锚 ' + fmtPct(m.costSlope5) + '（↓），等锚走平再加码。');
+        if (item.catchKnife) lines.push('成本锚自适应近期斜率 ' + fmtPct(m.costSlopeRecent) + '（↓）；已人工开启且具备独立留出校准标识，仍需复核。');
+        else lines.push('成本锚自适应近期斜率 ' + fmtPct(m.costSlopeRecent) + '（↓），趋势延续风险未解除。');
       }
     }
-    if (isFinite(m.halfLifeDays)) {
-      lines.push('半衰期 ' + Math.round(m.halfLifeDays) + ' 天（' + (m.halfLifeSpeed || '—') + '），持仓 ≈ ' + (m.holdingDays || '—') + ' 天，回到锚 ≈ ' + (m.recoveryDays || '—') + ' 天。');
+    if (isFinite(m.halfLifeSessions)) {
+      lines.push('历史 AR 半衰期 ' + Math.round(m.halfLifeSessions) + ' 个交易会话（' + (m.arDecayLabel || '—') + '）；' + (m.meanReversionMonotonicGate ? '样本内单调衰减门禁成立，尚未校准' : '未通过单调回归门禁') + '。');
     }
-    if (isFinite(m.entryTargetPrice) || isFinite(m.takeProfitPrice)) {
-      var buy = isFinite(m.entryTargetPrice) ? '买点 ≈ Delta 上沿 ' + m.entryTargetPrice : '';
-      var sell = isFinite(m.takeProfitPrice) ? '卖点 ≈ 成本带下沿 ' + m.takeProfitPrice : '';
-      lines.push([buy, sell].filter(Boolean).join('，') + '。');
+    if (isFinite(m.deltaReferencePrice) || isFinite(m.costBandReferencePrice)) {
+      var buy = isFinite(m.deltaReferencePrice) ? 'Delta 参考边界 ' + m.deltaReferencePrice : '';
+      var sell = isFinite(m.costBandReferencePrice) ? '成本带参考 ' + m.costBandReferencePrice : '';
+      lines.push([buy, sell].filter(Boolean).join('，') + '；非买卖指令。');
     }
     if (m.socialSecurityWhitelisted) lines.push('社保 Q1 重仓名单中。');
     return lines.join(' ');
@@ -584,9 +649,9 @@ function browserScript() {
       '<div><dt>当前价格</dt><dd>' + fmtPrice(m.price) + '</dd></div>' +
       '<div><dt>距锚</dt><dd>' + fmtPct(m.costDistance) + '</dd></div>' +
       '<div><dt>z 偏离</dt><dd>' + (isFinite(m.zScore) ? m.zScore.toFixed(2) + 'σ' : '—') + '</dd></div>' +
-      '<div><dt>回归概率</dt><dd>' + (isFinite(m.regressionProbability) ? (m.regressionProbability * 100).toFixed(1) + '%' : '—') + '</dd></div>' +
-      '<div><dt>lpValue P</dt><dd>' + (isFinite(m.lpValuePercentile) ? (m.lpValuePercentile * 100).toFixed(1) + '%' : '—') + '</dd></div>' +
-      '<div><dt>3 年 ratio</dt><dd>' + (isFinite(m.lpValueRatio3y) ? m.lpValueRatio3y.toFixed(2) + '×' : '—') + '</dd></div>';
+      '<div><dt>偏离百分位</dt><dd>' + (isFinite(m.deviationPercentile) ? (m.deviationPercentile * 100).toFixed(1) + '%' : '—') + '</dd></div>' +
+      '<div><dt>几何代理 P</dt><dd>' + (isFinite(m.lpValuePercentile) ? (m.lpValuePercentile * 100).toFixed(1) + '%' : '—') + '</dd></div>' +
+      '<div><dt>代理 3 年 ratio</dt><dd>' + (isFinite(m.lpValueRatio3y) ? m.lpValueRatio3y.toFixed(2) + '×' : '—') + '</dd></div>';
 
     var bars = '';
     ctx.dimensions.forEach(function (d) {
@@ -601,7 +666,7 @@ function browserScript() {
 
     var hitHtml = item.hits.length
       ? '<ul class="tag-list">' + item.hits.map(function (h) {
-          return '<li class="' + (h.indexOf('接飞刀') >= 0 ? 'knife' : '') + '">' + escapeJs(h) + '</li>';
+          return '<li class="' + (h.indexOf('校准豁免') >= 0 ? 'knife' : '') + '">' + escapeJs(h) + '</li>';
         }).join('') + '</ul>'
       : '<span style="color:#6b7280">未达拉满阈值</span>';
     li.querySelector('[data-hits] .hit-list').innerHTML = hitHtml;
@@ -647,7 +712,7 @@ function browserScript() {
     // 更新两档的副标题
     var focusSec = document.querySelector('[data-tier="focus"] h2');
     var waitSec = document.querySelector('[data-tier="wait"] h2');
-    if (focusSec) focusSec.innerHTML = '<span class="tier-badge tier-badge-focus">重点关注</span> ≥ ' + Math.round(totalW * cfg.tiers.focus) + ' 分（' + (cfg.tiers.focus * 100).toFixed(0) + '% 满分）（<span data-tier-count="focus">' + focus.length + '</span> 只）';
+    if (focusSec) focusSec.innerHTML = '<span class="tier-badge tier-badge-focus">研究关注</span> ≥ ' + Math.round(totalW * cfg.tiers.focus) + ' 分（' + (cfg.tiers.focus * 100).toFixed(0) + '% 满分）（<span data-tier-count="focus">' + focus.length + '</span> 只）';
     if (waitSec) waitSec.innerHTML = '<span class="tier-badge tier-badge-wait">等待</span> ' + Math.round(totalW * cfg.tiers.wait) + '~' + (Math.round(totalW * cfg.tiers.focus) - 1) + ' 分（' + (cfg.tiers.wait * 100).toFixed(0) + '%~' + (cfg.tiers.focus * 100).toFixed(0) + '%）（<span data-tier-count="wait">' + wait.length + '</span> 只）';
   }
 

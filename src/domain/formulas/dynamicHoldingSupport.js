@@ -1,6 +1,8 @@
+import { defineLegacyAliasContract } from './legacyAliases.js'
+
 export const DEFAULT_DYNAMIC_HOLDING_PROFILES = {
-  shortTrade: { minDays: 2, maxDays: 10, minGrossReturn: 0.03 },
-  fundCycle: { minDays: 20, maxDays: 120, minGrossReturn: 0.03 },
+  shortTrade: { targetOrder: ['firstRepair', 'baseAnchor'], minimumGrossReturn: 0.03 },
+  fundCycle: { targetOrder: ['baseAnchor', 'firstRepair'], minimumGrossReturn: 0.03 },
 }
 
 export function buildMilestones(structural) {
@@ -10,17 +12,14 @@ export function buildMilestones(structural) {
     sourceId: candidate.id,
     targetPrice: candidate.targetPrice,
     effectiveTargetPrice: candidate.effectiveTargetPrice,
-    expectedDays: candidate.partialRecoveryDays,
-    executableDays: candidate.executableHoldingDays,
-    halfLifeDays: candidate.halfLifeDays,
+    expectedSessions: candidate.partialRecoverySessions,
+    executableSessions: candidate.executableHoldingSessions,
+    halfLifeSessions: candidate.halfLifeSessions,
+    horizonUnit: 'trading-session',
     grossReturn: candidate.grossReturn,
-    returnPerDayPct:
-      Number.isFinite(candidate.grossReturn) && Number.isFinite(candidate.partialRecoveryDays)
-        ? round((candidate.grossReturn * 100) / candidate.partialRecoveryDays, 4)
-        : null,
-    monthlyEfficiencyPct:
-      Number.isFinite(candidate.grossReturn) && Number.isFinite(candidate.partialRecoveryDays)
-        ? round(((candidate.grossReturn * 100) / candidate.partialRecoveryDays) * 21, 2)
+    returnPerSessionPct:
+      Number.isFinite(candidate.grossReturn) && Number.isFinite(candidate.partialRecoverySessions)
+        ? round((candidate.grossReturn * 100) / candidate.partialRecoverySessions, 4)
         : null,
     recoveryFraction: candidate.recoveryFraction,
     zAtTarget: candidate.zAtTarget,
@@ -36,35 +35,31 @@ export function buildHoldingPlan({ kind, profile, phase, milestones }) {
     return plan('等待', 'review-extension', milestoneById(milestones, 'stretch'), ['post-anchor-extension'])
 
   const firstRepair = milestoneById(milestones, 'firstRepair')
-  const baseAnchor = milestoneById(milestones, 'baseAnchor')
-  const candidates = kind === 'fundCycle' ? [baseAnchor, firstRepair] : [firstRepair, baseAnchor]
-  const target = candidates.find((item) => usableMilestone(item, profile, kind))
+  const targetOrder = profile.targetOrder ?? defaultTargetOrder(kind)
+  const candidates = targetOrder.map((id) => milestoneById(milestones, id)).filter(Boolean)
+  const target = candidates.find((item) => usableMilestone(item, profile))
 
-  if (kind === 'shortTrade' && phase === 'low-compression') {
-    if (target) return plan('观察', 'wait-repair-start', target, ['drawdown-repair-insufficient'])
+  if (phase === 'low-compression') {
+    if (target) return plan('等待', 'wait-repair-start', target, ['drawdown-repair-insufficient'])
     const pendingTarget = candidates.find(forwardMilestone) ?? null
-    const reasons = ['drawdown-repair-insufficient']
-    if (!pendingTarget) reasons.push('no-structural-target')
-    if (pendingTarget && (pendingTarget.expectedDays < profile.minDays || pendingTarget.expectedDays > profile.maxDays))
-      reasons.push('holding-window')
-    if (pendingTarget && pendingTarget.grossReturn < profile.minGrossReturn) reasons.push('gross-return')
+    const reasons = unique(['drawdown-repair-insufficient', ...profileMilestoneBlockedReasons(pendingTarget, profile)])
     return plan('等待', 'wait-repair-start', pendingTarget, reasons)
   }
   if (target) {
     const action = kind === 'fundCycle' ? 'review' : 'execute'
     return {
       ...plan('观察', action, target, []),
-      firstReviewDays: Number.isFinite(firstRepair?.expectedDays)
-        ? Math.max(1, Math.round(firstRepair.expectedDays))
+      firstReviewSessions: Number.isFinite(firstRepair?.expectedSessions)
+        ? Math.max(1, Math.ceil(firstRepair.expectedSessions))
         : null,
     }
   }
 
-  const horizonCandidate = candidates.find((item) => Number.isFinite(item?.expectedDays))
-  const reasons = horizonCandidate?.expectedDays > profile.maxDays ? ['holding-window'] : ['no-structural-target']
+  const horizonCandidate = candidates.find((item) => Number.isFinite(item?.expectedSessions)) ?? null
+  const reasons = profileMilestoneBlockedReasons(horizonCandidate, profile)
   return plan(
-    reasons.includes('no-structural-target') ? '剔除' : '等待',
-    'wait-window',
+    reasons.includes('holding-window') || reasons.includes('z-threshold') ? '等待' : '剔除',
+    'wait-target',
     horizonCandidate ?? null,
     reasons,
   )
@@ -72,9 +67,9 @@ export function buildHoldingPlan({ kind, profile, phase, milestones }) {
 
 export function classifyPhase({ drawdown, entryPrice, anchorPrice, costSlopePct }) {
   if (entryPrice >= anchorPrice) return 'post-anchor-extension'
-  if (drawdown.drawdownSpeed5 <= -0.015 || drawdown.drawdownSpeed20 <= -0.035) return 'falling-expansion'
+  if (drawdown.drawdownSpeedFast <= -0.015 || drawdown.drawdownSpeedSlow <= -0.035) return 'falling-expansion'
   if (drawdown.drawdownRepair >= 0.35) return 'mean-reverting'
-  if (drawdown.drawdownRepair >= 0.15 && drawdown.drawdownSpeed5 >= -0.005 && costSlopePct >= -1.5)
+  if (drawdown.drawdownRepair >= 0.15 && drawdown.drawdownSpeedFast >= -0.005 && costSlopePct >= -1.5)
     return 'repair-start'
   return 'low-compression'
 }
@@ -84,22 +79,23 @@ export function buildExpectation({ milestones, structural, profiles }) {
   const baseAnchor = milestoneById(milestones, 'baseAnchor')
   const stretch = milestoneById(milestones, 'stretch')
   return {
-    firstRepairDays: roundNullable(firstRepair?.expectedDays),
-    baseAnchorDays: roundNullable(baseAnchor?.expectedDays),
-    stretchDays: roundNullable(stretch?.expectedDays),
+    firstRepairSessions: roundNullable(firstRepair?.expectedSessions),
+    baseAnchorSessions: roundNullable(baseAnchor?.expectedSessions),
+    stretchSessions: roundNullable(stretch?.expectedSessions),
+    horizonUnit: 'trading-session',
     baseReturnPct: rangePct(forwardGrossReturn(firstRepair), forwardGrossReturn(baseAnchor)),
     stretchReturnPct: Number.isFinite(stretch?.grossReturn) ? roundNullable(stretch.grossReturn * 100) : null,
     profileExpectations: {
-      shortTrade: buildProfileExpectation({ profile: profiles.shortTrade, structural, milestones }),
-      fundCycle: buildProfileExpectation({ profile: profiles.fundCycle, structural, milestones }),
+      shortTrade: buildProfileExpectation({ kind: 'shortTrade', profile: profiles.shortTrade, structural, milestones }),
+      fundCycle: buildProfileExpectation({ kind: 'fundCycle', profile: profiles.fundCycle, structural, milestones }),
     },
   }
 }
 
 export function normalizeProfiles(profiles) {
   return {
-    shortTrade: { ...DEFAULT_DYNAMIC_HOLDING_PROFILES.shortTrade, ...(profiles?.shortTrade ?? {}) },
-    fundCycle: { ...DEFAULT_DYNAMIC_HOLDING_PROFILES.fundCycle, ...(profiles?.fundCycle ?? {}) },
+    shortTrade: normalizeProfile('shortTrade', profiles?.shortTrade),
+    fundCycle: normalizeProfile('fundCycle', profiles?.fundCycle),
   }
 }
 
@@ -138,12 +134,15 @@ export function unique(values) {
   return [...new Set(values.filter(Boolean))]
 }
 
-function usableMilestone(item, profile, kind) {
-  if (!item || item.blockedReasons.includes('post-anchor-extension')) return false
-  if (!Number.isFinite(item.expectedDays) || item.expectedDays > profile.maxDays) return false
-  if (kind === 'fundCycle' && item.id !== 'firstRepair' && item.expectedDays < profile.minDays) return false
-  if (kind !== 'fundCycle' && item.expectedDays < profile.minDays) return false
-  return Number.isFinite(item.grossReturn) && item.grossReturn >= profile.minGrossReturn
+function usableMilestone(item, profile) {
+  return profileMilestoneBlockedReasons(item, profile).length === 0
+}
+
+function profileMilestoneBlockedReasons(item, profile) {
+  if (!item) return ['no-structural-target']
+  const reasons = [...(item.blockedReasons ?? [])]
+  if (!Number.isFinite(item.grossReturn) || item.grossReturn < profile.minimumGrossReturn) reasons.push('gross-return')
+  return unique(reasons)
 }
 
 function forwardMilestone(item) {
@@ -153,67 +152,61 @@ function forwardMilestone(item) {
     item.blockedReasons.includes('post-anchor-extension')
   )
     return false
-  return Number.isFinite(item.expectedDays) && Number.isFinite(item.grossReturn) && item.grossReturn > 0
+  return Number.isFinite(item.expectedSessions) && Number.isFinite(item.grossReturn) && item.grossReturn > 0
 }
 
-function buildProfileExpectation({ profile, structural, milestones }) {
+function buildProfileExpectation({ kind, profile, structural, milestones }) {
   if (!structural) {
     return {
-      minDays: profile.minDays,
-      maxDays: profile.maxDays,
-      expectedReturnAtMinPct: null,
-      expectedReturnAtMaxPct: null,
-      expectedReturnRangePct: null,
-      monthlyEfficiencyPct: null,
-      reachedMilestone: null,
-      nextMilestone: null,
+      horizonMode: 'formula-derived-per-structural-target',
+      horizonUnit: 'trading-session',
+      targetId: null,
+      expectedSessions: null,
+      expectedReturnPct: null,
+      blockedReasons: ['missing-structural-target'],
     }
   }
-  const atMin = expectedReturnAtDays({ days: profile.minDays, structural, milestones })
-  const atMax = expectedReturnAtDays({ days: profile.maxDays, structural, milestones })
-  const targetInWindow =
-    milestones.find(
-      (item) =>
-        Number.isFinite(item.expectedDays) &&
-        item.expectedDays >= profile.minDays &&
-        item.expectedDays <= profile.maxDays &&
-        !item.blockedReasons.includes('post-anchor-extension'),
-    ) ?? null
-  const nextMilestone =
-    milestones.find(
-      (item) =>
-        Number.isFinite(item.expectedDays) &&
-        item.expectedDays > profile.maxDays &&
-        !item.blockedReasons.includes('post-anchor-extension'),
-    ) ?? null
+  const candidates = (profile.targetOrder ?? defaultTargetOrder(kind))
+    .map((id) => milestoneById(milestones, id))
+    .filter(Boolean)
+  const target = candidates.find((item) => usableMilestone(item, profile)) ?? candidates.find(forwardMilestone) ?? null
   return {
-    minDays: profile.minDays,
-    maxDays: profile.maxDays,
-    expectedReturnAtMinPct: atMin.returnPct,
-    expectedReturnAtMaxPct: atMax.returnPct,
-    expectedReturnRangePct: rangePct(atMin.grossReturn, atMax.grossReturn),
-    monthlyEfficiencyPct:
-      atMax.days > 0 && Number.isFinite(atMax.grossReturn)
-        ? round(((atMax.grossReturn * 100) / atMax.days) * 21, 2)
-        : null,
-    reachedMilestone: targetInWindow?.id ?? null,
-    nextMilestone: nextMilestone?.id ?? null,
+    horizonMode: 'formula-derived-per-structural-target',
+    horizonUnit: 'trading-session',
+    targetId: target?.id ?? null,
+    expectedSessions: roundNullable(target?.expectedSessions),
+    expectedReturnPct: Number.isFinite(target?.grossReturn) ? roundNullable(target.grossReturn * 100) : null,
+    blockedReasons: target ? profileMilestoneBlockedReasons(target, profile) : ['no-structural-target'],
   }
 }
 
-function expectedReturnAtDays({ days, structural, milestones }) {
-  const halfLifeDays = milestones.find((item) => Number.isFinite(item.expectedDays))?.halfLifeDays
-  if (!Number.isFinite(days) || !Number.isFinite(halfLifeDays) || halfLifeDays <= 0)
-    return { days, grossReturn: null, returnPct: null }
-  const direction = structural.side === 'short' ? -1 : 1
-  const anchorGap = (structural.anchorPrice - structural.entryPrice) * direction
-  if (!Number.isFinite(anchorGap) || anchorGap <= 0) return { days, grossReturn: null, returnPct: null }
-  const baseAnchor = milestoneById(milestones, 'baseAnchor')
-  const cap = Number.isFinite(baseAnchor?.recoveryFraction) ? baseAnchor.recoveryFraction : 0.875
-  const recoveryFraction = Math.min(cap, 1 - Math.pow(2, -days / halfLifeDays))
-  const price = structural.entryPrice + direction * anchorGap * recoveryFraction
-  const grossReturn = direction === 1 ? price / structural.entryPrice - 1 : structural.entryPrice / price - 1
-  return { days, grossReturn, returnPct: roundNullable(grossReturn * 100) }
+function normalizeProfile(kind, rawProfile = {}) {
+  const defaults = DEFAULT_DYNAMIC_HOLDING_PROFILES[kind]
+  const threshold = resolveProfileMinimumGrossReturn(rawProfile, defaults.minimumGrossReturn)
+  return {
+    targetOrder: Array.isArray(rawProfile?.targetOrder) ? [...rawProfile.targetOrder] : [...defaults.targetOrder],
+    minimumGrossReturn: threshold.value,
+    minimumGrossReturnSource: threshold.source,
+    ...(threshold.legacyContract ?? {}),
+  }
+}
+
+function resolveProfileMinimumGrossReturn(rawProfile, fallback) {
+  if (Number.isFinite(rawProfile?.minimumGrossReturn) && rawProfile.minimumGrossReturn >= 0) {
+    return { value: rawProfile.minimumGrossReturn, source: 'minimumGrossReturn' }
+  }
+  if (Number.isFinite(rawProfile?.minGrossReturn) && rawProfile.minGrossReturn >= 0) {
+    return {
+      value: rawProfile.minGrossReturn,
+      source: 'deprecated:minGrossReturn',
+      legacyContract: defineLegacyAliasContract({ minGrossReturn: 'minimumGrossReturn' }),
+    }
+  }
+  return { value: fallback, source: 'profile-default' }
+}
+
+function defaultTargetOrder(kind) {
+  return kind === 'fundCycle' ? ['baseAnchor', 'firstRepair'] : ['firstRepair', 'baseAnchor']
 }
 
 function plan(status, action, target, blockedReasons) {
@@ -222,7 +215,8 @@ function plan(status, action, target, blockedReasons) {
     action,
     target,
     targetId: target?.id ?? null,
-    expectedDays: roundNullable(target?.expectedDays),
+    expectedSessions: roundNullable(target?.expectedSessions),
+    horizonUnit: 'trading-session',
     expectedReturnPct: Number.isFinite(target?.grossReturn) ? roundNullable(target.grossReturn * 100) : null,
     blockedReasons,
   }
@@ -234,7 +228,8 @@ function milestoneById(milestones, id) {
 
 function forwardGrossReturn(item) {
   if (!Number.isFinite(item?.grossReturn) || item.grossReturn <= 0) return null
-  if (item.blockedReasons.includes('target-behind-entry') || item.blockedReasons.includes('post-anchor-extension')) return null
+  if (item.blockedReasons.includes('target-behind-entry') || item.blockedReasons.includes('post-anchor-extension'))
+    return null
   return item.grossReturn
 }
 

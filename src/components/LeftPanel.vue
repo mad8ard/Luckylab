@@ -5,7 +5,7 @@ import ComputeDrawer from './ComputeDrawer.vue'
 import SettingsDrawer from './SettingsDrawer.vue'
 import { useBreakpoint } from '../composables/useBreakpoint.js'
 
-const { isMobile } = useBreakpoint()
+const { isCompact } = useBreakpoint()
 
 const props = defineProps({
   open: { type: Boolean, required: true },
@@ -25,13 +25,14 @@ const emit = defineEmits([
   'override-tdpy',
   'reset-tdpy',
   'set-theme',
+  'set-overlay',
   'reset-all',
 ])
 
 const TAB_LABELS = {
-  decision: '📈 回放',
-  compute: '📊 公式',
-  settings: '⚙️ 设置',
+  decision: '结论',
+  compute: '公式研究',
+  settings: '设置',
 }
 
 const collapsedLabel = computed(() => TAB_LABELS[props.activeTab] || '面板')
@@ -43,15 +44,17 @@ const collapsedLabel = computed(() => TAB_LABELS[props.activeTab] || '面板')
     :class="{
       open,
       collapsed: !open,
-      'lp-mobile': isMobile,
-      'lp-mobile-open': isMobile && open,
+      'lp-mobile': isCompact,
+      'lp-mobile-open': isCompact && open,
     }"
-    :role="isMobile ? 'dialog' : null"
-    :aria-modal="isMobile ? 'true' : null"
+    :role="isCompact && open ? 'dialog' : null"
+    :aria-modal="isCompact && open ? 'true' : null"
+    :aria-hidden="isCompact && !open ? 'true' : null"
+    :inert="isCompact && !open ? '' : null"
     aria-label="左侧工具面板"
   >
     <!-- 移动端关闭按钮 -->
-    <button v-if="isMobile" class="lp-mobile-close" type="button" aria-label="关闭" @click="emit('toggle')">✕</button>
+    <button v-if="isCompact" class="lp-mobile-close" type="button" aria-label="关闭" @click="emit('toggle')">✕</button>
     <!-- 折叠态：纯窄边按钮，点击展开 -->
     <button v-if="!open" type="button" class="lp-edge" :title="`展开 ${collapsedLabel}`" @click="emit('toggle')">
       <span class="lp-edge-icon">▶</span>
@@ -61,11 +64,13 @@ const collapsedLabel = computed(() => TAB_LABELS[props.activeTab] || '面板')
     <!-- 展开态 -->
     <template v-else>
       <header class="lp-head">
-        <nav class="lp-tabs">
+        <nav class="lp-tabs" role="tablist" aria-label="工具面板">
           <button
             v-for="(label, key) in TAB_LABELS"
             :key="key"
             type="button"
+            role="tab"
+            :aria-selected="activeTab === key"
             :class="{ active: activeTab === key }"
             @click="emit('set-tab', key)"
           >
@@ -99,19 +104,18 @@ const collapsedLabel = computed(() => TAB_LABELS[props.activeTab] || '面板')
           v-else-if="activeTab === 'compute'"
           :graph="lab.graph"
           :market="lab.market"
-          :rows="lab.rows"
+          :rows="lab.activeRows"
           :cost-path="lab.costPath"
           :formula-path="lab.formulaPath"
           :source-label="lab.sourceLabel"
           :active-formula-id="lab.activeFormulaId"
           :active-formula="lab.activeFormula"
           :portfolio-enabled="lab.featureFlags.portfolioResearch"
-          :hover-market="lab.hoverMarket"
-          :hover-formula-row="lab.hoverFormulaRow"
           :hover-row="lab.hoverRow"
           :hover-prev-row="lab.hoverPrevRow"
           :hover-date="lab.hoverDate"
           :is-hovering="lab.isHovering"
+          :summary="lab.workbenchSummary"
           @select-formula="(id) => emit('select-formula', id)"
         />
         <SettingsDrawer
@@ -122,7 +126,7 @@ const collapsedLabel = computed(() => TAB_LABELS[props.activeTab] || '面板')
           :observation-date="lab.observationDate"
           :tdpy-meta="lab.tdpyMeta"
           :effective-tdpy="lab.effectiveTdpy"
-          :symbol="lab.source?.symbol ?? ''"
+          :symbol="lab.tdpyOverrideKey"
           :overlays="lab.chartOverlays"
           :feature-flags="lab.featureFlags"
           :profile-list="lab.strategyProfileList"
@@ -131,6 +135,9 @@ const collapsedLabel = computed(() => TAB_LABELS[props.activeTab] || '面板')
           @override-tdpy="(sym, val) => emit('override-tdpy', sym, val)"
           @reset-tdpy="(sym) => emit('reset-tdpy', sym)"
           @set-theme="(t) => emit('set-theme', t)"
+          @set-overlay="(key, value) => emit('set-overlay', key, value)"
+          @set-path-scenario="lab.setPathUsesScenarioInputs"
+          @set-lp-scenario-field="lab.setLpScenarioField"
           @reset-all="emit('reset-all')"
           @set-observation-date="(date) => lab.setObservationDate(date)"
           @latest-observation="lab.useLatestObservation"
@@ -200,7 +207,7 @@ const collapsedLabel = computed(() => TAB_LABELS[props.activeTab] || '面板')
 .lp-tabs button {
   flex: 1;
   min-width: 0;
-  min-height: 26px;
+  min-height: 34px;
   padding: 1px 6px;
   border: 1px solid var(--line);
   border-radius: 4px;
@@ -222,8 +229,8 @@ const collapsedLabel = computed(() => TAB_LABELS[props.activeTab] || '面板')
   color: var(--green);
 }
 .lp-collapse {
-  width: 24px;
-  height: 24px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   border: 1px solid var(--line);
@@ -259,7 +266,7 @@ const collapsedLabel = computed(() => TAB_LABELS[props.activeTab] || '面板')
 }
 
 /* mobile drawer 形态 */
-@media (max-width: 768px) {
+@media (max-width: 1279px) {
   .lp.lp-mobile {
     position: fixed;
     top: 0;
@@ -287,8 +294,8 @@ const collapsedLabel = computed(() => TAB_LABELS[props.activeTab] || '面板')
     position: absolute;
     top: 12px;
     right: 12px;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border: 1px solid var(--line);
     border-radius: 6px;
     background: var(--bg);
@@ -303,7 +310,10 @@ const collapsedLabel = computed(() => TAB_LABELS[props.activeTab] || '面板')
   }
   .lp.lp-mobile .lp-head {
     min-height: 64px;
-    padding-right: 60px;
+    padding-right: 64px;
+  }
+  .lp.lp-mobile .lp-tabs button {
+    min-height: 44px;
   }
   .lp.lp-mobile .lp-collapse {
     display: none;

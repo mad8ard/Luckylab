@@ -21,7 +21,7 @@ describe('ParamPopover', () => {
     const input = wrapper.find('input[type="number"]')
     // iv 字段 UI 显示 % 单位，输入 50 表示 50%
     await input.setValue('50')
-    const apply = wrapper.findAll('button').find(b => b.text() === '应用')
+    const apply = wrapper.findAll('button').find((b) => b.text() === '应用')
     await apply.trigger('click')
     expect(wrapper.emitted('confirm')).toBeTruthy()
     // 50% → 0.5
@@ -34,7 +34,7 @@ describe('ParamPopover', () => {
     })
     const input = wrapper.find('input[type="number"]')
     await input.setValue('-5')
-    const apply = wrapper.findAll('button').find(b => b.text() === '应用')
+    const apply = wrapper.findAll('button').find((b) => b.text() === '应用')
     expect(apply.attributes('disabled')).toBeDefined()
     await input.trigger('keydown.enter')
     expect(wrapper.emitted('confirm')).toBeFalsy()
@@ -42,7 +42,7 @@ describe('ParamPopover', () => {
 
   it('Esc 触发 cancel', async () => {
     const wrapper = mount(ParamPopover, {
-      props: { field: 'holdingDays', value: 30 },
+      props: { field: 'deltaSlope', value: 0.3 },
     })
     await wrapper.find('input[type="number"]').trigger('keydown.escape')
     expect(wrapper.emitted('cancel')).toBeTruthy()

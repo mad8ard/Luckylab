@@ -58,11 +58,14 @@ export function useStockChipViewport({ getChart, getSeries, getRows, getPaneInde
     const visibleFrom = Math.min(from, to)
     const visibleTo = Math.max(from, to)
     const next = {
+      top: 0,
       height,
       priceLower: Math.min(top, bottom),
       priceUpper: Math.max(top, bottom),
       activeIndex: visibleTo,
       visibleWindow: Math.max(1, visibleTo - visibleFrom + 1),
+      // 交给图表自身完成映射，确保主图切到对数坐标后筹码条仍与价格轴对齐。
+      priceToY: (price) => Number(candle.priceToCoordinate(price)),
     }
     const nextSignature = [
       next.height,

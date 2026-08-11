@@ -19,7 +19,7 @@ def node_summary() -> dict:
       import { formulaEvidenceCatalog } from './src/domain/formulas/evidence.js'
       import { parseCsvText } from './src/domain/market-data/ohlcv.js'
       const rows = parseCsvText(await readFile('./public/data/600519-1d.csv', 'utf8')).slice(-220)
-      const market = buildMarketState(rows)
+      const market = buildMarketState(rows, 242)
       const lpOnchainSnapshot = {
         hasPool: true,
         hasPosition: false,
@@ -32,33 +32,48 @@ def node_summary() -> dict:
       }
       const input = {
         entryPrice: market.markPrice,
-        holdingDays: 30,
+        formulaHorizonSessions: 30,
+        formulaHorizonSide: 'long',
+        horizonTargetPrice: Math.max(...rows.map((row) => row.close)) * 1.1,
+        horizonTargetSource: 'audit-explicit-scenario',
+        horizonAvailableAt: 'audit-snapshot-known-at',
+        optionTenorSessions: 30,
+        horizonMode: 'explicit-scenario',
+        pathUsesScenarioInputs: true,
         iv: market.annualVol,
         deltaSlope: 0.3,
         exitTargetReturn: 0,
         strikePrice: market.markPrice * 1.05,
         riskFreeRate: 0.04,
         optionType: 'put',
-        startPrice: market.costAnchor,
-        rangeWidth: 0.1,
-        skew: 1,
-        liquidity: 1,
+        lpScenarioEnabled: true,
+        lpScenarioStartPrice: market.costAnchor,
+        lpScenarioRangeWidth: 0.1,
+        lpScenarioSkew: 1,
+        lpScenarioLiquidity: 1,
         perpTwap: market.markPrice * 1.0002,
         spotTwap: market.markPrice,
+        fundingPositionSide: 'short',
+        fundingSessionDurationHours: 24,
+        fundingSessionCalendarId: 'CRYPTO-UTC-24H',
+        recoveryNotionalBasis: 'cycle-start-quote-notional',
+        fundingNotionalBasis: 'cycle-start-quote-notional',
         lpOnchainSnapshot,
+        tradingDaysPerYear: 365,
       }
       const path = buildFormulaPath(rows, input)
+      const dynamicPath = buildFormulaPath(rows, { ...input, pathUsesScenarioInputs: false })
       const fallbackPath = buildFormulaPath(rows.slice(-80), { ...input, perpTwap: null, spotTwap: null, lpOnchainSnapshot: null })
       const summary = {}
       for (const key of Object.keys(path[0] ?? {})) {
-        summary[key] = path.filter((row) => Number.isFinite(row[key])).length
+        summary[key] = [...path, ...dynamicPath].filter((row) => Number.isFinite(row[key])).length
       }
       console.log(JSON.stringify({
         fields: FORMULA_PATH_FIELDS,
         evidenceIds: formulaEvidenceCatalog.map((entry) => entry.id),
         length: path.length,
         summary,
-        statuses: [...new Set([...path, ...fallbackPath].flatMap((row) => row.status ?? []))]
+        statuses: [...new Set([...path, ...dynamicPath, ...fallbackPath].flatMap((row) => row.status ?? []))]
       }))
     """
     result = subprocess.run(["node", "--input-type=module", "-e", code], cwd=ROOT, check=True, capture_output=True, text=True)

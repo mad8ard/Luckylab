@@ -1,13 +1,18 @@
-const DEFAULT_WINDOW = 180
 const DEFAULT_BINS = 36
 const VALUE_AREA_SHARE = 0.7
 
-export function buildVolumePriceProfile({ rows, activeIndex = null, visibleWindow = DEFAULT_WINDOW, binCount = DEFAULT_BINS } = {}) {
+export function buildVolumePriceProfile({
+  rows,
+  activeIndex = null,
+  visibleWindow = null,
+  binCount = DEFAULT_BINS,
+} = {}) {
   const safeRows = Array.isArray(rows) ? rows : []
   if (!safeRows.length) return emptyProfile()
   const end = clampIndex(activeIndex ?? safeRows.length - 1, safeRows.length) + 1
-  const windowRows = safeRows.slice(Math.max(0, end - normalizeWindow(visibleWindow)), end)
-    .filter(validRow)
+  const requestedWindow = normalizeWindow(visibleWindow)
+  const start = requestedWindow === null ? 0 : Math.max(0, end - requestedWindow)
+  const windowRows = safeRows.slice(start, end).filter(validRow)
   if (!windowRows.length) return emptyProfile()
 
   const range = priceRange(windowRows)
@@ -26,7 +31,7 @@ export function buildVolumePriceProfile({ rows, activeIndex = null, visibleWindo
   const maxVolume = Math.max(...bins.map((bin) => bin.volume), 0)
   if (!(totalVolume > 0) || !(maxVolume > 0)) return emptyProfile(range)
 
-  const pocIndex = bins.reduce((best, bin, index) => bin.volume > bins[best].volume ? index : best, 0)
+  const pocIndex = bins.reduce((best, bin, index) => (bin.volume > bins[best].volume ? index : best), 0)
   const valueArea = buildValueArea(bins, totalVolume, pocIndex)
   const currentPrice = windowRows.at(-1)?.close ?? null
   const currentIndex = Number.isFinite(currentPrice) ? binIndex(currentPrice, range, count) : -1
@@ -49,6 +54,13 @@ export function buildVolumePriceProfile({ rows, activeIndex = null, visibleWindo
     rows: windowRows.length,
     firstDate: windowRows[0]?.date ?? '',
     lastDate: windowRows.at(-1)?.date ?? '',
+    windowSpec: {
+      mode: requestedWindow === null ? 'visible-prefix' : 'viewport-explicit',
+      visiblePrefixRows: end,
+      requestedWindowSessions: requestedWindow,
+      appliedRows: windowRows.length,
+      futureRowsUsed: false,
+    },
     range,
     currentPrice,
     totalVolume,
@@ -129,7 +141,13 @@ function priceRange(rows) {
 }
 
 function validRow(row) {
-  return Number.isFinite(row?.open) && Number.isFinite(row?.high) && Number.isFinite(row?.low) && Number.isFinite(row?.close) && Number(row?.volume) > 0
+  return (
+    Number.isFinite(row?.open) &&
+    Number.isFinite(row?.high) &&
+    Number.isFinite(row?.low) &&
+    Number.isFinite(row?.close) &&
+    Number(row?.volume) > 0
+  )
 }
 
 function binIndex(price, range, count) {
@@ -142,7 +160,9 @@ function normalizeBinCount(value) {
 }
 
 function normalizeWindow(value) {
-  return Math.max(1, Math.min(500, Math.round(Number(value) || DEFAULT_WINDOW)))
+  if (value === null || value === undefined || value === '') return null
+  const next = Number(value)
+  return Number.isFinite(next) && next > 0 ? Math.max(1, Math.min(500, Math.round(next))) : null
 }
 
 function clampIndex(index, length) {
@@ -163,6 +183,7 @@ function emptyProfile(range = null) {
     rows: 0,
     firstDate: '',
     lastDate: '',
+    windowSpec: null,
     range,
     currentPrice: null,
     totalVolume: 0,

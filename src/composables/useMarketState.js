@@ -19,7 +19,8 @@ export function useMarketState(rows, cursor, input) {
 
   function getMarketStatePath(r) {
     const currentInput = isRef(input) ? input.value : input
-    const tdpy = Number(currentInput.tradingDaysPerYear) || 365
+    const tdpy = Number(currentInput?.tradingDaysPerYear)
+    if (!Number.isFinite(tdpy) || tdpy <= 0) return []
     let bucket = marketStatePathCache.get(r)
     if (!bucket) {
       bucket = new Map()
@@ -33,7 +34,10 @@ export function useMarketState(rows, cursor, input) {
   const marketStateFull = computed(() => (rows.value.length ? getMarketStatePath(rows.value) : []))
   const marketStateActive = computed(() => (activeRows.value.length ? getMarketStatePath(activeRows.value) : []))
   const market = computed(() => marketStateActive.value.at(-1) ?? null)
-  const costPath = computed(() => buildCostPath(activeRows.value))
+  const costPath = computed(() => {
+    const currentInput = isRef(input) ? input.value : input
+    return buildCostPath(activeRows.value, null, currentInput?.tradingDaysPerYear)
+  })
   const formulaPath = computed(() => buildFormulaPath(activeRows.value, isRef(input) ? input.value : input))
 
   return { activeRows, marketStateFull, marketStateActive, market, costPath, formulaPath }

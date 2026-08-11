@@ -1,14 +1,9 @@
 const EPSILON = 1e-9
 
-export function buildLiquidityOpportunity({
-  shelves,
-  activePrice,
-  hasRealSignal = false,
-  topZones = 3,
-} = {}) {
+export function buildLiquidityOpportunity({ shelves, activePrice, hasRealSignal = false, topZones = 3 } = {}) {
   const rows = Array.isArray(shelves) ? shelves.filter(hasComparableShare) : []
   if (!rows.length) return emptyOpportunity('样本不足', '等待价格层级')
-  if (!hasRealSignal) return emptyOpportunity('等待真实层', '先接入聚合池')
+  if (!hasRealSignal) return emptyOpportunity('等待真实层', '先接入真实 tick 深度')
 
   const bins = rows.map((shelf) => {
     const signedGap = shelf.modelShare - shelf.realShare
@@ -29,24 +24,19 @@ export function buildLiquidityOpportunity({
   const shortfallTotal = totals.belowShortfall + totals.aboveShortfall
   const crowdedTotal = totals.belowCrowded + totals.aboveCrowded
   const divergenceTotal = shortfallTotal + crowdedTotal
-  const directionalBias = (
-    totals.aboveShortfall + totals.belowCrowded
-    - totals.belowShortfall - totals.aboveCrowded
-  )
+  const directionalBias = totals.aboveShortfall + totals.belowCrowded - totals.belowShortfall - totals.aboveCrowded
   const direction = classifyDirection({ directionalBias, divergenceTotal, shortfallTotal, crowdedTotal })
-  const primaryMetric = Math.max(
-    totals.aboveShortfall,
-    totals.belowShortfall,
-    totals.aboveCrowded,
-    totals.belowCrowded,
-  )
+  const primaryMetric = Math.max(totals.aboveShortfall, totals.belowShortfall, totals.aboveCrowded, totals.belowCrowded)
 
+  const mismatchIntensity = clamp(divergenceTotal * 2.6 + primaryMetric * 1.4, 0, 1)
   return {
     status: 'active',
     label: direction.label,
     action: direction.action,
     tone: direction.tone,
-    confidence: clamp(divergenceTotal * 2.6 + primaryMetric * 1.4, 0, 1),
+    mismatchIntensity,
+    confidence: mismatchIntensity,
+    confidenceSemantics: 'normalized-model-real-mismatch-intensity-not-probability',
     mismatch: clamp(divergenceTotal, 0, 1),
     directionalBias,
     totals,
@@ -76,21 +66,24 @@ function classifyDirection({ directionalBias, divergenceTotal, shortfallTotal, c
 }
 
 function aggregateTotals(bins) {
-  return bins.reduce((total, bin) => {
-    if (bin.side === 'below') {
-      total.belowShortfall += bin.shortfall
-      total.belowCrowded += bin.crowded
-    } else {
-      total.aboveShortfall += bin.shortfall
-      total.aboveCrowded += bin.crowded
-    }
-    return total
-  }, {
-    belowShortfall: 0,
-    aboveShortfall: 0,
-    belowCrowded: 0,
-    aboveCrowded: 0,
-  })
+  return bins.reduce(
+    (total, bin) => {
+      if (bin.side === 'below') {
+        total.belowShortfall += bin.shortfall
+        total.belowCrowded += bin.crowded
+      } else {
+        total.aboveShortfall += bin.shortfall
+        total.aboveCrowded += bin.crowded
+      }
+      return total
+    },
+    {
+      belowShortfall: 0,
+      aboveShortfall: 0,
+      belowCrowded: 0,
+      aboveCrowded: 0,
+    },
+  )
 }
 
 function pickZones(bins, key, limit) {
@@ -129,6 +122,8 @@ function emptyOpportunity(label, action) {
     action,
     tone: 'pending',
     confidence: 0,
+    mismatchIntensity: 0,
+    confidenceSemantics: 'normalized-model-real-mismatch-intensity-not-probability',
     mismatch: 0,
     directionalBias: 0,
     totals: {

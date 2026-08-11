@@ -16,16 +16,15 @@ const items = computed(() => {
     { id: 'orders', label: '挂单' },
     { id: 'range', label: '区间' },
   ]
-  if (props.model.hasRealSignal && mode !== 'simulate') rows.splice(2, 0, { id: 'real', label: mode === 'gap' ? '缺口' : '真实池' })
+  if (props.model.hasRealSignal && mode !== 'simulate')
+    rows.splice(2, 0, { id: 'real', label: mode === 'gap' ? '缺口' : '真实 tick' })
   return rows
 })
 </script>
 
 <template>
   <div class="lf-depth-legend" aria-label="图内颜色说明">
-    <span v-for="item in items" :key="item.id" :class="`legend-${item.id}`">
-      <i></i>{{ item.label }}
-    </span>
+    <span v-for="item in items" :key="item.id" :class="`legend-${item.id}`"> <i></i>{{ item.label }} </span>
   </div>
 </template>
 
@@ -62,13 +61,30 @@ const items = computed(() => {
   background: var(--line);
 }
 
-.legend-bid i { background: linear-gradient(90deg, var(--blue), var(--green)); }
-.legend-ask i { background: linear-gradient(90deg, var(--red), var(--blue)); }
-.legend-real i { border-color: #8b5a16; background: rgba(139, 90, 22, 0.18); }
-.legend-base i { background: var(--blue); }
-.legend-active i { background: var(--green); }
-.legend-cost i { background: var(--ink); }
-.legend-orders i { background: var(--red); }
+.legend-bid i {
+  background: linear-gradient(90deg, var(--blue), var(--green));
+}
+.legend-ask i {
+  background: linear-gradient(90deg, var(--red), var(--blue));
+}
+.legend-real i {
+  border-color: #8b5a16;
+  background: rgba(139, 90, 22, 0.18);
+}
+.legend-base i {
+  background: var(--blue);
+}
+.legend-active i {
+  background: var(--green);
+}
+.legend-cost i {
+  background: var(--ink);
+}
+.legend-orders i {
+  background: var(--red);
+}
 .legend-range i,
-.legend-gap i { background: #8b5a16; }
+.legend-gap i {
+  background: #8b5a16;
+}
 </style>

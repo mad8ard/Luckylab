@@ -22,6 +22,17 @@ lerna-debug.log*
 *.local
 .venv/
 .agents/
+!.agents/
+.agents/*
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/china-stock-selection/
+.agents/skills/china-stock-selection/*
+!.agents/skills/china-stock-selection/references/
+.agents/skills/china-stock-selection/references/*
+!.agents/skills/china-stock-selection/references/cli-contract.md
+!.agents/skills/china-stock-selection/references/formula-risk-contract.md
+!.agents/skills/china-stock-selection/references/retail-decision-contract.md
 
 # Vite / test caches
 .vite/
@@ -70,5 +81,15 @@ Thumbs.db
 # 项目用 pnpm，不接受 npm 产出的 lockfile
 package-lock.json
 
-# Claude Code 本机设置
+# Claude Code 本机设置；只保留项目级 skill 入口，其余仍忽略。
 .claude/
+!.claude/
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/china-stock-selection/
+.claude/skills/china-stock-selection/*
+!.claude/skills/china-stock-selection/SKILL.md
+!.claude/skills/china-stock-selection/scripts/
+.claude/skills/china-stock-selection/scripts/*
+!.claude/skills/china-stock-selection/scripts/replay-short-hold.mjs

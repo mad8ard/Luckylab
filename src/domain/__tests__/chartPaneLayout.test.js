@@ -11,6 +11,7 @@ const baseOverlays = {
   costBand: true,
   entryLine: true,
   volBand: true,
+  lpBand: true,
   volume: true,
   replayMarkers: true,
   replayMarkerLabels: true,
@@ -24,7 +25,9 @@ describe('resolveChartOverlayPlan', () => {
   it('缺 funding 数据时隐藏 carry pane，但保留后续 KDJ/RSI', () => {
     const plan = resolveChartOverlayPlan({
       overlays: baseOverlays,
-      formulaPath: [{ optionDelta: 0.1, lpValue: 1, capitalEfficiency: 2, lpNormalizedDelta: 0.2, lpPoolTurnover24h: 0.3 }],
+      formulaPath: [
+        { optionDelta: 0.1, lpValue: 1, capitalEfficiency: 2, lpNormalizedDelta: 0.2, lpPoolTurnover24h: 0.3 },
+      ],
     })
     expect(plan.paneOn.carry).toBe(false)
     expect(plan.paneOn.lpPoolCoverage).toBe(true)
@@ -39,7 +42,9 @@ describe('resolveChartOverlayPlan', () => {
   it('有 funding 数据时插入 carry pane，不覆盖后续指标', () => {
     const plan = resolveChartOverlayPlan({
       overlays: baseOverlays,
-      formulaPath: [{ optionGamma: 0.1, lpValue: 1, lpNormalizedDelta: 0.2, fundingProxy: 0.001, netCarry: -0.001 }],
+      formulaPath: [
+        { optionGamma: 0.1, lpValue: 1, lpNormalizedDelta: 0.2, cumulativeFundingProxy: 0.001, netCarry: -0.001 },
+      ],
     })
     expect(plan.paneOn.carry).toBe(true)
     expect(plan.panes.carry).toBe(4)
@@ -67,5 +72,29 @@ describe('resolveChartOverlayPlan', () => {
     expect(plan.price.deltaBand).toBe(false)
     expect(plan.price.lpBand).toBe(false)
     expect(plan.price.entryLine).toBe(true)
+    expect(plan.price.currentLine).toBe(true)
+  })
+
+  it('LP 价格区间可独立关闭，避免主图标签过载', () => {
+    const plan = resolveChartOverlayPlan({
+      overlays: { ...baseOverlays, lpBand: false },
+      formulaPath: [{ lpRealPrice: 12, deltaLower: 9, deltaUpper: 13 }],
+    })
+    expect(plan.price.costBand).toBe(true)
+    expect(plan.price.deltaBand).toBe(true)
+    expect(plan.price.lpBand).toBe(false)
+    expect(plan.price.lpRealPrice).toBe(false)
+  })
+
+  it('当前没有合法 GetDelta 时仍保留历史稀疏分段，不插值当前值', () => {
+    const plan = resolveChartOverlayPlan({
+      overlays: baseOverlays,
+      formulaPath: [
+        { deltaLower: 90, deltaUpper: 110 },
+        { deltaLower: null, deltaUpper: null },
+      ],
+    })
+
+    expect(plan.price.deltaBand).toBe(true)
   })
 })

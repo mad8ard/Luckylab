@@ -21,8 +21,8 @@ def normal_cdf(x: float) -> float:
     return 0.5 * (1 + math.erf(x / math.sqrt(2)))
 
 
-def get_delta_bands(entry_price: float, holding_days: float, iv: float, delta_slope: float, tdpy: float = 365) -> dict:
-    e_t = math.sqrt(holding_days / (tdpy * 2 * math.pi))
+def get_delta_bands(entry_price: float, formula_horizon_sessions: float, iv: float, delta_slope: float, tdpy: float) -> dict:
+    e_t = math.sqrt(formula_horizon_sessions / (tdpy * 2 * math.pi))
     wave = iv * e_t
     ratio = ((1 + wave) / (1 - wave)) ** 2
     long_cost = entry_price * (delta_slope * ratio - delta_slope + 1) ** 2 / ratio
@@ -39,24 +39,35 @@ def get_delta_bands(entry_price: float, holding_days: float, iv: float, delta_sl
     }
 
 
-def black_scholes(entry_price: float, strike_price: float, holding_days: float, iv: float, risk_free_rate: float, opt_type: str, tdpy: float = 365) -> dict:
-    t = holding_days / tdpy
+def black_scholes(entry_price: float, strike_price: float, time_to_expiry_sessions: float, iv: float, risk_free_rate: float, opt_type: str, tdpy: float) -> dict:
+    t = time_to_expiry_sessions / tdpy
     d1 = (math.log(entry_price / strike_price) + (risk_free_rate + 0.5 * iv * iv) * t) / (iv * math.sqrt(t))
     d2 = d1 - iv * math.sqrt(t)
     if opt_type == "call":
         price = entry_price * normal_cdf(d1) - strike_price * math.exp(-risk_free_rate * t) * normal_cdf(d2)
         delta = normal_cdf(d1)
         theta = -(entry_price * normal_pdf(d1) * iv) / (2 * math.sqrt(t)) - risk_free_rate * strike_price * math.exp(-risk_free_rate * t) * normal_cdf(d2)
+        rho_per_pct = strike_price * t * math.exp(-risk_free_rate * t) * normal_cdf(d2) / 100
     else:
         price = strike_price * math.exp(-risk_free_rate * t) * normal_cdf(-d2) - entry_price * normal_cdf(-d1)
         delta = normal_cdf(d1) - 1
         theta = -(entry_price * normal_pdf(d1) * iv) / (2 * math.sqrt(t)) + risk_free_rate * strike_price * math.exp(-risk_free_rate * t) * normal_cdf(-d2)
+        rho_per_pct = -strike_price * t * math.exp(-risk_free_rate * t) * normal_cdf(-d2) / 100
     gamma = normal_pdf(d1) / (entry_price * iv * math.sqrt(t))
-    return {"price": price, "delta": delta, "gamma": gamma, "thetaDaily": theta / tdpy}
+    vega_per_pct = entry_price * normal_pdf(d1) * math.sqrt(t) / 100
+    return {
+        "price": price,
+        "optionDelta": delta,
+        "optionGamma": gamma,
+        "optionThetaPerSession": theta / tdpy,
+        "optionThetaAnnual": theta,
+        "optionVegaPerPct": vega_per_pct,
+        "optionRhoPerPct": rho_per_pct,
+    }
 
 
-def bachelier(entry_price: float, strike_price: float, holding_days: float, normal_vol: float, risk_free_rate: float, opt_type: str, tdpy: float = 365) -> dict:
-    t = holding_days / tdpy
+def bachelier(entry_price: float, strike_price: float, time_to_expiry_sessions: float, normal_vol: float, risk_free_rate: float, opt_type: str, tdpy: float) -> dict:
+    t = time_to_expiry_sessions / tdpy
     sigma_t = normal_vol * math.sqrt(t)
     d = (entry_price - strike_price) / sigma_t
     undiscounted = (entry_price - strike_price) * normal_cdf(d) + sigma_t * normal_pdf(d)
@@ -64,7 +75,16 @@ def bachelier(entry_price: float, strike_price: float, holding_days: float, norm
         undiscounted = (strike_price - entry_price) * normal_cdf(-d) + sigma_t * normal_pdf(d)
     price = math.exp(-risk_free_rate * t) * undiscounted
     discount = math.exp(-risk_free_rate * t)
-    return {"price": price, "delta": discount * (normal_cdf(d) if opt_type == "call" else normal_cdf(d) - 1)}
+    return {
+        "price": price,
+        "optionDelta": discount * (normal_cdf(d) if opt_type == "call" else normal_cdf(d) - 1),
+        "optionGamma": discount * normal_pdf(d) / sigma_t,
+        "optionNormalVegaPerUnit": discount * math.sqrt(t) * normal_pdf(d),
+        "optionThetaPerSession": None,
+        "optionThetaAnnual": None,
+        "optionVegaPerPct": None,
+        "optionRhoPerPct": None,
+    }
 
 
 def v3_inventory(mark_price: float, lower_price: float, upper_price: float, liquidity: float) -> dict:
@@ -80,13 +100,13 @@ def v3_inventory(mark_price: float, lower_price: float, upper_price: float, liqu
     else:
         token0 = liquidity * (sqrt_u - sqrt_p) / (sqrt_p * sqrt_u)
         token1 = liquidity * (sqrt_p - sqrt_l)
-    return {"token0": token0, "token1": token1, "value": token0 * mark_price + token1, "inventoryDelta": token0}
+    return {"token0": token0, "token1": token1, "value": token0 * mark_price + token1, "inventoryDeltaToken0": token0}
 
 
 def impermanent_loss(mark_price: float, start_price: float) -> dict:
     ratio = mark_price / start_price
     il = 2 * math.sqrt(ratio) / (1 + ratio) - 1
-    return {"impermanentLoss": il}
+    return {"fullRangeV2IlProxy": il}
 
 
 def capital_efficiency(range_width: float, skew: float) -> dict:
@@ -98,7 +118,7 @@ def capital_efficiency(range_width: float, skew: float) -> dict:
 def funding_rate(perp_twap: float, spot_twap: float, hours: float) -> dict:
     basis = perp_twap / spot_twap - 1
     cumulative = basis * hours / 24
-    return {"basisEstimate": basis, "fundingProxy": cumulative, "cumulativeFundingEstimate": cumulative}
+    return {"basisFraction": basis, "cumulativeFundingProxy": cumulative}
 
 
 def js_values() -> dict:
@@ -107,18 +127,18 @@ def js_values() -> dict:
         bachelierOption,
         blackScholes,
         capitalEfficiency,
-        fundingRate,
+        estimateCumulativeFundingProxy,
         getDeltaBands,
-        impermanentLoss,
+        fullRangeV2ImpermanentLoss,
         uniswapV3Inventory,
       } from './src/domain/formulas/core.js'
-      const bands = getDeltaBands({ entryPrice: 100, holdingDays: 30, iv: 0.4, targetReturn: 0.3, tradingDaysPerYear: 365 })
-      const bs = blackScholes({ entryPrice: 100, strikePrice: 105, holdingDays: 30, iv: 0.4, riskFreeRate: 0.04, type: 'put', tradingDaysPerYear: 365 })
-      const bach = bachelierOption({ entryPrice: 100, strikePrice: 105, holdingDays: 30, normalVol: 40, riskFreeRate: 0.04, type: 'put', tradingDaysPerYear: 365 })
+      const bands = getDeltaBands({ entryPrice: 100, formulaHorizonSessions: 30, iv: 0.4, deltaSlope: 0.3, tradingDaysPerYear: 365 })
+      const bs = blackScholes({ entryPrice: 100, strikePrice: 105, timeToExpirySessions: 30, iv: 0.4, riskFreeRate: 0.04, type: 'put', tradingDaysPerYear: 365 })
+      const bach = bachelierOption({ entryPrice: 100, strikePrice: 105, timeToExpirySessions: 30, normalVol: 40, riskFreeRate: 0.04, type: 'put', tradingDaysPerYear: 365 })
       const lp = uniswapV3Inventory({ markPrice: 110, lowerPrice: 70, upperPrice: 130, liquidity: 10 })
-      const il = impermanentLoss({ markPrice: 110, startPrice: 100, liquidity: 10 })
+      const il = fullRangeV2ImpermanentLoss({ markPrice: 110, startPrice: 100, liquidity: 10 })
       const ce = capitalEfficiency({ rangeWidth: 0.1, skew: 1.4 })
-      const funding = fundingRate({ perpTwap: 101, spotTwap: 100, hours: 8 })
+      const funding = estimateCumulativeFundingProxy({ perpTwap: 101, spotTwap: 100, horizonHours: 8 })
       console.log(JSON.stringify({ bands, bs, bach, lp, il, ce, funding }))
     """
     result = subprocess.run(
@@ -144,9 +164,9 @@ def compare(label: str, js: float, py: float, tol: float = TOL) -> list[str]:
 def main() -> int:
     js = js_values()
     py = {
-        "bands": get_delta_bands(100, 30, 0.4, 0.3),
-        "bs": black_scholes(100, 105, 30, 0.4, 0.04, "put"),
-        "bach": bachelier(100, 105, 30, 40, 0.04, "put"),
+        "bands": get_delta_bands(100, 30, 0.4, 0.3, 365),
+        "bs": black_scholes(100, 105, 30, 0.4, 0.04, "put", 365),
+        "bach": bachelier(100, 105, 30, 40, 0.04, "put", 365),
         "lp": v3_inventory(110, 70, 130, 10),
         "il": impermanent_loss(110, 100),
         "ce": capital_efficiency(0.1, 1.4),
@@ -157,20 +177,41 @@ def main() -> int:
         ("delta-band.long.cost", js["bands"]["long"]["cost"], py["bands"]["longCost"]),
         ("delta-band.long.high", js["bands"]["long"]["high"], py["bands"]["longHigh"]),
         ("black-scholes.price", js["bs"]["price"], py["bs"]["price"]),
-        ("black-scholes.delta", js["bs"]["delta"], py["bs"]["delta"]),
-        ("black-scholes.gamma", js["bs"]["gamma"], py["bs"]["gamma"]),
-        ("black-scholes.thetaDaily", js["bs"]["thetaDaily"], py["bs"]["thetaDaily"]),
+        ("black-scholes.optionDelta", js["bs"]["optionDelta"], py["bs"]["optionDelta"]),
+        ("black-scholes.optionGamma", js["bs"]["optionGamma"], py["bs"]["optionGamma"]),
+        (
+            "black-scholes.optionThetaPerSession",
+            js["bs"]["optionThetaPerSession"],
+            py["bs"]["optionThetaPerSession"],
+        ),
+        ("black-scholes.optionThetaAnnual", js["bs"]["optionThetaAnnual"], py["bs"]["optionThetaAnnual"]),
+        ("black-scholes.optionVegaPerPct", js["bs"]["optionVegaPerPct"], py["bs"]["optionVegaPerPct"]),
+        ("black-scholes.optionRhoPerPct", js["bs"]["optionRhoPerPct"], py["bs"]["optionRhoPerPct"]),
         ("bachelier.price", js["bach"]["price"], py["bach"]["price"]),
-        ("bachelier.delta", js["bach"]["delta"], py["bach"]["delta"]),
+        ("bachelier.optionDelta", js["bach"]["optionDelta"], py["bach"]["optionDelta"]),
+        ("bachelier.optionGamma", js["bach"]["optionGamma"], py["bach"]["optionGamma"]),
+        (
+            "bachelier.optionNormalVegaPerUnit",
+            js["bach"]["optionNormalVegaPerUnit"],
+            py["bach"]["optionNormalVegaPerUnit"],
+        ),
         ("lp-v3.token0", js["lp"]["token0"], py["lp"]["token0"]),
         ("lp-v3.token1", js["lp"]["token1"], py["lp"]["token1"]),
         ("lp-v3.value", js["lp"]["value"], py["lp"]["value"]),
-        ("impermanent-loss", js["il"]["impermanentLoss"], py["il"]["impermanentLoss"]),
+        (
+            "lp-v3.inventoryDeltaToken0",
+            js["lp"]["inventoryDeltaToken0"],
+            py["lp"]["inventoryDeltaToken0"],
+        ),
+        ("full-range-v2-il", js["il"]["fullRangeV2IlProxy"], py["il"]["fullRangeV2IlProxy"]),
         ("capital-efficiency", js["ce"]["efficiency"], py["ce"]["efficiency"]),
-        ("funding.basisEstimate", js["funding"]["basisEstimate"], py["funding"]["basisEstimate"]),
-        ("funding.cumulativeFundingEstimate", js["funding"]["cumulativeFundingEstimate"], py["funding"]["cumulativeFundingEstimate"]),
+        ("funding.basisFraction", js["funding"]["basisFraction"], py["funding"]["basisFraction"]),
+        ("funding.cumulativeFundingProxy", js["funding"]["cumulativeFundingProxy"], py["funding"]["cumulativeFundingProxy"]),
     ]
     failures = [msg for label, j, p in checks for msg in compare(label, j, p)]
+    for field in ["optionThetaPerSession", "optionThetaAnnual", "optionVegaPerPct", "optionRhoPerPct"]:
+        if js["bach"].get(field) is not None:
+            failures.append(f"bachelier.{field}: expected null, got {js['bach'].get(field)}")
     if failures:
         print("formula audit failed", file=sys.stderr)
         for failure in failures:

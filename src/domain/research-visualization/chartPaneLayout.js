@@ -1,9 +1,14 @@
 export function resolveChartOverlayPlan({ overlays, formulaPath }) {
   const priceBands = overlayOn(overlays, 'priceBands')
-  const greeks = overlayOn(overlays, 'greeksPane') && hasPathData(formulaPath, ['optionDelta', 'optionGamma', 'optionThetaDaily'])
-  const lp = overlayOn(overlays, 'lpPane') && hasPathData(formulaPath, ['lpNormalizedDelta', 'lpValue', 'lpRealDivergence', 'capitalEfficiency'])
+  const lpBand = priceBands && overlays?.lpBand === true
+  const greeks =
+    overlayOn(overlays, 'greeksPane') &&
+    hasPathData(formulaPath, ['optionDelta', 'optionGamma', 'optionThetaPerSession'])
+  const lp =
+    overlayOn(overlays, 'lpPane') &&
+    hasPathData(formulaPath, ['lpNormalizedDelta', 'lpValue', 'lpRealDivergence', 'capitalEfficiency'])
   const lpPoolCoverage = lp && hasPathData(formulaPath, ['lpPoolTurnover24h', 'lpPoolTopReserveShare'])
-  const carry = overlayOn(overlays, 'carryPane') && hasPathData(formulaPath, ['fundingProxy', 'netCarry'])
+  const carry = overlayOn(overlays, 'carryPane') && hasPathData(formulaPath, ['cumulativeFundingProxy', 'netCarry'])
   const panes = buildPaneLayout({
     volume: overlayOn(overlays, 'volume'),
     greeks,
@@ -16,10 +21,12 @@ export function resolveChartOverlayPlan({ overlays, formulaPath }) {
   return {
     price: {
       costBand: priceBands && overlayOn(overlays, 'costBand'),
-      deltaBand: priceBands && overlayOn(overlays, 'volBand'),
-      lpBand: priceBands,
-      lpRealPrice: priceBands && hasPathData(formulaPath, ['lpRealPrice']),
+      deltaBand:
+        priceBands && overlayOn(overlays, 'volBand') && hasAllPathData(formulaPath, ['deltaUpper', 'deltaLower']),
+      lpBand,
+      lpRealPrice: lpBand && hasPathData(formulaPath, ['lpRealPrice']),
       entryLine: overlayOn(overlays, 'entryLine'),
+      currentLine: true,
     },
     panes,
     paneOn: {
@@ -57,6 +64,10 @@ export function buildPaneLayout({ volume, greeks, lp, carry, equity, kdj, rsi })
 
 export function hasPathData(formulaPath, fields) {
   return fields.some((field) => formulaPath.some((row) => Number.isFinite(row?.[field])))
+}
+
+function hasAllPathData(formulaPath, fields) {
+  return fields.every((field) => formulaPath.some((row) => Number.isFinite(row?.[field])))
 }
 
 function overlayOn(overlays, key) {

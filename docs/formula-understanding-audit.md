@@ -1,6 +1,6 @@
-# 公式理解审计草稿
+# 公式理解审计（历史说明，规范口径已迁移）
 
-这份文档不是实现清单，也不是 UI 文案。它用来约束后续实现：先读懂公式在市场里回答的问题，再决定哪些公式进入计算、哪些留在研究层。
+这份文档保留最初的理解路径，但不再是规范事实源。字段、单位、时点、修正状态和执行权限以 [`formula-evidence/formula-semantic-registry.json`](formula-evidence/formula-semantic-registry.json)、[`formula-evidence/formula-contract.md`](formula-evidence/formula-contract.md) 和 [`formula-evidence/ERRATA.md`](formula-evidence/ERRATA.md) 为准。下文已移除会造成执行污染的旧固定时间基。
 
 ## 我刚才的问题
 
@@ -18,19 +18,20 @@
 
 这些变量不能混用：
 
-| 变量 | 含义 | 不能替代 |
-| --- | --- | --- |
-| `P` / `S` / `markPrice` | 当前观察价格或回放游标价格 | 不能直接当成交成本 |
-| `entryPrice` | 用户准备进入或已经进入的价格 | 不能自动等于现价 |
-| `costAnchor` | 由历史 OHLCV/VWAP 得到的市场成本锚 | 不是主力成本，也不是预测价 |
-| `S0` / `startPrice` | LP 或 hedge 的建仓基准价 | 不能等于行权价 |
-| `K` / `strikePrice` | 期权行权价 | 不能当 LP 区间中心 |
-| `T` | 持仓或到期期限 | 必须说明单位，当前默认天 |
-| `sigma` / `s` / `v` | 年化波动率或 IV | 历史波动与市场 IV 不能偷换 |
-| `d` | GetDelta 里的目标增量/局部斜率约束 | 不能用历史收益分位数替代，若解释成收益必须回到具体仓位和费用结构 |
-| `L` | AMM 流动性规模 | 不是投入本金本身 |
-| `H` | 线性 hedge 规模 | 不是标准 Delta，通常来自局部斜率 |
-| `F` | 手续费缓冲 | 不能当确定收益 |
+| 变量                     | 含义                               | 不能替代                                                         |
+| ------------------------ | ---------------------------------- | ---------------------------------------------------------------- |
+| `P` / `S` / `markPrice`  | 当前观察价格或回放游标价格         | 不能直接当成交成本                                               |
+| `entryPrice`             | 用户准备进入或已经进入的价格       | 不能自动等于现价                                                 |
+| `costAnchor`             | 由历史 OHLCV/VWAP 得到的市场成本锚 | 不是主力成本，也不是预测价                                       |
+| `S0` / `startPrice`      | LP 或 hedge 的建仓基准价           | 不能等于行权价                                                   |
+| `K` / `strikePrice`      | 期权行权价                         | 不能当 LP 区间中心                                               |
+| `formulaHorizonSessions` | 与方向和结构目标绑定的公式周期     | 不能替代期权到期，也没有 30/60/90 默认                           |
+| `timeToExpirySessions`   | 期权合约独立剩余交易会话数         | 不能从修复周期或 AR 半衰期回退                                   |
+| `sigma` / `s` / `v`      | 年化波动率或 IV                    | 历史波动与市场 IV 不能偷换                                       |
+| `d`                      | GetDelta 里的目标增量/局部斜率约束 | 不能用历史收益分位数替代，若解释成收益必须回到具体仓位和费用结构 |
+| `L`                      | AMM 流动性规模                     | 不是投入本金本身                                                 |
+| `H`                      | 线性 hedge 规模                    | 不是标准 Delta，通常来自局部斜率                                 |
+| `F`                      | 手续费缓冲                         | 不能当确定收益                                                   |
 
 ## 公式家族的真实含义
 
@@ -42,7 +43,7 @@
 
 ```text
 r_t = ln(P_t / P_{t-1})
-sigma_ann = std(r_t) * sqrt(N)
+sigma_ann = std(r_t) * sqrt(tradingDaysPerYear)
 VWAP = sum(TypicalPrice_i * Volume_i) / sum(Volume_i)
 Cost_vwap = sum(Close_i * Volume_i) / sum(Volume_i)
 d_cost = P_last / Cost_vwap - 1
@@ -58,16 +59,16 @@ d_cost = P_last / Cost_vwap - 1
 
 ### 2. GetDelta 是波动带，不是期权 Delta
 
-这组公式的价值是把 `entryPrice + T + sigma + d` 映射成价格带。这里的 `T` 是本次仓位的持仓/到期时间，不是拿历史样本校准出来的统计窗口。
+这组公式的价值是把 `entryPrice + formulaHorizonSessions + sigma + d` 映射成价格带。`formulaHorizonSessions` 必须与方向、周期起点和结构目标绑定；它不是期权到期，也不是隐藏固定持有期。
 
 公式：
 
 ```text
-e_T = sqrt(T / (365 * 2pi))
-r_T = ((1 + sigma * e_T) / (1 - sigma * e_T))^2
-K = P * (d * r_T - d + 1)^2 / r_T
-H = K * r_T
-L = K / r_T
+e_H = sqrt(formulaHorizonSessions / (tradingDaysPerYear * 2pi))
+r_H = ((1 + sigma * e_H) / (1 - sigma * e_H))^2
+K = P * (d * r_H - d + 1)^2 / r_H
+High = K * r_H
+Low = K / r_H
 ```
 
 从 Desmos 原式看，`K` 的解法让区间内 payoff 曲线在 `x=P` 附近满足局部斜率 `g'(P)=d`。所以 `d` 先是公式里的目标增量/斜率约束；只有放回“用什么仓位赚这段增量、费用和滑点如何扣除、到期后如何处理”的结构里，才可以被解释成策略收益目标。
@@ -80,7 +81,7 @@ L = K / r_T
 
 边界：
 
-- 当 `sigma * sqrt(T/(365*2pi))` 接近 1，公式失稳。
+- 当 `sigma * sqrt(formulaHorizonSessions/(tradingDaysPerYear*2pi))` 接近 1，公式失稳。
 - 它不能替代 Black-Scholes Delta。
 
 ### 3. Black-Scholes 是共同坐标系
@@ -90,17 +91,18 @@ BS 层不是为了替用户预测，而是给期权风险一个标准参照系�
 公式：
 
 ```text
-d1 = (ln(S/K) + (r + sigma^2/2)T) / (sigma * sqrt(T))
-d2 = d1 - sigma * sqrt(T)
-C = S N(d1) - K e^(-rT) N(d2)
-P = K e^(-rT) N(-d2) - S N(-d1)
+tau = timeToExpirySessions / tradingDaysPerYear
+d1 = (ln(S/K) + (r-q+sigma^2/2)tau) / (sigma * sqrt(tau))
+d2 = d1 - sigma * sqrt(tau)
+C = S e^(-q tau) N(d1) - K e^(-r tau) N(d2)
+P = K e^(-r tau) N(-d2) - S e^(-q tau) N(-d1)
 ```
 
 市场问题：
 
 - 方向风险用 Delta 看。
 - 曲率风险用 Gamma 看。
-- 时间损耗用 Theta 看。
+- 时间损耗用 `optionThetaPerSession` 或 `optionThetaAnnual` 看，不能把交易会话标成自然日。
 - 波动率暴露用 Vega 看。
 
 重要边界：
@@ -118,6 +120,7 @@ Uni v3 区间内：
 x_real(p) = L / sqrt(p) - L / sqrt(p_upper)
 y_real(p) = L * sqrt(p) - L * sqrt(p_lower)
 V_lp(p) = x_real(p) * p + y_real(p)
+inventoryDeltaToken0(p) = x_real(p)
 ```
 
 Uni v2 hedge 简化：
@@ -171,11 +174,31 @@ W(z) * exp(W(z)) = z
 
 ### 7. 资本效率只回答资金利用率
 
-资本效率公式：
+CK 端点比曲线（在区间几何中点 `sqrt(Pa*Pb)` 估值）：
 
 ```text
 CE(x, alpha) = 1 / (1 - ((1 - x) / (1 + alpha * x))^(1/4))
 ```
+
+若 `P0` 是真实当前价，而不是几何中点，必须使用：
+
+```text
+CE(P0) = 2 / (2 - sqrt(P0/Pb) - sqrt(Pa/P0))
+```
+
+CK 在算术对称坐标 `Pa=P0(1-x)`、`Pb=P0(1+x)` 下的边际拐点是精确解析结果：
+
+```text
+J(x) = 1 / (-dCE/dx)
+J'(x) = 0  <=>  CE''(x) = 0
+CE''(x) = 0  <=>  256*x^4 - 160*x^2 - 15 = 0
+x^2 = (5 + 2*sqrt(10)) / 16
+x* = sqrt(5 + 2*sqrt(10)) / 4 = 0.8412994160945599
+CE(x*) = 1/2 + 2*x* = 2.1825988321891194
+CE''(x*) = 0
+```
+
+它是端点比曲线上 `1 / (-dCE/dx)` 的唯一最大点，即每增加一单位算术范围所付出的边际资本效率损失最小。`±84.13%` 因此不是经验拟合，但只属于 CK 选定的算术对称坐标、几何中点评估和 CE 纵轴；偏斜范围必须求自己的 frontier。该点的几何中点为 `0.5405694*P0`，所以不能把 `CE*=2.1826×` 直接称为算术中心当前价的 CE；后者为 `2.3130×`。
 
 市场问题：
 
@@ -186,6 +209,8 @@ CE(x, alpha) = 1 / (1 - ((1 - x) / (1 + alpha * x))^(1/4))
 边界：
 
 - 资本效率不是收益率。
+- CK 端点比 CE 的估值价是区间几何中点；真实当前价 CE 必须单独计算。
+- `±84.13%` 不是概率覆盖率、手续费最优点或 PnL 最优点。
 - 不能脱离波动率、成交量、手续费和出界压力讨论。
 
 ### 8. 组合价值才是最终检查层
@@ -193,8 +218,11 @@ CE(x, alpha) = 1 / (1 - ((1 - x) / (1 + alpha * x))^(1/4))
 最终不是问某个公式对不对，而是问组合路径稳不稳。
 
 ```text
-Portfolio(p) = LP(p) + Option(p) - H * (p - p0) + Fees - Funding
+PnL(p) = LP_PnL(p) + Option_PnL(p) + Hedge_PnL(p)
+       + RealizedFees(path) - FundingSettlement(path) - Costs(path)
 ```
+
+每条腿必须先统一到同一币种、初始本金和期限。期权市值不能与 LP PnL 直接相加；缺 premium、路径手续费或 funding settlement 时，只能显示场景分腿，正式总 PnL 保持为空。
 
 市场问题：
 
@@ -213,8 +241,8 @@ Portfolio(p) = LP(p) + Option(p) - H * (p - p0) + Fees - Funding
 
 UI 不应该先展示公式。UI 应该先让用户回答：
 
-1. 我看哪个品种和周期？
-2. 我想用哪个入场价和持仓窗口？
+1. 我看哪个品种，公式从当前可见前缀推导出什么周期？
+2. 我用哪个入场价、方向和结构目标；是否另设显式压力情景？
 3. 主要盈利来源是成本回归、手续费、波动率错配，还是资金费率？
 4. 这条路径上哪里失效？
 

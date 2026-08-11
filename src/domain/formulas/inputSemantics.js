@@ -1,5 +1,5 @@
 export function resolveDeltaSlope(input = {}) {
-  return nonNegative(input.deltaSlope, nonNegative(input.targetReturn, 0))
+  return nonNegative(input.deltaSlope, null)
 }
 
 export function resolveExitTargetReturn(input = {}) {
@@ -7,6 +7,7 @@ export function resolveExitTargetReturn(input = {}) {
 }
 
 function nonNegative(value, fallback) {
+  if (value === null || value === undefined || value === '') return fallback
   const n = Number(value)
   return Number.isFinite(n) && n >= 0 ? n : fallback
 }

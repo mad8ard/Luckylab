@@ -99,7 +99,7 @@ pnpm run fetch:lp-uniswap-rpc
 The current refresh script uses provider fallbacks for different markets:
 
 - BaoStock for A-shares where available.
-- yfinance / akshare for Hong Kong instruments.
+- AkShare-adjusted / adjusted Tencent data for Hong Kong instruments.
 
 Provider behavior can drift. Treat data refresh failures as pipeline issues first, not UI issues.
 

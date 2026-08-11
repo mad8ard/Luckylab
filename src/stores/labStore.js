@@ -13,6 +13,16 @@ import { useReplay } from '../composables/useReplay.js'
 import { usePlanning, buildExecutionBrief } from '../composables/usePlanning.js'
 import { useChartOverlays } from '../composables/useChartOverlays.js'
 import { persistedReactive } from '../composables/usePersisted.js'
+import { buildWorkbenchSummary } from '../domain/workbench/workbenchSummary.js'
+import { buildDynamicHoldingGate } from '../domain/strategy-planning/dynamicHoldingGate.js'
+
+const LP_SCENARIO_FIELDS = new Set([
+  'lpScenarioEnabled',
+  'lpScenarioStartPrice',
+  'lpScenarioRangeWidth',
+  'lpScenarioSkew',
+  'lpScenarioLiquidity',
+])
 
 /**
  * Lab 工作台 facade store
@@ -39,12 +49,24 @@ export const useLabStore = defineStore('lab', () => {
   const observationDate = computed(() => (sourceKey.value ? (observationDates[sourceKey.value] ?? '') : ''))
 
   // 3. tdpy：按品种自动 + 用户覆盖
-  const tdpyMeta = computed(() => inferTdpy(data.source.value))
-  const effectiveTdpy = computed(() => {
-    const sym = data.source.value?.symbol
-    const override = sym ? planning.tdpyOverride[sym] : null
-    return Number.isFinite(override) && override > 0 ? override : tdpyMeta.value.value
+  const inferredTdpyMeta = computed(() => inferTdpy(data.source.value))
+  const tdpyOverrideKey = computed(
+    () => data.source.value?.symbol ?? data.source.value?.id ?? data.source.value?.label ?? '',
+  )
+  const tdpyMeta = computed(() => {
+    const key = tdpyOverrideKey.value
+    const override = key ? planning.tdpyOverride[key] : null
+    if (Number.isFinite(override) && override > 0) {
+      return {
+        value: override,
+        basis: 'explicit-override',
+        label: `手动覆盖 ${override}`,
+        inferredBasis: inferredTdpyMeta.value.basis,
+      }
+    }
+    return inferredTdpyMeta.value
   })
+  const effectiveTdpy = computed(() => tdpyMeta.value.value)
 
   // 4. baseInput：合并 tdpy；默认 profile 只来自用户手动选择。
   const baseInput = computed(() => ({
@@ -60,14 +82,32 @@ export const useLabStore = defineStore('lab', () => {
   // 6. ReplayAccount 是显式开启的旁路查询；只有 replayAutoProfile 打开才参与 profile 选择。
   const replayLayer = useReplay(marketState.activeRows, input, baseInput, activeMarketStates, planning.featureFlags)
 
-  const effectiveInput = computed(() => ({
-    ...baseInput.value,
-    lpOnchainSnapshot: resolveLpOnchainSnapshot(data.source.value, lpOnchainSnapshots),
-    strategyProfile:
-      planning.featureFlags.replayAccount && planning.featureFlags.replayAutoProfile
-        ? replayLayer.recommendedProfile.value.id
-        : input.strategyProfile,
-  }))
+  const dynamicHoldingGate = computed(() => {
+    const formulaPoint = marketState.formulaPath.value.at(-1)
+    return buildDynamicHoldingGate({
+      market: marketState.market.value,
+      rows: marketState.activeRows.value,
+      formulaPoint,
+      tradingDaysPerYear: effectiveTdpy.value,
+    })
+  })
+
+  const effectiveInput = computed(() => {
+    const formulaPoint = marketState.formulaPath.value.at(-1)
+    return {
+      ...baseInput.value,
+      formulaHorizonSessions: formulaPoint?.formulaHorizonSessions ?? null,
+      formulaRecoveryFraction: formulaPoint?.recoveryFraction ?? null,
+      formulaHorizonState: formulaPoint?.fieldStates?.formulaHorizonSessions ?? null,
+      modelVersion: formulaPoint?.modelVersion ?? marketState.market.value?.modelVersion ?? null,
+      dynamicHoldingGate: dynamicHoldingGate.value,
+      lpOnchainSnapshot: resolveLpOnchainSnapshot(data.source.value, lpOnchainSnapshots),
+      strategyProfile:
+        planning.featureFlags.replayAccount && planning.featureFlags.replayAutoProfile
+          ? replayLayer.recommendedProfile.value.id
+          : input.strategyProfile,
+    }
+  })
 
   // 7. 默认条件图 + 研究层快照并列组合。
   //    StrategyPlanning 不直接依赖研究层，facade 只为 UI 组装查询模型。
@@ -92,6 +132,13 @@ export const useLabStore = defineStore('lab', () => {
   }))
 
   const executionBrief = computed(() => buildExecutionBrief(graph.value))
+  const workbenchSummary = computed(() =>
+    buildWorkbenchSummary({
+      source: data.source.value,
+      rows: marketState.activeRows.value,
+      graph: graph.value,
+    }),
+  )
 
   const sourceLabel = computed(() => data.source.value?.label ?? '未载入')
 
@@ -111,8 +158,8 @@ export const useLabStore = defineStore('lab', () => {
     if (!market) return
     input.entryPrice = round(market.markPrice, 2)
     input.iv = round(market.annualVol, 4)
+    input.ivSource = 'historical-realized-scenario'
     input.strikePrice = round(market.markPrice * 1.05, 2)
-    input.startPrice = round(market.costAnchor, 2)
     if (samePrice(input.perpTwap, market.markPrice) && samePrice(input.spotTwap, market.costAnchor)) {
       input.perpTwap = 0
       input.spotTwap = 0
@@ -145,12 +192,23 @@ export const useLabStore = defineStore('lab', () => {
   }
 
   function selectSample(sample) {
-    input.tradingDaysPerYear = inferTdpy(sample).value
     return data.loadSample(sample)
   }
 
   // chartOverlays 在 store 顶层初始化一次（同一份在所有组件间共享）
   const chartOverlays = useChartOverlays()
+
+  function setChartOverlay(key, value) {
+    if (!Object.hasOwn(chartOverlays, key)) return
+    chartOverlays[key] = Boolean(value)
+  }
+
+  // Explicit command boundary for research-only LP assumptions.  A child
+  // component may not mutate the persisted planning input directly.
+  function setLpScenarioField(field, value) {
+    if (!LP_SCENARIO_FIELDS.has(field)) return
+    input[field] = field === 'lpScenarioEnabled' ? Boolean(value) : value
+  }
 
   // ── Hover 视图状态（独立于 cursor，仅用于指标面板预览）──
   // cursor 是观察日期（计划锚点），hoverIndex 仅是鼠标当前所在的 bar，hover 不能改写计划。
@@ -193,7 +251,13 @@ export const useLabStore = defineStore('lab', () => {
   const hoverFormulaRow = computed(() => {
     const idx = hoverIndex.value
     if (idx === null) return marketState.formulaPath.value.at(-1) ?? null
-    return marketState.formulaPath.value[idx] ?? marketState.formulaPath.value.at(-1) ?? null
+    const date = hoverRow.value?.date
+    if (!date) return null
+    const path = marketState.formulaPath.value
+    for (let pathIndex = path.length - 1; pathIndex >= 0; pathIndex -= 1) {
+      if (path[pathIndex]?.date === date) return path[pathIndex]
+    }
+    return null
   })
 
   return {
@@ -220,8 +284,11 @@ export const useLabStore = defineStore('lab', () => {
     // tdpy 层（PR-1）
     tdpyMeta,
     effectiveTdpy,
+    tdpyOverrideKey,
     setTdpyOverride: planning.setTdpyOverride,
     clearTdpyOverride: planning.clearTdpyOverride,
+    setPathUsesScenarioInputs: planning.setPathUsesScenarioInputs,
+    setLpScenarioField,
     tdpyOverride: planning.tdpyOverride,
 
     // 市场态层
@@ -229,6 +296,7 @@ export const useLabStore = defineStore('lab', () => {
     market: marketState.market,
     costPath: marketState.costPath,
     formulaPath: marketState.formulaPath,
+    dynamicHoldingGate,
 
     // 决策层
     input: planning.input,
@@ -237,6 +305,7 @@ export const useLabStore = defineStore('lab', () => {
     effectiveInput,
     graph,
     executionBrief,
+    workbenchSummary,
     activeFormula: planning.activeFormula,
     activeFormulaId: planning.activeFormulaId,
     activeCapability: planning.activeCapability,
@@ -245,6 +314,7 @@ export const useLabStore = defineStore('lab', () => {
     formulaCapabilities: planning.formulaCapabilities,
     strategyProfileList: planning.strategyProfileList,
     selectCapability: planning.selectCapability,
+    selectFormula: planning.selectFormula,
 
     // 三栏面板态 + 主图叠加（v3.1）+ 面板宽度（v3.2）
     leftPanelOpen: planning.leftPanelOpen,
@@ -259,6 +329,7 @@ export const useLabStore = defineStore('lab', () => {
     resetLeftPanelW: planning.resetLeftPanelW,
     resetRightPanelW: planning.resetRightPanelW,
     chartOverlays,
+    setChartOverlay,
 
     // 回放层：显式开关默认关闭；关闭时返回空模型。
     profileReplays: replayLayer.profileReplays,

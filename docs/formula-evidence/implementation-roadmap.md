@@ -24,7 +24,7 @@
 验收：
 
 - 添加回归测试：`deltaSlope=0.3` 不会默认生成 `+30%` 退出目标。
-- 添加兼容测试：旧输入只带 `targetReturn` 时可以迁移为 `deltaSlope`。
+- 添加拒绝测试：旧输入只带 `targetReturn` 时 `deltaSlope` 保持缺失，不能静默迁移。
 
 ## Phase 3: LP and Funding Corrections
 
@@ -61,4 +61,3 @@
 - BTC/NVDA/TSLA 全部曲线可打开。
 - 图表不在组件内写业务公式。
 - research-only 不会被显示成执行信号。
-

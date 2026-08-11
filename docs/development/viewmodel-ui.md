@@ -60,7 +60,7 @@ Use labels, units, status, source markers, risk hints, and blocked reasons. Avoi
 Good:
 
 ```txt
-Source: Yahoo Finance
+Source: BaoStock / AkShare
 Replay: spot path only
 Blocked: missing account size
 Risk: cost anchor below mark price

@@ -4,34 +4,47 @@ import {
   blackScholes,
   buildOptionPortfolio,
   capitalEfficiency,
-  fundingRate,
+  fullRangeV2ImpermanentLoss,
+  estimateCumulativeFundingProxy,
   hedgedLpPortfolioCurve,
-  impermanentLoss,
   liquidityFingerprint,
+  netCarry,
   numoenSnapshot,
   optionLegsFromTemplate,
-  portfolioValue,
+  rangeV3ImpermanentLoss,
   uniswapV2Inventory,
   uniswapV3HedgedInventory,
   uniswapV3HedgedPosition,
   uniswapV3Inventory,
 } from '../formulas/core.js'
+import { resolveLpValuationSpec } from '../lp/lpValuationSpec.js'
 import { buildLpDataState } from '../market-data/lpOnchain.js'
+import { buildPortfolioResearch } from './portfolioResearch.js'
 
 export function buildResearchSnapshot({ market, input, executable }) {
-  const { entryPrice, holdingDays, iv, capital } = executable.inputs
-  const rangeWidth = Math.max(Number(input.rangeWidth) || 0.01, 0.001)
-  const tdpy = Number(input.tradingDaysPerYear) || 365
+  const { entryPrice, iv } = executable.inputs
+  const formulaHorizonSessions = positive(executable.inputs.formulaHorizonSessions)
+  const optionTenorSessions = positive(input.optionTenorSessions)
+  const lpDataState = buildLpDataState(input.lpOnchainSnapshot)
+  const lpValuation = resolveLpValuationSpec({ input, lpDataState })
+  const rangeSpec = lpValuation.rangeSpec
+  const rangeWidth = lpValuation.rangeWidth
+  const tdpy = positive(input.tradingDaysPerYear)
   const strikePrice = positive(input.strikePrice) || entryPrice * 1.05
-  const startPrice = positive(input.startPrice) || market.costAnchor
-  const liquidity = Math.max(Number(input.liquidity) || 0, 0)
+  const startPrice = lpValuation.startPrice
+  const liquidity = lpValuation.liquidity
   const hedgeSize = Number(input.hedgeSize) || 0
-  const fees = Number(input.fees) || 0
-  const skew = Math.max(Number(input.skew) || 1, 0.01)
+  const feeIncomeQuote = optionalFinite(input.feeIncomeQuote)
+  const fundingCashflowSource = ['observed-settlement', 'explicit-scenario'].includes(input.fundingCashflowSource)
+    ? input.fundingCashflowSource
+    : null
+  const fundingCashflowQuote = fundingCashflowSource ? optionalFinite(input.fundingCashflowQuote) : null
+  const fundingSessionDurationHours = positive(input.fundingSessionDurationHours)
+  const skew = rangeSpec?.skew ?? null
   const option = blackScholes({
     entryPrice,
     strikePrice,
-    holdingDays,
+    timeToExpirySessions: optionTenorSessions,
     iv,
     riskFreeRate: Number(input.riskFreeRate) || 0,
     dividendYield: Number(input.dividendYield) || 0,
@@ -46,23 +59,25 @@ export function buildResearchSnapshot({ market, input, executable }) {
     strikePrice,
     strikePrice2: Number(input.strikePrice2),
     quantity: Number(input.optionQuantity) || 1,
-    widthPct: Number(input.optionWidthPct) || rangeWidth,
-    premium: Number.isFinite(Number(input.optionPremium)) ? Number(input.optionPremium) : null,
+    widthPct: Number(input.optionWidthPct) || rangeWidth || 0.05,
+    premium: optionalFinite(input.optionPremium),
   })
   const optionPortfolio = buildOptionPortfolio({
     entryPrice,
-    holdingDays,
+    timeToExpirySessions: optionTenorSessions,
     iv,
     riskFreeRate: Number(input.riskFreeRate) || 0,
     dividendYield: Number(input.dividendYield) || 0,
     tradingDaysPerYear: tdpy,
     contractMultiplier: Number(input.optionMultiplier) || 1,
+    volatilitySource: input.ivSource || 'scenario-unspecified',
+    volatilitySourceVerified: input.ivSourceVerified === true,
     legs: optionLegs,
   })
   const asian = asianOption({
     entryPrice,
     strikePrice,
-    holdingDays,
+    timeToExpirySessions: optionTenorSessions,
     iv,
     riskFreeRate: Number(input.riskFreeRate) || 0,
     type: input.optionType,
@@ -71,70 +86,124 @@ export function buildResearchSnapshot({ market, input, executable }) {
   const bachelier = bachelierOption({
     entryPrice,
     strikePrice,
-    holdingDays,
+    timeToExpirySessions: optionTenorSessions,
     normalVol: iv * entryPrice,
     riskFreeRate: Number(input.riskFreeRate) || 0,
     type: input.optionType,
     tradingDaysPerYear: tdpy,
   })
-  const lp = uniswapV2Inventory({
-    markPrice: entryPrice,
-    startPrice,
-    liquidity,
-    hedgeSize,
-    fees,
-  })
-  const lowerPrice = entryPrice * Math.max(1 - rangeWidth, 0.001)
-  const upperPrice = entryPrice * (1 + rangeWidth * skew)
-  const rangeFactor = Math.sqrt(upperPrice / lowerPrice)
-  const lpV3Raw = uniswapV3Inventory({ markPrice: entryPrice, lowerPrice, upperPrice, liquidity })
-  const lpV3SymmetricApprox = uniswapV3HedgedInventory({
-    markPrice: entryPrice,
-    strikePrice: startPrice,
-    rangeFactor,
-    liquidity,
-    hedgeSize,
-    fees,
-  })
-  const lpV3Hedged = uniswapV3HedgedPosition({
-    markPrice: entryPrice,
-    startPrice,
-    lowerPrice,
-    upperPrice,
-    liquidity,
-    hedgeSize,
-    fees,
-  })
-  const il = impermanentLoss({ markPrice: entryPrice, startPrice, liquidity })
-  const hasFundingInputs = positive(input.perpTwap) !== null && positive(input.spotTwap) !== null
-  const funding = hasFundingInputs
-    ? fundingRate({
-      perpTwap: positive(input.perpTwap),
-      spotTwap: positive(input.spotTwap),
-      hours: holdingDays * 24,
-    })
+  const lp = lpValuation.available
+    ? uniswapV2Inventory({
+        markPrice: entryPrice,
+        startPrice,
+        liquidity,
+        hedgeSize,
+        feeIncomeQuote,
+      })
     : null
-  const optionBase = option?.price ?? 0
-  const lpPortfolio = hedgedLpPortfolioCurve({
-    startPrice: entryPrice,
-    lowerPrice,
-    upperPrice,
-    liquidity,
-    hedgeSize,
-    fees,
-    fundingCost: Math.abs(funding?.funding ?? 0) * capital,
-    optionWeight: 1,
-    optionPricer: (price) => optionLegPnL({ price, strikePrice, holdingDays, iv, input, tdpy, optionBase }),
-  })
+  const lowerPrice = lpValuation.lowerPrice
+  const upperPrice = lpValuation.upperPrice
+  const rangeFactor = rangeSpec ? Math.sqrt(upperPrice / lowerPrice) : null
+  const lpV3Raw = lpValuation.available
+    ? uniswapV3Inventory({ markPrice: entryPrice, lowerPrice, upperPrice, liquidity })
+    : null
+  const lpV3Entry = lpValuation.available
+    ? uniswapV3Inventory({ markPrice: startPrice, lowerPrice, upperPrice, liquidity })
+    : null
+  const lpV3SymmetricApprox = lpValuation.available
+    ? uniswapV3HedgedInventory({
+        markPrice: entryPrice,
+        strikePrice: startPrice,
+        rangeFactor,
+        liquidity,
+        hedgeSize,
+        feeIncomeQuote,
+      })
+    : null
+  const lpV3Hedged = lpValuation.available
+    ? uniswapV3HedgedPosition({
+        markPrice: entryPrice,
+        startPrice,
+        lowerPrice,
+        upperPrice,
+        liquidity,
+        hedgeSize,
+        feeIncomeQuote,
+      })
+    : null
+  const fullRangeV2Il = lpValuation.available
+    ? fullRangeV2ImpermanentLoss({ markPrice: entryPrice, startPrice, liquidity })
+    : null
+  const rangeV3Il = lpValuation.available
+    ? rangeV3ImpermanentLoss({ markPrice: entryPrice, startPrice, lowerPrice, upperPrice, liquidity })
+    : null
+  const hasFundingInputs = positive(input.perpTwap) !== null && positive(input.spotTwap) !== null
+  const funding =
+    hasFundingInputs && formulaHorizonSessions && fundingSessionDurationHours
+      ? estimateCumulativeFundingProxy({
+          perpTwap: positive(input.perpTwap),
+          spotTwap: positive(input.spotTwap),
+          horizonHours: formulaHorizonSessions * fundingSessionDurationHours,
+        })
+      : null
+  const fundingCarry = funding
+    ? netCarry({
+        cycleStartPrice: executable.inputs.horizonCycleStartPrice,
+        targetPrice: executable.inputs.horizonTargetPrice,
+        side: executable.inputs.formulaHorizonSide,
+        cumulativeFundingProxy: funding.cumulativeFundingProxy,
+        fundingPositionSide: input.fundingPositionSide,
+        recoveryNotionalBasis: input.recoveryNotionalBasis,
+        fundingNotionalBasis: input.fundingNotionalBasis,
+        fundingHorizonHours: funding.horizonHours,
+        comparisonHorizon: {
+          sessions: formulaHorizonSessions,
+          sessionDurationHours: fundingSessionDurationHours,
+          sessionCalendarId: input.fundingSessionCalendarId,
+          source: executable.inputs.horizonTargetSource,
+          availableAt: executable.inputs.horizonAvailableAt,
+        },
+      })
+    : null
+  const optionBase = option?.price ?? null
+  const lpPortfolio =
+    lpValuation.available && option && Number.isFinite(feeIncomeQuote) && Number.isFinite(fundingCashflowQuote)
+      ? hedgedLpPortfolioCurve({
+          startPrice: entryPrice,
+          lowerPrice,
+          upperPrice,
+          liquidity,
+          hedgeSize,
+          feeIncomeQuote,
+          fundingCashflowQuote,
+          fundingCashflowSource,
+          optionWeight: 1,
+          optionPricer: (price) =>
+            optionLegPnL({
+              price,
+              strikePrice,
+              optionTenorSessions,
+              iv,
+              input,
+              tdpy,
+              optionBase,
+            }),
+        })
+      : null
   const fingerprint = liquidityFingerprint({
-    entryPrice: startPrice,
+    entryPrice: market.costAnchor || entryPrice,
     priceGrid: 120,
     distribution: 'log-laplace',
     lambda: Number(input.fingerprintLambda) || 2.6,
     kappa: Number(input.fingerprintKappa) || 0.77,
-    lowerFactor: Math.max(0.05, lowerPrice / startPrice),
-    upperFactor: Math.min(20, upperPrice / startPrice),
+    lowerFactor: Math.max(0.05, (market.costLow || entryPrice * 0.9) / (market.costAnchor || entryPrice)),
+    upperFactor: Math.min(20, (market.costHigh || entryPrice * 1.1) / (market.costAnchor || entryPrice)),
     segmentCount: 12,
+    activePrice: entryPrice,
+    costAnchor: market.costAnchor,
+    targetRange: { lower: market.costLow, upper: market.costHigh },
+    volatility: iv,
+    tradingDaysPerYear: positive(input.tradingDaysPerYear),
   })
   const numoen = numoenSnapshot({
     R1: Number(input.numoenR1) || 8.7,
@@ -142,10 +211,67 @@ export function buildResearchSnapshot({ market, input, executable }) {
     u: Number(input.numoenU) || 4,
     dy: Number(input.numoenDy) || 0.1,
   })
-  const lpDataState = buildLpDataState(input.lpOnchainSnapshot)
+  const portfolioResearch = buildPortfolioResearch({
+    lpMark: lpV3Raw?.value,
+    lpEntryValue: lpV3Entry?.value,
+    lpPnl: lpV3Hedged?.lpPnl,
+    optionPortfolio,
+    hedgePnl: lpV3Hedged?.hedgePnl,
+    feeIncomeQuote: lpV3Hedged?.feeIncomeQuote,
+    fundingCashflowQuote,
+    fundingCashflowSource,
+    feeModelCalibrated: false,
+    lpPositionKnown: Boolean(lpValuation.available && lpV3Hedged),
+  })
+  const portfolioMissingInputs = [
+    ...new Set([
+      ...(lpValuation.available ? [] : lpValuation.missingInputs),
+      ...(tdpy ? [] : ['trading-days-per-year']),
+      ...(optionTenorSessions ? [] : ['option-tenor-sessions']),
+      ...(Number.isFinite(feeIncomeQuote) ? [] : ['fee-income-quote']),
+      ...(optionPortfolio?.missingInputs ?? []),
+      ...portfolioResearch.missingInputs,
+    ]),
+  ]
+  const portfolioResearchState = {
+    ...portfolioResearch,
+    status: portfolioMissingInputs.length ? 'calibration-required' : portfolioResearch.status,
+    pnl: {
+      ...portfolioResearch.pnl,
+      total: portfolioMissingInputs.length ? null : portfolioResearch.pnl.total,
+      missingInputs: portfolioMissingInputs,
+    },
+    missingInputs: portfolioMissingInputs,
+  }
 
   return {
-    researchInputs: { rangeWidth, skew, liquidity, hedgeSize, fees, strikePrice, startPrice },
+    researchInputs: {
+      rangeWidth,
+      skew,
+      rangeStatus: lpValuation.available ? 'valid' : 'missing-input',
+      liquidity,
+      lpValuationMode: lpValuation.mode,
+      lpValuationMissingInputs: lpValuation.missingInputs,
+      lpValuationBasis: lpValuation.valuationBasis,
+      hedgeSize,
+      feeIncomeQuote,
+      fundingCashflowQuote,
+      fundingCashflowSource: fundingCashflowSource ?? 'missing-input',
+      fundingPositionSide: input.fundingPositionSide ?? null,
+      fundingSessionDurationHours,
+      fundingSessionCalendarId: input.fundingSessionCalendarId ?? null,
+      recoveryNotionalBasis: input.recoveryNotionalBasis ?? null,
+      fundingNotionalBasis: input.fundingNotionalBasis ?? null,
+      legacyFeeInput: optionalFinite(input.feeIncomeQuote) === null && optionalFinite(input.fees) !== null,
+      strikePrice,
+      startPrice,
+      formulaHorizonSessions,
+      optionTenorSessions,
+      optionTenorSource: optionTenorSessions ? 'explicit-option-expiry-scenario' : 'missing-input',
+      tradingDaysPerYear: tdpy,
+      tradingDaysPerYearSource: tdpy ? 'upstream-explicit-or-inferred' : 'missing-input',
+      volatilitySource: input.ivSource || 'scenario-unspecified',
+    },
     option,
     optionPortfolio,
     asian,
@@ -157,37 +283,25 @@ export function buildResearchSnapshot({ market, input, executable }) {
     lpPortfolio,
     liquidityFingerprint: fingerprint,
     numoen,
-    impermanentLoss: il,
-    efficiency: capitalEfficiency({ rangeWidth, skew }),
+    fullRangeV2Il,
+    rangeV3Il,
+    efficiency: lpValuation.available ? capitalEfficiency({ rangeWidth, skew }) : null,
     funding,
+    netCarry: fundingCarry,
     lpOnchain: {
       ...lpDataState,
       quotePrice: input.lpOnchainSnapshot?.quotePrice ?? lpDataState.quotePrice,
       quoteSymbol: input.lpOnchainSnapshot?.quoteSymbol ?? lpDataState.quoteSymbol,
     },
-    portfolioResearch: {
-      status: 'research-only',
-      missingInputs: [
-        ...lpDataState.missingInputs,
-        'option-leg',
-        'hedge-leg',
-        'fee-model',
-        'funding-settlement',
-      ],
-      value: portfolioValue({
-        lpValue: lpV3Hedged?.value ?? 0,
-        optionValue: option?.price ?? 0,
-        fundingCost: Math.abs(funding?.cumulativeFundingEstimate ?? funding?.funding ?? 0) * capital,
-      }),
-    },
+    portfolioResearch: portfolioResearchState,
   }
 }
 
-function optionLegPnL({ price, strikePrice, holdingDays, iv, input, tdpy, optionBase }) {
+function optionLegPnL({ price, strikePrice, optionTenorSessions, iv, input, tdpy, optionBase }) {
   const priced = blackScholes({
     entryPrice: price,
     strikePrice,
-    holdingDays,
+    timeToExpirySessions: optionTenorSessions,
     iv,
     riskFreeRate: Number(input.riskFreeRate) || 0,
     dividendYield: Number(input.dividendYield) || 0,
@@ -200,4 +314,10 @@ function optionLegPnL({ price, strikePrice, holdingDays, iv, input, tdpy, option
 function positive(value) {
   const next = Number(value)
   return Number.isFinite(next) && next > 0 ? next : null
+}
+
+function optionalFinite(value) {
+  if (value === null || value === undefined || value === '') return null
+  const next = Number(value)
+  return Number.isFinite(next) ? next : null
 }

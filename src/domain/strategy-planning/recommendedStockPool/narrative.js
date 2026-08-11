@@ -10,70 +10,72 @@ export function buildNarrative({ label, score, maxScore, dimensions, catchKnife,
   // 主结论
   const ratio = maxScore > 0 ? score / maxScore : 0
   const scoreStr = `${score}/${maxScore} 分（${(ratio * 100).toFixed(0)}%）`
-  if (ratio >= 0.85) lines.push(`${label} 综合 ${scoreStr}。做市商模型告诉你：你在历史最低价囤满了货。`)
-  else if (ratio >= 0.65) lines.push(`${label} 综合 ${scoreStr}。多个维度对齐，左侧关注价值高。`)
-  else if (ratio >= 0.40) lines.push(`${label} 综合 ${scoreStr}。有亮点但缺关键确认，等一等。`)
-  else lines.push(`${label} 综合 ${scoreStr}。维度未对齐，暂不入选。`)
+  if (ratio >= 0.85) lines.push(`${label} 综合 ${scoreStr}，进入高分观察组。`)
+  else if (ratio >= 0.65) lines.push(`${label} 综合 ${scoreStr}，多个研究维度对齐。`)
+  else if (ratio >= 0.4) lines.push(`${label} 综合 ${scoreStr}，仍缺关键确认。`)
+  else lines.push(`${label} 综合 ${scoreStr}，当前不进入观察池。`)
 
   // lpValue P
   const p = metrics.lpValuePercentile
   if (Number.isFinite(p)) {
     const pPct = (p * 100).toFixed(1)
-    if (p <= 0.05) lines.push(`lpValue 近一年 P${pPct}%，${(100 - p * 100).toFixed(1)}% 的时间都比现在贵——做市商角度处在历史最便宜区间。`)
-    else if (p <= 0.30) lines.push(`lpValue P${pPct}%，处于近一年低位区域。`)
-    else if (p <= 0.70) lines.push(`lpValue P${pPct}%，位置中性。`)
-    else lines.push(`lpValue P${pPct}%，近一年大部分时间都比现在便宜——你现在进货的价格不划算。`)
+    lines.push(`动态区间合成几何代理位于近一年 P${pPct}%；该序列每日重建区间，不代表固定 LP 头寸或做市商库存。`)
   }
 
   // LP 3 年比值
   if (Number.isFinite(metrics.lpValueRatio3y)) {
     const r = metrics.lpValueRatio3y
-    if (r >= 2) lines.push(`3 年 max/min=${r.toFixed(2)}×，确实翻过倍——属于真周期低点。`)
-    else lines.push(`3 年 max/min=${r.toFixed(2)}×，还没翻过倍——可能只是价值陷阱，不是真周期底。`)
+    lines.push(`合成几何代理 3 年 max/min=${r.toFixed(2)}×；它受价格尺度影响，不能单独判定周期底或价值陷阱。`)
   }
 
-  // z + 回归
-  if (Number.isFinite(metrics.zScore) && Number.isFinite(metrics.regressionProbability)) {
+  // z + 正态参考极端度
+  if (Number.isFinite(metrics.zScore)) {
     const z = metrics.zScore
-    const prob = (metrics.regressionProbability * 100).toFixed(1)
-    if (z <= -2.5) lines.push(`z=${z.toFixed(2)}σ，回归概率 ${prob}%——纯随机偏离这么深的概率极低，价格大概率往回拉。`)
-    else if (z <= -1.5) lines.push(`z=${z.toFixed(2)}σ，回归概率 ${prob}%，统计学信号不错。`)
-    else if (z <= -0.5) lines.push(`z=${z.toFixed(2)}σ，价格略低于成本锚。`)
-    else if (z <= 0.5) lines.push(`z=${z.toFixed(2)}σ，价格贴在成本锚上下。`)
-    else lines.push(`z=${z.toFixed(2)}σ，价格已偏离到锚之上——溢价区。`)
+    const percentile = Number.isFinite(metrics.deviationPercentile)
+      ? `，正态参考偏离百分位 ${(metrics.deviationPercentile * 100).toFixed(1)}%`
+      : ''
+    lines.push(`z=${z.toFixed(2)}σ${percentile}；这是偏离极端度，不是未来回归概率。`)
   }
 
   // LP zone
-  if (metrics.lpZone === 'token0') lines.push(`LP 仓位 100% ${label}（zone=token0），手里的货是打折买的。`)
-  else if (metrics.lpZone === 'token1') lines.push(`LP 仓位已卖成现金（zone=token1）——货已出完。`)
-  else if (metrics.lpZone === 'range') lines.push(`LP 在 range 区间内做市，双向报价赚手续费。`)
+  if (metrics.lpZone === 'token0') lines.push(`当前价格位于合成 CK 区间下侧（token0 proxy）。`)
+  else if (metrics.lpZone === 'token1') lines.push(`当前价格位于合成 CK 区间上侧（token1 proxy）。`)
+  else if (metrics.lpZone === 'range')
+    lines.push(`当前价格位于合成 CK 区间内；未建模成交路径，不能据此推断手续费收入。`)
 
   // 锚趋势 + 接飞刀
-  if (Number.isFinite(metrics.costSlope5)) {
+  if (Number.isFinite(metrics.costSlopeRecent)) {
     const dir = metrics.anchorDirection
-    if (dir === 'up') lines.push(`成本锚 5 日斜率 ${formatPct(metrics.costSlope5)}（↑），公允成本上移，趋势已掉头。`)
-    else if (dir === 'flat') lines.push(`成本锚 5 日斜率 ${formatPct(metrics.costSlope5)}（→），底部已焊住。`)
+    if (dir === 'up') lines.push(`成本锚自适应近期斜率 ${formatPct(metrics.costSlopeRecent)}（↑），样本成本锚上移。`)
+    else if (dir === 'flat')
+      lines.push(`成本锚自适应近期斜率 ${formatPct(metrics.costSlopeRecent)}（→），样本成本锚近似走平。`)
     else if (dir === 'down') {
-      if (catchKnife) lines.push(`成本锚 5 日斜率 ${formatPct(metrics.costSlope5)}（↓），但 z 已极端 + 回归概率 ≥ 85%，触发"接飞刀豁免"，回归力道足够拉回。`)
-      else lines.push(`唯一没亮绿灯的：成本锚 5 日斜率 ${formatPct(metrics.costSlope5)}（↓），"底"可能还没焊死，等锚走平再加码。`)
+      if (catchKnife)
+        lines.push(
+          `成本锚自适应近期斜率 ${formatPct(metrics.costSlopeRecent)}（↓）；已人工开启且具备独立留出校准标识，仍需独立风险复核。`,
+        )
+      else lines.push(`成本锚自适应近期斜率 ${formatPct(metrics.costSlopeRecent)}（↓），趋势延续风险未解除。`)
     }
   }
 
   // 半衰期 + 持仓周期
-  if (Number.isFinite(metrics.halfLifeDays)) {
-    lines.push(`半衰期 ${metrics.halfLifeDays} 天（${metrics.halfLifeSpeed}），持仓周期 ≈ ${metrics.holdingDays} 天，回到锚 ≈ ${metrics.recoveryDays} 天。`)
+  if (Number.isFinite(metrics.halfLifeSessions)) {
+    const monotonic = metrics.meanReversionMonotonicGate === true
+    lines.push(
+      `历史 AR 半衰期 ${metrics.halfLifeSessions} 个交易会话（${metrics.arDecayLabel}）；${monotonic ? '样本内单调衰减门禁成立，尚未校准' : '未通过单调回归门禁'}。`,
+    )
   }
 
-  // 买卖点
-  if (Number.isFinite(metrics.entryTargetPrice) || Number.isFinite(metrics.takeProfitPrice)) {
-    const buy = Number.isFinite(metrics.entryTargetPrice) ? `买点 ≈ Delta 上沿 ${metrics.entryTargetPrice}` : ''
-    const sell = Number.isFinite(metrics.takeProfitPrice) ? `卖点 ≈ 成本带下沿 ${metrics.takeProfitPrice}` : ''
-    lines.push([buy, sell].filter(Boolean).join('，'))
+  // 研究参考坐标
+  if (Number.isFinite(metrics.deltaReferencePrice) || Number.isFinite(metrics.costBandReferencePrice)) {
+    const entry = Number.isFinite(metrics.deltaReferencePrice) ? `Delta 参考边界 ${metrics.deltaReferencePrice}` : ''
+    const anchor = Number.isFinite(metrics.costBandReferencePrice) ? `成本带参考 ${metrics.costBandReferencePrice}` : ''
+    lines.push(`${[entry, anchor].filter(Boolean).join('，')}；仅为研究坐标，不是买卖指令。`)
   }
 
   // 社保白名单
   if (metrics.socialSecurityWhitelisted) {
-    lines.push(`社保 Q1 重仓名单中，机构筹码托底。`)
+    lines.push(`当前社保 Q1 名单命中；若用于历史回放必须使用当期快照，不能回填未来名单。`)
   }
 
   return lines.join(' ')

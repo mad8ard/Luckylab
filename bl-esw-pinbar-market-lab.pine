@@ -12,7 +12,7 @@ grp_pin = "Pinbar"
 show_pinbar = input.bool(true, "Show Pinbar Black", group=grp_pin)
 pin_ratio = input.float(2.0, "Wick Body Ratio", minval=1.0, step=0.1, group=grp_pin)
 
-// Market Lab（与 marketlab 项目 JS 口径同步）
+// Market Lab（与 marketlab 项目 JS 的 prefix-causal 口径同步）
 grp_lab = "Market Lab"
 show_lab = input.bool(true, "Enable Cost Strategy", group=grp_lab)
 show_cost_band = input.bool(true, "Show Cost Band", group=grp_lab)
@@ -20,20 +20,11 @@ show_delta_band = input.bool(true, "Show GetDelta Band", group=grp_lab)
 show_lab_bg = input.bool(true, "Show Discount Premium BG", group=grp_lab)
 show_lab_panel = input.bool(true, "Show Status Panel", group=grp_lab)
 show_legend = input.bool(true, "Show Legend", group=grp_lab)
-// 扩展开关，开启后会偏离 JS 网站；默认 OFF
-adaptive_cost = input.bool(false, "Adaptive Cost (extension, OFF=site aligned)", group=grp_lab)
 auto_adapt = input.bool(false, "Auto Adapt Profile (extension, OFF=site aligned)", group=grp_lab)
 relax_mode = input.bool(false, "Relax Mode (extension, OFF=site aligned)", group=grp_lab)
 
-fast_cost_len = input.int(20, "Fast Cost Window", minval=5, group=grp_lab)
-cost_len = input.int(60, "Cost Window", minval=10, group=grp_lab)
-slow_cost_len = input.int(120, "Slow Cost Window", minval=30, group=grp_lab)
-recent_len = input.int(20, "Recent Window", minval=5, group=grp_lab)
-vol_len = input.int(60, "Vol Window", minval=10, group=grp_lab)
-holding_days = input.int(30, "Holding Days", minval=1, group=grp_lab)
-trading_days = input.int(365, "Year Basis", options=[365, 252, 242, 179], group=grp_lab)
-target_return_pct = input.float(30.0, "Target Return %", minval=0.0, step=1.0, group=grp_lab)
-iv_override = input.float(0.0, "IV Override (0=use realized vol)", minval=0.0, step=0.01, group=grp_lab)
+trading_sessions_per_year = input.int(365, "Trading Sessions / Year", options=[365, 252, 242, 179], group=grp_lab)
+delta_slope = input.float(0.30, "GetDelta Local Slope d", minval=0.0, step=0.01, group=grp_lab)
 lp_range_width = input.float(0.10, "LP Range Width", minval=0.001, maxval=0.95, step=0.01, group=grp_lab)
 lp_skew = input.float(1.0, "LP Skew", minval=0.01, step=0.05, group=grp_lab)
 show_lp_band = input.bool(true, "Show LP Range", group=grp_lab)
@@ -67,93 +58,136 @@ buy_cond = ta.cross(ma21, ma55) and ma8 > ma13 and ma21 > ma55
 sell_cond = ta.cross(ma21, ma55) and ma8 < ma13 and ma21 < ma55
 
 // ============================================================
-// Cost anchor（同步 JS rollingCost：成交量加权 typical price）
+// Prefix-causal windows / cost anchor
+// 每根历史 K 线只用当时可见前缀，追加未来数据不能改写旧值。
+// cost=max(5,floor(sqrt(prefix_n)))；recent=max(3,floor(sqrt(cost)))；vol=cost；ATR=recent。
 // ============================================================
+prefix_n = bar_index + 1
+cost_window = math.max(5, int(math.floor(math.sqrt(prefix_n))))
+recent_window = math.max(3, int(math.floor(math.sqrt(cost_window))))
+vol_window = cost_window
+cost_observed = math.min(prefix_n, cost_window)
+return_observed = math.max(1, math.min(bar_index, vol_window))
+atr_observed = math.max(1, math.min(bar_index, recent_window))
+
 typical_price = (high + low + close) / 3.0
-cost_fast_vol_sum = math.sum(volume, fast_cost_len)
-cost_main_vol_sum = math.sum(volume, cost_len)
-cost_slow_vol_sum = math.sum(volume, slow_cost_len)
-cost_fast_weighted_sum = math.sum(typical_price * volume, fast_cost_len)
-cost_main_weighted_sum = math.sum(typical_price * volume, cost_len)
-cost_slow_weighted_sum = math.sum(typical_price * volume, slow_cost_len)
-cost_fast_sma = ta.sma(typical_price, fast_cost_len)
-cost_main_sma = ta.sma(typical_price, cost_len)
-cost_slow_sma = ta.sma(typical_price, slow_cost_len)
-
-cost_fast_has_volume = not na(cost_fast_vol_sum) and cost_fast_vol_sum > 0
-cost_main_has_volume = not na(cost_main_vol_sum) and cost_main_vol_sum > 0
-cost_slow_has_volume = not na(cost_slow_vol_sum) and cost_slow_vol_sum > 0
-
-cost_fast_anchor_raw = cost_fast_has_volume ? cost_fast_weighted_sum / cost_fast_vol_sum : cost_fast_sma
-cost_main_anchor_raw = cost_main_has_volume ? cost_main_weighted_sum / cost_main_vol_sum : cost_main_sma
-cost_slow_anchor_raw = cost_slow_has_volume ? cost_slow_weighted_sum / cost_slow_vol_sum : cost_slow_sma
-
-cost_main_anchor = nz(cost_main_anchor_raw, cost_fast_anchor_raw)
-cost_fast_anchor = nz(cost_fast_anchor_raw, cost_main_anchor)
-cost_slow_anchor = nz(cost_slow_anchor_raw, cost_main_anchor)
-// JS 默认只用 cost_main_anchor；adaptive_cost 开启时使用 pine 私有的混合
-cost_anchor = adaptive_cost ? cost_fast_anchor * 0.35 + cost_main_anchor * 0.45 + cost_slow_anchor * 0.20 : cost_main_anchor
+cost_vol_sum = math.sum(volume, cost_observed)
+cost_weighted_sum = math.sum(typical_price * volume, cost_observed)
+cost_sma = ta.sma(typical_price, cost_observed)
+cost_anchor = cost_vol_sum > 0 ? cost_weighted_sum / cost_vol_sum : cost_sma
 
 // ============================================================
-// Volatility / band（对齐 JS rollingCost 的 bandWidth）
+// Volatility / band（同步 JS rollingCost 的 sample stdev 口径）
 // ============================================================
-log_ret = close[1] > 0 ? math.log(close / close[1]) : 0.0
-annual_vol_raw = ta.stdev(log_ret, vol_len, false) * math.sqrt(trading_days)
-annual_vol = na(annual_vol_raw) or annual_vol_raw <= 0 ? 0.01 : annual_vol_raw
+log_ret = not na(close[1]) and close[1] > 0 ? math.log(close / close[1]) : 0.0
+annual_vol_raw = nz(ta.stdev(log_ret, return_observed, false), 0.0) * math.sqrt(trading_sessions_per_year)
+annual_vol = annual_vol_raw
+annual_vol_valid = bar_index >= 5 and annual_vol > 0
 
-true_range = math.max(high - low, math.max(math.abs(high - close[1]), math.abs(low - close[1])))
-atr_14 = ta.sma(true_range, 14)
-atr_pct = close > 0 ? atr_14 / close : 0.0
+true_range = na(close[1]) ? 0.0 : math.max(high - low, math.max(math.abs(high - close[1]), math.abs(low - close[1])))
+atr_recent = nz(ta.sma(true_range, atr_observed), 0.0)
+atr_pct = close > 0 ? atr_recent / close : 0.0
 
-// JS: volEstimate = stdev(returns over band rows) * sqrt(min(recent, returns.length))
-//     bandWidth = max(volEstimate, max(volEstimate*0.25, 0.005))
-vol_estimate = ta.stdev(log_ret, cost_len, false) * math.sqrt(math.min(recent_len, cost_len))
+vol_estimate_raw = nz(ta.stdev(log_ret, return_observed, false), 0.0)
+vol_estimate = vol_estimate_raw * math.sqrt(math.min(recent_window, return_observed))
 min_band = math.max(vol_estimate * 0.25, 0.005)
 band_width = math.max(vol_estimate, min_band)
-// 删除 atr_regime 调节：JS 没有该项
 
 cost_low = cost_anchor * (1 - band_width)
 cost_high = cost_anchor * (1 + band_width)
 lp_lower = cost_anchor * math.max(1 - lp_range_width, 0.001)
 lp_upper = cost_anchor * (1 + lp_range_width * lp_skew)
 position_label = close > cost_high ? "高于成本带" : close < cost_low ? "低于成本带" : "成本带内"
-cost_distance = cost_anchor > 0 ? close / cost_anchor - 1 : 0.0
 
-momentum5 = close[5] > 0 ? close / close[5] - 1 : 0.0
-cost_slope5 = not na(cost_anchor[5]) and cost_anchor[5] > 0 ? cost_anchor / cost_anchor[5] - 1 : 0.0
+momentum_fast = bar_index >= recent_window and close[recent_window] > 0 ? close / close[recent_window] - 1 : 0.0
+cost_slope_recent = bar_index >= recent_window and cost_anchor[recent_window] > 0 ? cost_anchor / cost_anchor[recent_window] - 1 : 0.0
 
 // ============================================================
-// GetDelta band（同步 JS getDeltaBands：P=入场价/现价；删除 wave_cap）
+// Expanding AR(1)-through-origin / dynamic recovery horizon
+// rho 是前缀样本估计；H 是冻结当前成本沿目标后的条件情景坐标，不是预测。
+// side 由 close 相对 cost_anchor 决定；long/short 分别以 cost_low/cost_high 为目标。
+// cycle start 优先取当前自适应成本窗口的 low/high 极值；若目标不严格位于极值与锚之间，
+// 则回扫最近一次当日 low<动态 cost_low / high>动态 cost_high 的穿越，并用当前目标/锚复核。
+// q=(target-cycleStart)/(anchor-cycleStart)（按 side 归一方向），H=HL*log2(1/(1-q)).
+// ============================================================
+cost_distance = cost_anchor > 0 ? (close - cost_anchor) / cost_anchor : na
+ar_xy = not na(cost_distance[1]) ? cost_distance * cost_distance[1] : 0.0
+ar_x2 = not na(cost_distance[1]) ? cost_distance[1] * cost_distance[1] : 0.0
+ar_sum_xy = ta.cum(ar_xy)
+ar_sum_x2 = ta.cum(ar_x2)
+rho = prefix_n >= 5 and ar_sum_x2 > 0 ? ar_sum_xy / ar_sum_x2 : na
+rho_valid = not na(rho) and rho > 0 and rho < 1
+ar_decay = rho_valid ? -math.log(rho) : na
+half_life_sessions = rho_valid and ar_decay > 0 ? math.log(2.0) / ar_decay : na
+
+cycle_side_short = close > cost_anchor
+target_price = cycle_side_short ? cost_high : cost_low
+target_source = cycle_side_short ? "adaptive-cost-upper" : "adaptive-cost-lower"
+window_low_extreme = ta.lowest(low, cost_observed)
+window_high_extreme = ta.highest(high, cost_observed)
+window_cycle_start = cycle_side_short ? window_high_extreme : window_low_extreme
+window_structure_valid = cycle_side_short ? window_cycle_start > target_price and target_price > cost_anchor : window_cycle_start < target_price and target_price < cost_anchor
+
+// 保存逐日前缀中真正发生过的动态成本沿穿越；当前窗口极值无效时从最新记录向前回扫。
+var lower_cross_prices = array.new_float()
+var upper_cross_prices = array.new_float()
+lower_crossed = low > 0 and cost_low > 0 and low < cost_low
+upper_crossed = high > 0 and cost_high > 0 and high > cost_high
+if lower_crossed
+    array.push(lower_cross_prices, low)
+if upper_crossed
+    array.push(upper_cross_prices, high)
+
+float fallback_cycle_start = na
+int scan_index = na
+if not window_structure_valid
+    scan_index := (cycle_side_short ? array.size(upper_cross_prices) : array.size(lower_cross_prices)) - 1
+    while scan_index >= 0 and na(fallback_cycle_start)
+        scan_price = cycle_side_short ? array.get(upper_cross_prices, scan_index) : array.get(lower_cross_prices, scan_index)
+        scan_structure_valid = cycle_side_short ? scan_price > target_price and target_price > cost_anchor : scan_price < target_price and target_price < cost_anchor
+        if scan_structure_valid
+            fallback_cycle_start := scan_price
+        scan_index := scan_index - 1
+
+cycle_start_price = window_structure_valid ? window_cycle_start : not na(fallback_cycle_start) ? fallback_cycle_start : window_cycle_start
+cycle_start_source = window_structure_valid ? (cycle_side_short ? "adaptive-cost-window-high-extreme" : "adaptive-cost-window-low-extreme") : not na(fallback_cycle_start) ? (cycle_side_short ? "recent-dynamic-upper-crossing" : "recent-dynamic-lower-crossing") : (cycle_side_short ? "adaptive-cost-window-high-extreme" : "adaptive-cost-window-low-extreme")
+cycle_direction = cycle_side_short ? -1.0 : 1.0
+anchor_gap = (cost_anchor - cycle_start_price) * cycle_direction
+target_gap = (target_price - cycle_start_price) * cycle_direction
+recovery_fraction = not na(cycle_start_price) and anchor_gap != 0 ? target_gap / anchor_gap : na
+recovery_valid = anchor_gap > 0 and target_gap > 0 and not na(recovery_fraction) and recovery_fraction > 0 and recovery_fraction < 1
+formula_horizon_raw_sessions = rho_valid and recovery_valid ? half_life_sessions * math.log(1.0 / (1.0 - recovery_fraction)) / math.log(2.0) : na
+formula_horizon_sessions = not na(formula_horizon_raw_sessions) and formula_horizon_raw_sessions > 0 ? int(math.ceil(formula_horizon_raw_sessions)) : na
+dynamic_horizon_valid = not na(formula_horizon_sessions) and formula_horizon_sessions > 0
+
+// ============================================================
+// GetDelta band（P=当时成本锚，T=动态恢复周期，d=deltaSlope）
 // JS: timeScale = sqrt(T/(N·2π)); wave = s·timeScale; r_T = ((1+wave)/(1-wave))²
 //     longCost = P·(d·r_T - d + 1)²/r_T；high = longCost·r_T；low = longCost/r_T
 // ============================================================
-target_return = target_return_pct / 100.0
-// 同步网站 IV 输入框：iv_override > 0 时用用户填值，否则退化到 annual_vol
-effective_iv = iv_override > 0 ? iv_override : annual_vol
-wave_raw = effective_iv * math.sqrt(holding_days / (trading_days * 2.0 * math.pi))
-// 仅保留 wave < 0.99 安全检查（JS 只检查 wave < 1）
-wave = math.min(wave_raw, 0.99)
-delta_ok = show_lab and close > 0 and effective_iv > 0 and wave > 0 and wave < 1
+effective_iv = annual_vol
+wave = dynamic_horizon_valid and annual_vol_valid ? effective_iv * math.sqrt(formula_horizon_sessions / (trading_sessions_per_year * 2.0 * math.pi)) : na
+delta_ok = show_lab and dynamic_horizon_valid and annual_vol_valid and close > 0 and wave > 0 and wave < 1
 
 // 网站 formulaPath.js: entryPrice = costPath[index].anchor，不是 close
 // 这意味着 GetDelta 上下沿是围绕成本锚展开的价格带，不是围绕现价
 entry_price = cost_anchor
 raw_ratio = delta_ok ? math.pow((1 + wave) / (1 - wave), 2) : na
 long_ratio = raw_ratio
-long_cost = delta_ok ? entry_price * math.pow(target_return * long_ratio - target_return + 1, 2) / long_ratio : na
+long_cost = delta_ok ? entry_price * math.pow(delta_slope * long_ratio - delta_slope + 1, 2) / long_ratio : na
 long_high = delta_ok ? long_cost * long_ratio : na
 long_low = delta_ok ? long_cost / long_ratio : na
 
 short_ratio = delta_ok ? 1 / long_ratio : na
-short_cost = delta_ok ? entry_price * math.pow(target_return * short_ratio - target_return + 1, 2) / short_ratio : na
+short_cost = delta_ok ? entry_price * math.pow(delta_slope * short_ratio - delta_slope + 1, 2) / short_ratio : na
 short_high = delta_ok ? short_cost / short_ratio : na
 
 // ============================================================
 // Profile（数值同步 JS strategyProfile.js）
 // ============================================================
 // auto_profile 是 pine 私有：高波动期偏保守，低波动期偏激进
-annual_vol_ma = ta.sma(annual_vol, 200)
-annual_vol_ratio = annual_vol_ma > 0 ? annual_vol / annual_vol_ma : 1.0
+annual_vol_mean = ta.cum(annual_vol) / prefix_n
+annual_vol_ratio = annual_vol_mean > 0 ? annual_vol / annual_vol_mean : 1.0
 auto_profile = annual_vol_ratio > 1.25 ? "Conservative" : annual_vol_ratio < 0.80 ? "Aggressive" : "Balanced"
 active_profile = auto_adapt ? auto_profile : profile
 
@@ -167,8 +201,8 @@ edge_sigma = relax_mode ? edge_sigma_base * 0.65 : edge_sigma_base
 momentum_sigma = relax_mode ? momentum_sigma_base - 0.30 : momentum_sigma_base
 cost_slope_sigma = relax_mode ? cost_slope_sigma_base * 0.75 : cost_slope_sigma_base
 
-daily_vol = annual_vol / math.sqrt(trading_days)
-vol_ratio = daily_vol / 0.02
+session_vol = annual_vol / math.sqrt(trading_sessions_per_year)
+vol_ratio = session_vol / 0.02
 
 // JS scaleProfileToMarket：minEdge = max(edgeSigma * atr * 0.3, 0.005)
 //                          buildEntryTiming: minEdge_used = max(atr * edgeAtr, profile.minEdge)
@@ -176,11 +210,11 @@ js_min_edge = math.max(edge_sigma * atr_pct * 0.3, 0.005)
 min_edge = math.max(atr_pct * edge_sigma, js_min_edge)
 trim_edge = min_edge
 
-momentum_min = momentum_sigma * daily_vol
-// JS: costStillFalling = costSlope5 < -max(atr * costSlopeAtr, costSlopeMin)
+momentum_min = momentum_sigma * session_vol
+// JS: costStillFalling = costSlopeRecent < -max(atr * costSlopeAtr, costSlopeMin)
 //     costSlopeAtr = costSlopeSigma * volRatio
 //     costSlopeMin = max(costSlopeSigma * dailyVol * 0.3, 0.003)
-cost_slope_threshold = math.max(atr_pct * cost_slope_sigma * vol_ratio, math.max(cost_slope_sigma * daily_vol * 0.3, 0.003))
+cost_slope_threshold = math.max(atr_pct * cost_slope_sigma * vol_ratio, math.max(cost_slope_sigma * session_vol * 0.3, 0.003))
 
 buy_edge = cost_anchor > close ? (cost_anchor - close) / close : 0.0
 sell_edge = close > cost_anchor ? (close - cost_anchor) / close : 0.0
@@ -188,13 +222,14 @@ sell_edge = close > cost_anchor ? (close - cost_anchor) / close : 0.0
 // ============================================================
 // Signals（按 JS buildEntryTiming 的 5 个核心分支）
 // ============================================================
-below_cost = show_lab and close < cost_low
-above_cost = show_lab and close > cost_high
-inside_long_band = not delta_ok or close >= long_low
-inside_short_band = not delta_ok or close <= short_high
+formula_ready = delta_ok
+below_cost = show_lab and formula_ready and close < cost_low
+above_cost = show_lab and formula_ready and close > cost_high
+inside_long_band = formula_ready and close >= long_low
+inside_short_band = formula_ready and close <= short_high
 
-cost_still_falling = cost_slope5 < -cost_slope_threshold
-momentum_rising = momentum5 > momentum_min
+cost_still_falling = cost_slope_recent < -cost_slope_threshold
+momentum_rising = momentum_fast > momentum_min
 
 // 1) Deep Discount: 低于成本下沿 且 低于 GetDelta 长仓下沿（超出默认入场带）
 lab_deep_discount = below_cost and not inside_long_band
@@ -215,12 +250,12 @@ lab_deep_sig = lab_deep_discount and not lab_deep_discount[1]
 lab_overheat_sig = lab_overheat and not lab_overheat[1]
 
 // ============================================================
-// z-score（同步 JS deviationScore：周期化用 holding_days / trading_days）
+// z-score（只在公式周期有效时输出）
 // ============================================================
-period_vol = annual_vol > 0 ? annual_vol * math.sqrt(holding_days / trading_days) : 0.01
-z_score = period_vol > 0 ? cost_distance / period_vol : 0.0
+period_vol = formula_ready ? annual_vol * math.sqrt(formula_horizon_sessions / trading_sessions_per_year) : na
+z_score = formula_ready and period_vol > 0 ? cost_distance / period_vol : na
 z_abs = math.abs(z_score)
-z_strength = z_abs < 0.5 ? "弱" : z_abs < 1.5 ? "中" : "强"
+z_strength = not formula_ready ? "不可用" : z_abs < 0.5 ? "弱" : z_abs < 1.5 ? "中" : "强"
 
 norm_cdf_abs(x) =>
     a1 =  0.254829592
@@ -236,11 +271,11 @@ norm_cdf_abs(x) =>
     0.5 * (1.0 + sign_x * y)
 
 phi_z = norm_cdf_abs(z_abs / math.sqrt(2.0))
-match_pct = z_abs >= 8.0 ? 1.0 : math.max(0.0, math.min(1.0, 2.0 * phi_z - 1.0))
+match_pct = formula_ready ? (z_abs >= 8.0 ? 1.0 : math.max(0.0, math.min(1.0, 2.0 * phi_z - 1.0))) : na
 
 // 状态文字
-lab_state = lab_buy ? "Low Buy" : lab_sell ? "Trim" : lab_deep_discount ? "Deep Discount" : lab_overheat ? "No Chase" : lab_wait_stop ? "Wait Stop" : z_abs < 0.5 ? "Neutral" : "Wait"
-lab_reason = lab_buy ? "Discount + 止跌 + 折扣边际达标" : lab_sell ? "Premium + 溢价边际达标" : lab_deep_discount ? "Below GetDelta lower band" : lab_overheat ? "Above GetDelta upper band" : lab_wait_stop ? "Discount but 成本仍跌或动量未起" : z_abs < 0.5 ? "偏离 < 0.5σ，等待" : "未达到信号条件"
+lab_state = not formula_ready ? "Cycle unavailable" : lab_buy ? "Low Buy" : lab_sell ? "Trim" : lab_deep_discount ? "Deep Discount" : lab_overheat ? "No Chase" : lab_wait_stop ? "Wait Stop" : z_abs < 0.5 ? "Neutral" : "Wait"
+lab_reason = not rho_valid ? "rho must be in (0,1)" : not recovery_valid ? "q must be in (0,1)" : not annual_vol_valid ? "need >=5 causal returns" : lab_buy ? "Discount + 止跌 + 折扣边际达标" : lab_sell ? "Premium + 溢价边际达标" : lab_deep_discount ? "Below GetDelta lower band" : lab_overheat ? "Above GetDelta upper band" : lab_wait_stop ? "Discount but 成本仍跌或动量未起" : z_abs < 0.5 ? "偏离 < 0.5σ，等待" : "未达到信号条件"
 
 // ============================================================
 // Plots（极简单色：黑/灰/蓝/橙）
@@ -320,7 +355,7 @@ if barstate.islast and show_lab and show_lab_panel
     table.cell(lab_table, 1, 3, lab_state, text_color=color.black, bgcolor=state_color)
     table.cell(lab_table, 0, 4, "Cost Dev", text_color=color.black, bgcolor=color.white)
     table.cell(lab_table, 1, 4, str.tostring(cost_distance * 100, "#.##") + "%", text_color=color.black, bgcolor=color.white)
-    table.cell(lab_table, 0, 5, "Z (T=" + str.tostring(holding_days) + "d)", text_color=color.black, bgcolor=color.white)
+    table.cell(lab_table, 0, 5, "Z (H=" + (formula_ready ? str.tostring(formula_horizon_sessions) : "—") + " sessions)", text_color=color.black, bgcolor=color.white)
     table.cell(lab_table, 1, 5, str.tostring(z_score, "#.##") + "σ · " + z_strength, text_color=color.black, bgcolor=color.white)
     table.cell(lab_table, 0, 6, "Ann Vol", text_color=color.black, bgcolor=color.white)
     table.cell(lab_table, 1, 6, str.tostring(annual_vol * 100, "#.##") + "%", text_color=color.black, bgcolor=color.white)

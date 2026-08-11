@@ -1,170 +1,309 @@
-// JS 双胞胎：逐行镜像 bl-esw-pinbar-market-lab.pine 的计算逻辑
-// 任何 Pine 改动必须同步改这里，否则 src/test/pine-equivalence.test.js 会失败
+// JS twin of bl-esw-pinbar-market-lab.pine's canonical formula layer.
+// This implementation stays independent from domain helpers so the equivalence
+// test can detect drift instead of comparing a function with itself.
 
 import { pathToFileURL } from 'node:url'
 
 export const DEFAULTS = {
-  cost_len: 60,
-  recent_len: 20,
-  vol_len: 60,
-  holding_days: 30,
-  trading_days: 365,
-  target_return_pct: 30,
-  iv_override: 0,
+  trading_sessions_per_year: 365,
+  delta_slope: 0.3,
   lp_range_width: 0.1,
-  lp_skew: 1.0,
+  lp_skew: 1,
   profile: 'Balanced',
   auto_adapt: false,
   relax_mode: false,
-  adaptive_cost: false,
+}
+
+export function derivePineWindows(prefixSize) {
+  const prefix_n = Math.max(1, Math.floor(Number(prefixSize) || 1))
+  const cost_window = Math.max(5, Math.floor(Math.sqrt(prefix_n)))
+  const recent_window = Math.max(3, Math.floor(Math.sqrt(cost_window)))
+  return { prefix_n, cost_window, recent_window, vol_window: cost_window }
+}
+
+function mean(values) {
+  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0
 }
 
 function sampleStdev(values) {
-  // Pine ta.stdev(..., false) 用 biased=false（除以 n-1，对齐 JS）
   if (values.length < 2) return 0
-  const mean = values.reduce((s, v) => s + v, 0) / values.length
-  const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / (values.length - 1)
-  return Math.sqrt(variance)
-}
-
-function simpleMeanAtr(rows, period = 14) {
-  // Pine ta.sma(true_range, 14)，对齐 JS average(trueRanges[index-13..index])
-  // 注意：Pine 第一根 K 线的 true_range = na（close[1] na），此处用 0 作占位；
-  // 在 fixture ≥ 14 行时 slice(-14) 不会包含 index 0，行为等价。
-  const trs = rows.map((row, i) => {
-    if (i === 0) return 0
-    const prevClose = rows[i - 1].close
-    return Math.max(row.high - row.low, Math.abs(row.high - prevClose), Math.abs(row.low - prevClose))
-  })
-  const recent = trs.slice(-period)
-  return recent.reduce((s, v) => s + v, 0) / recent.length
+  const average = mean(values)
+  return Math.sqrt(values.reduce((sum, value) => sum + (value - average) ** 2, 0) / (values.length - 1))
 }
 
 function vwapTypical(rows) {
   if (!rows.length) return 0
-  const totalVol = rows.reduce((s, r) => s + r.volume, 0)
-  if (totalVol <= 0) {
-    return rows.reduce((s, r) => s + (r.high + r.low + r.close) / 3, 0) / rows.length
+  const totalVolume = rows.reduce((sum, row) => sum + row.volume, 0)
+  if (totalVolume <= 0) return mean(rows.map((row) => (row.high + row.low + row.close) / 3))
+  return rows.reduce((sum, row) => sum + ((row.high + row.low + row.close) / 3) * row.volume, 0) / totalVolume
+}
+
+function returnsThrough(rows, index, window) {
+  const start = Math.max(1, index - window + 1)
+  const values = []
+  for (let i = start; i <= index; i += 1) {
+    const previous = rows[i - 1]?.close
+    const current = rows[i]?.close
+    if (previous > 0 && current > 0) values.push(Math.log(current / previous))
   }
-  return rows.reduce((s, r) => s + ((r.high + r.low + r.close) / 3) * r.volume, 0) / totalVol
+  return values
+}
+
+function costAt(rows, index, windows) {
+  const end = index + 1
+  const anchorRows = rows.slice(Math.max(0, end - windows.cost_window), end)
+  const bandRows = rows.slice(Math.max(0, end - windows.cost_window - 1), end)
+  const anchor = vwapTypical(anchorRows)
+  const returns = bandRows.slice(1).map((row, offset) => Math.log(row.close / bandRows[offset].close))
+  const volEstimate = sampleStdev(returns) * Math.sqrt(Math.min(windows.recent_window, returns.length || 1))
+  const bandWidth = Math.max(volEstimate, Math.max(volEstimate * 0.25, 0.005))
+  return {
+    anchor,
+    lower: anchor * (1 - bandWidth),
+    upper: anchor * (1 + bandWidth),
+    bandWidth,
+  }
+}
+
+function trueRangeAt(rows, index) {
+  if (index < 1) return 0
+  const row = rows[index]
+  const previous = rows[index - 1].close
+  return Math.max(row.high - row.low, Math.abs(row.high - previous), Math.abs(row.low - previous))
+}
+
+function prefixStates(rows, tradingSessionsPerYear) {
+  return rows.map((row, index) => {
+    const windows = derivePineWindows(index + 1)
+    const cost = costAt(rows, index, windows)
+    const returns = returnsThrough(rows, index, windows.vol_window)
+    const annual_vol = returns.length >= 5 ? sampleStdev(returns) * Math.sqrt(tradingSessionsPerYear) : 0
+    const atrStart = Math.max(1, index - windows.recent_window + 1)
+    const atrValues = []
+    for (let cursor = atrStart; cursor <= index; cursor += 1) atrValues.push(trueRangeAt(rows, cursor))
+    const atr = mean(atrValues)
+    const cost_distance = cost.anchor > 0 ? (row.close - cost.anchor) / cost.anchor : NaN
+    return {
+      ...windows,
+      ...cost,
+      annual_vol,
+      atr_pct: row.close > 0 ? atr / row.close : 0,
+      cost_distance,
+    }
+  })
+}
+
+function expandingAr1ThroughOrigin(states) {
+  if (states.length < 5) return { rho: NaN, half_life_sessions: NaN, valid: false }
+  let sumXY = 0
+  let sumX2 = 0
+  for (let index = 1; index < states.length; index += 1) {
+    const current = states[index].cost_distance
+    const previous = states[index - 1].cost_distance
+    if (!Number.isFinite(current) || !Number.isFinite(previous)) continue
+    sumXY += current * previous
+    sumX2 += previous * previous
+  }
+  const rho = sumX2 > 0 ? sumXY / sumX2 : 0
+  const valid = rho > 0 && rho < 1
+  const half_life_sessions = valid ? Math.log(2) / -Math.log(rho) : NaN
+  return { rho, half_life_sessions, valid }
+}
+
+function resolveCycleStart(rows, states) {
+  const pointIndex = rows.length - 1
+  const row = rows[pointIndex]
+  const state = states[pointIndex]
+  const side = row.close > state.anchor ? 'short' : 'long'
+  const target_price = side === 'short' ? state.upper : state.lower
+  const target_source = side === 'short' ? 'adaptive-cost-upper' : 'adaptive-cost-lower'
+  const windowStart = Math.max(0, pointIndex - state.cost_window + 1)
+  let windowExtreme = null
+
+  for (let cursor = windowStart; cursor <= pointIndex; cursor += 1) {
+    const candidate = candleExtreme(rows[cursor], cursor, side)
+    if (!candidate) continue
+    if (
+      !windowExtreme ||
+      (side === 'long' ? candidate.price <= windowExtreme.price : candidate.price >= windowExtreme.price)
+    ) {
+      windowExtreme = candidate
+    }
+  }
+
+  if (validStructure(windowExtreme?.price, target_price, state.anchor, side)) {
+    return {
+      ...windowExtreme,
+      side,
+      target_price,
+      target_source,
+      source: side === 'long' ? 'adaptive-cost-window-low-extreme' : 'adaptive-cost-window-high-extreme',
+    }
+  }
+
+  for (let cursor = pointIndex; cursor >= 0; cursor -= 1) {
+    const candidate = candleExtreme(rows[cursor], cursor, side)
+    const boundary = positive(side === 'long' ? states[cursor]?.lower : states[cursor]?.upper)
+    if (!candidate || !crossesBoundary(candidate.price, boundary, side)) continue
+    if (!validStructure(candidate.price, target_price, state.anchor, side)) continue
+    return {
+      ...candidate,
+      side,
+      target_price,
+      target_source,
+      source: side === 'long' ? 'recent-dynamic-lower-crossing' : 'recent-dynamic-upper-crossing',
+    }
+  }
+
+  return {
+    ...windowExtreme,
+    side,
+    target_price,
+    target_source,
+    source: side === 'long' ? 'adaptive-cost-window-low-extreme' : 'adaptive-cost-window-high-extreme',
+  }
+}
+
+function candleExtreme(row, index, side) {
+  const price = positive(side === 'long' ? row?.low : row?.high)
+  return price === null ? null : { price, date: row?.date ?? null, index }
+}
+
+function validStructure(cycleStartPrice, targetPrice, anchorPrice, side) {
+  if (![cycleStartPrice, targetPrice, anchorPrice].every(Number.isFinite)) return false
+  return side === 'short'
+    ? cycleStartPrice > targetPrice && targetPrice > anchorPrice
+    : cycleStartPrice < targetPrice && targetPrice < anchorPrice
+}
+
+function crossesBoundary(price, boundary, side) {
+  if (![price, boundary].every(Number.isFinite)) return false
+  return side === 'short' ? price > boundary : price < boundary
+}
+
+function positive(value) {
+  const next = Number(value)
+  return Number.isFinite(next) && next > 0 ? next : null
+}
+
+function getDeltaBand({ entryPrice, horizonSessions, iv, deltaSlope, tradingSessionsPerYear }) {
+  const wave = iv * Math.sqrt(horizonSessions / (tradingSessionsPerYear * 2 * Math.PI))
+  if (!(entryPrice > 0 && horizonSessions > 0 && iv > 0 && wave > 0 && wave < 1)) return null
+  const longRatio = ((1 + wave) / (1 - wave)) ** 2
+  const longCost = (entryPrice * (deltaSlope * longRatio - deltaSlope + 1) ** 2) / longRatio
+  const shortRatio = 1 / longRatio
+  const shortCost = (entryPrice * (deltaSlope * shortRatio - deltaSlope + 1) ** 2) / shortRatio
+  return {
+    wave,
+    long_cost: longCost,
+    long_high: longCost * longRatio,
+    long_low: longCost / longRatio,
+    short_cost: shortCost,
+    short_high: shortCost / shortRatio,
+    short_low: shortCost * shortRatio,
+  }
+}
+
+function normCdfAbs(x) {
+  const a1 = 0.254829592
+  const a2 = -0.284496736
+  const a3 = 1.421413741
+  const a4 = -1.453152027
+  const a5 = 1.061405429
+  const p = 0.3275911
+  const sign = x >= 0 ? 1 : -1
+  const abs = Math.abs(x)
+  const t = 1 / (1 + p * abs)
+  const y = 1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-abs * abs)
+  return 0.5 * (1 + sign * y)
 }
 
 export function pineEquivalent(rows, inputs = {}) {
+  if (!Array.isArray(rows) || rows.length < 2) throw new Error('pineEquivalent 需要至少 2 根 K 线')
   const opts = { ...DEFAULTS, ...inputs }
-  const minRows = Math.max(opts.cost_len, opts.vol_len) + 5
-  if (rows.length < minRows) {
-    throw new Error(`pineEquivalent 需要至少 ${minRows} 根 K 线`)
-  }
+  const states = prefixStates(rows, opts.trading_sessions_per_year)
   const last = rows.at(-1)
-
-  // cost anchor (VWAP of typical price)
-  const anchorRows = rows.slice(-opts.cost_len)
-  const cost_anchor = vwapTypical(anchorRows)
-
-  // log returns（最近 cost_len 期，从 cost_len+1 行算 cost_len 个收益）
-  // 镜像 Pine: log_ret = close[1] > 0 ? math.log(close / close[1]) : 0.0
-  const bandRows = rows.slice(-(opts.cost_len + 1))
-  const logRets = bandRows
-    .slice(1)
-    .map((row, i) => (bandRows[i].close > 0 ? Math.log(row.close / bandRows[i].close) : 0))
-  const vol_estimate = sampleStdev(logRets) * Math.sqrt(Math.min(opts.recent_len, logRets.length))
-  const min_band = Math.max(vol_estimate * 0.25, 0.005)
-  const band_width = Math.max(vol_estimate, min_band)
-  const cost_low = cost_anchor * (1 - band_width)
-  const cost_high = cost_anchor * (1 + band_width)
-
-  // LP 区间
-  const lp_lower = cost_anchor * Math.max(1 - opts.lp_range_width, 0.001)
-  const lp_upper = cost_anchor * (1 + opts.lp_range_width * opts.lp_skew)
-
-  // annual vol（用 vol_len 个收益，sample stdev n-1）
-  // 镜像 Pine 的零价格保护
-  const volRows = rows.slice(-(opts.vol_len + 1))
-  const volRets = volRows.slice(1).map((row, i) => (volRows[i].close > 0 ? Math.log(row.close / volRows[i].close) : 0))
-  const annual_vol = Math.max(sampleStdev(volRets) * Math.sqrt(opts.trading_days), 0.01)
-
-  // atr_pct（simple mean SMA 14，对齐 Pine ta.sma(true_range, 14)）
-  const atr_14 = simpleMeanAtr(rows, 14)
-  const atr_pct = last.close > 0 ? atr_14 / last.close : 0
-
-  // GetDelta band
-  const target_return = opts.target_return_pct / 100
-  // 同步网站 IV 输入框：iv_override > 0 时用用户填值，否则退化到 annual_vol
-  const effective_iv = opts.iv_override > 0 ? opts.iv_override : annual_vol
-  const wave_raw = effective_iv * Math.sqrt(opts.holding_days / (opts.trading_days * 2 * Math.PI))
-  const wave = Math.min(wave_raw, 0.99)
-  let long_cost = NaN,
-    long_high = NaN,
-    long_low = NaN
-  let short_cost = NaN,
-    short_high = NaN,
-    short_low = NaN
-  if (wave > 0 && wave < 1 && cost_anchor > 0) {
-    const long_ratio = ((1 + wave) / (1 - wave)) ** 2
-    // 网站 formulaPath.js: entryPrice = bandAnchor (cost_anchor)，不是 close
-    long_cost = (cost_anchor * (target_return * long_ratio - target_return + 1) ** 2) / long_ratio
-    long_high = long_cost * long_ratio
-    long_low = long_cost / long_ratio
-    const short_ratio = 1 / long_ratio
-    short_cost = (cost_anchor * (target_return * short_ratio - target_return + 1) ** 2) / short_ratio
-    short_high = short_cost / short_ratio
-    short_low = short_cost * short_ratio
-  }
-
-  // z score（用 holding 周期化）
-  const period_vol = annual_vol > 0 ? annual_vol * Math.sqrt(opts.holding_days / opts.trading_days) : 0.01
-  const cost_distance = cost_anchor > 0 ? last.close / cost_anchor - 1 : 0
-  const z_score = period_vol > 0 ? cost_distance / period_vol : 0
-
-  // Abramowitz 7.1.26 erf 近似（Pine 用同一套常数）
-  const normCdfAbs = (x) => {
-    const a1 = 0.254829592,
-      a2 = -0.284496736,
-      a3 = 1.421413741
-    const a4 = -1.453152027,
-      a5 = 1.061405429,
-      p = 0.3275911
-    const signX = x >= 0 ? 1 : -1
-    const absX = Math.abs(x)
-    const t = 1 / (1 + p * absX)
-    const y = 1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX)
-    return 0.5 * (1 + signX * y)
-  }
-  const z_abs = Math.abs(z_score)
-  const phi_z = normCdfAbs(z_abs / Math.sqrt(2))
-  const match_pct = z_abs >= 8 ? 1 : Math.max(0, Math.min(1, 2 * phi_z - 1))
+  const state = states.at(-1)
+  const ar = expandingAr1ThroughOrigin(states)
+  const cycleStart = resolveCycleStart(rows, states)
+  const direction = cycleStart.side === 'short' ? -1 : 1
+  const anchorGap = (state.anchor - cycleStart.price) * direction
+  const targetGap = (cycleStart.target_price - cycleStart.price) * direction
+  const recovery_fraction = anchorGap !== 0 ? targetGap / anchorGap : NaN
+  const recoveryValid = anchorGap > 0 && targetGap > 0 && recovery_fraction > 0 && recovery_fraction < 1
+  const formula_horizon_raw_sessions =
+    ar.valid && recoveryValid ? ar.half_life_sessions * (Math.log(1 / (1 - recovery_fraction)) / Math.log(2)) : NaN
+  const formula_horizon_sessions = formula_horizon_raw_sessions > 0 ? Math.ceil(formula_horizon_raw_sessions) : NaN
+  const formula_ready = Number.isFinite(formula_horizon_sessions) && state.annual_vol > 0
+  const delta = formula_ready
+    ? getDeltaBand({
+        entryPrice: state.anchor,
+        horizonSessions: formula_horizon_sessions,
+        iv: state.annual_vol,
+        deltaSlope: opts.delta_slope,
+        tradingSessionsPerYear: opts.trading_sessions_per_year,
+      })
+    : null
+  const period_vol = delta
+    ? state.annual_vol * Math.sqrt(formula_horizon_sessions / opts.trading_sessions_per_year)
+    : NaN
+  const z_score = period_vol > 0 ? state.cost_distance / period_vol : NaN
+  const zAbs = Math.abs(z_score)
+  const match_pct = Number.isFinite(zAbs)
+    ? zAbs >= 8
+      ? 1
+      : Math.max(0, Math.min(1, 2 * normCdfAbs(zAbs / Math.sqrt(2)) - 1))
+    : NaN
 
   return {
-    cost_anchor,
-    cost_low,
-    cost_high,
-    lp_lower,
-    lp_upper,
-    annual_vol,
-    atr_pct,
-    long_cost,
-    long_high,
-    long_low,
-    short_cost,
-    short_high,
-    short_low,
+    prefix_n: state.prefix_n,
+    cost_window: state.cost_window,
+    recent_window: state.recent_window,
+    vol_window: state.vol_window,
+    cost_anchor: state.anchor,
+    cost_low: state.lower,
+    cost_high: state.upper,
+    band_width: state.bandWidth,
+    annual_vol: state.annual_vol,
+    atr_pct: state.atr_pct,
+    cost_distance: state.cost_distance,
+    rho: ar.rho,
+    half_life_sessions: ar.half_life_sessions,
+    side: cycleStart.side,
+    target_price: cycleStart.target_price,
+    target_source: cycleStart.target_source,
+    cycle_start_price: cycleStart.price,
+    cycle_start_source: cycleStart.source,
+    cycle_start_date: cycleStart.date,
+    cycle_start_index: cycleStart.index,
+    cycle_start_lookback_sessions: rows.length - 1 - cycleStart.index,
+    anchor_gap: anchorGap,
+    target_gap: targetGap,
+    recovery_fraction,
+    formula_horizon_raw_sessions,
+    formula_horizon_sessions,
+    formula_ready: Boolean(delta),
+    signals_enabled: Boolean(delta),
+    long_cost: delta?.long_cost ?? NaN,
+    long_high: delta?.long_high ?? NaN,
+    long_low: delta?.long_low ?? NaN,
+    short_cost: delta?.short_cost ?? NaN,
+    short_high: delta?.short_high ?? NaN,
+    short_low: delta?.short_low ?? NaN,
     z_score,
-    cost_distance,
     period_vol,
     match_pct,
-    band_width,
+    lp_lower: state.anchor * Math.max(1 - opts.lp_range_width, 0.001),
+    lp_upper: state.anchor * (1 + opts.lp_range_width * opts.lp_skew),
     last_close: last.close,
   }
 }
 
-// CLI 用法：node scripts/verify-pine-equivalence.mjs public/data/GOOG-1d.csv
-// pathToFileURL 处理 Windows 三斜杠（file:///F:/...）和 Unix 差异
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { readFileSync } = await import('node:fs')
   const { resolve } = await import('node:path')
   const { parseCsvText } = await import('../src/domain/market-data/ohlcv.js')
-  const path = process.argv[2] || 'public/data/GOOG-1d.csv'
+  const path = process.argv[2] || 'public/data/600519-1d.csv'
   const text = readFileSync(resolve(process.cwd(), path), 'utf8')
-  const rows = parseCsvText(text)
-  console.log(JSON.stringify(pineEquivalent(rows), null, 2))
+  console.log(JSON.stringify(pineEquivalent(parseCsvText(text)), null, 2))
 }

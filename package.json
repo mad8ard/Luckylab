@@ -11,7 +11,7 @@
   "packageManager": "pnpm@11.1.2",
   "scripts": {
     "dev": "pnpm run generate:data && pnpm run generate:recommended-pool && vite",
-    "build": "pnpm run generate:data && pnpm run generate:recommended-pool && pnpm run check:size && pnpm run check:domain-boundary && pnpm run check:data && pnpm run check:generated-data && pnpm run verify:domain && vite build",
+    "build": "pnpm run generate:data && pnpm run generate:recommended-pool && pnpm run check:size && pnpm run check:domain-boundary && pnpm run check:data && pnpm run check:generated-data && pnpm run check:skill-runtime && pnpm run verify:domain && vite build",
     "generate:data": "node scripts/csv2js.mjs",
     "generate:recommended-pool": "node scripts/generate-recommended-pool.mjs && node scripts/render-recommended-pool-page.mjs",
     "fetch:market-data": "python3 scripts/fetch-market-data.py --output data/workbooks/stocks_latest.xlsx",
@@ -27,7 +27,8 @@
     "check:generated-data": "node scripts/check-generated-data.mjs",
     "check:size": "node scripts/check-file-size.mjs",
     "check:domain-boundary": "node scripts/check-domain-boundaries.mjs",
-    "test": "pnpm run generate:data && vitest run",
+    "check:skill-runtime": "node --test skills/china-stock-selection/scripts/selection-helpers.test.mjs && node scripts/check-china-stock-skill-runtime.mjs",
+    "test": "pnpm run generate:data && vitest run && pnpm run check:skill-runtime",
     "test:watch": "pnpm run generate:data && vitest",
     "test:cov": "pnpm run generate:data && vitest run --coverage",
     "lint": "eslint .",
@@ -48,6 +49,8 @@
   },
   "dependencies": {
     "d3-dsv": "^3.0.1",
+    "hqchart": "^1.1.15912",
+    "jquery": "^3.7.1",
     "lightweight-charts": "^5.2.0",
     "lucide-vue-next": "^1.0.0",
     "pinia": "^3.0.4",
