@@ -12,6 +12,11 @@ describe('inferTdpy', () => {
     expect(inferTdpy({ symbol: '300750' }).basis).toBe('cn')
   })
 
+  it('detects funds as a separate market group', () => {
+    expect(inferTdpy({ symbol: '518880', market: '基金' }).value).toBe(242)
+    expect(inferTdpy({ symbol: '513010', market: '基金' }).basis).toBe('fund')
+  })
+
   it('keeps unknown input missing instead of guessing a 365-session market', () => {
     const missing = { value: null, basis: 'missing-input', label: '待识别' }
     expect(inferTdpy(null)).toEqual(missing)

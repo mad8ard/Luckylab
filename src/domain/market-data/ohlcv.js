@@ -92,6 +92,23 @@ export const marketSamples = [
     source: 'BaoStock / AkShare',
     url: '/data/688256-1d.csv',
   },
+  // ── 基金 ──
+  {
+    id: 'fund-518880-1d',
+    label: '华安黄金ETF',
+    symbol: '518880',
+    interval: '1日',
+    source: 'BaoStock / AkShare',
+    url: '/data/518880-1d.csv',
+  },
+  {
+    id: 'fund-513010-1d',
+    label: '易方达恒生科技ETF',
+    symbol: '513010',
+    interval: '1日',
+    source: 'BaoStock / AkShare',
+    url: '/data/513010-1d.csv',
+  },
 ]
 
 export function parseCsvText(text) {
