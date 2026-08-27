@@ -463,13 +463,27 @@ def to_named_columns(frame, item, pd):
 
 def write_workbook(merged, output: Path, pd) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
-    with pd.ExcelWriter(output, engine="openpyxl") as writer:
-        for price_type in PRICE_COLUMNS:
-            cols = [col for col in merged.columns if col.endswith(f"|{price_type}")]
-            sheet = merged[cols].copy()
-            sheet.columns = pd.MultiIndex.from_tuples([col.rsplit("|", 1)[0].split("|", 1) for col in cols], names=["code", "name"])
-            sheet.index = sheet.index.strftime("%Y-%m-%d")
-            sheet.round(4).to_excel(writer, sheet_name=price_type, index_label="Date")
+    tmp = output.with_name(output.name + ".tmp")
+    try:
+        with pd.ExcelWriter(tmp, engine="openpyxl") as writer:
+            for price_type in PRICE_COLUMNS:
+                cols = [col for col in merged.columns if col.endswith(f"|{price_type}")]
+                sheet = merged[cols].copy()
+                sheet.columns = pd.MultiIndex.from_tuples([col.rsplit("|", 1)[0].split("|", 1) for col in cols], names=["code", "name"])
+                sheet.index = sheet.index.strftime("%Y-%m-%d")
+                sheet.round(4).to_excel(writer, sheet_name=price_type, index_label="Date")
+        os.replace(tmp, output)
+    except PermissionError as exc:
+        print(f"[SAVE-FAIL] 无法写入行情工作簿：{output}", file=sys.stderr)
+        print("  常见原因：目标文件正被 Excel 等程序占用，或当前进程对该目录没有写权限（如沙箱/受限环境）。", file=sys.stderr)
+        print("  请关闭占用文件的程序后重试；在 Codex 中运行时需在沙箱外执行。", file=sys.stderr)
+        raise SystemExit(1) from exc
+    finally:
+        if tmp.exists():
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
 
 
 def infer_market(symbol):

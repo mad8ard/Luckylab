@@ -4,6 +4,12 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
+process.on('uncaughtException', (err) => {
+  const reason = err?.cause?.message || err?.message || String(err)
+  console.error(`[fetch-lp] 聚合数据抓取失败：${reason}（LP 研究数据未刷新，不影响股票池）`)
+  process.exit(1)
+})
+
 const ROOT = join(import.meta.dirname, '..')
 const DEFAULT_OUTPUT = join(ROOT, 'src', 'data', 'lp-onchain-snapshots.json')
 const API_BASE = 'https://api.geckoterminal.com/api/v2'

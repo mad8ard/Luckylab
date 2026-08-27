@@ -18,7 +18,7 @@
     "fetch:lp-data": "node scripts/fetch-lp-pool-aggregate.mjs",
     "fetch:lp-uniswap-rpc": "node scripts/fetch-lp-onchain-data.mjs",
     "plan:market-data": "python3 scripts/fetch-market-data.py --plan",
-    "refresh:market-data": "pnpm run fetch:market-data && node scripts/convert-stocks-xlsx.mjs data/workbooks/stocks_latest.xlsx && pnpm run generate:data && pnpm run generate:recommended-pool && pnpm run check:data && pnpm run check:generated-data & pnpm run fetch:lp-data || echo LP-DATA-REFRESH-SKIPPED",
+    "refresh:market-data": "pnpm run fetch:market-data && node scripts/convert-stocks-xlsx.mjs data/workbooks/stocks_latest.xlsx && pnpm run generate:data && pnpm run generate:recommended-pool && pnpm run check:data && pnpm run check:generated-data && (pnpm run fetch:lp-data || echo LP-DATA-REFRESH-SKIPPED)",
     "verify:domain": "node scripts/verify-domain.mjs",
     "audit:formulas": "uv run --no-project --with poetry poetry check && uv run --no-project python scripts/source_coverage_audit.py && uv run --no-project python scripts/formula_inventory_audit.py && uv run --no-project python scripts/formula_wiring_audit.py && uv run --no-project python scripts/chart_formula_audit.py && uv run --no-project python scripts/formula_audit.py",
     "verify:pine": "node scripts/verify-pine.mjs && pnpm run verify:pine-equivalence",
