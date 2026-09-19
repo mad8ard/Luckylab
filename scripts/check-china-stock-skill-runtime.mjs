@@ -786,6 +786,8 @@ const fixedReplayPayload = runCliJson('.agents/skills/china-stock-selection/scri
   'json',
   '--fee',
   '0',
+  '--holding-gate',
+  'enforce',
   '--target-mode',
   'fixed',
   '--target',
@@ -849,6 +851,212 @@ assert.equal(explicitGatePayload.config.rowGate.mode, 'explicit-scenario')
 assert.equal(explicitGatePayload.config.rowGate.source, 'cli:--min-rows')
 assert.equal(explicitGatePayload.config.rowGate.explicitMinimumRows, 24)
 
+assert.equal(structureReplayPayload.evidenceSchemaVersion, 'china-stock-selection.evidence.v1')
+assert.equal(structureReplayPayload.survivorshipBias.warning, 'universe-is-current-membership-only')
+assert.equal(structureReplayPayload.survivorshipBias.pointInTimeMembershipAvailable, false)
+assert.equal(structureReplayPayload.claimClasses.survivorshipBias, 'missing-input')
+assert.equal(structureReplayPayload.claimClasses.statistics, 'sample-estimate')
+assert.match(structureReplayPayload.reproducibility.configHash, /^sha256:[0-9a-f]{64}$/)
+assert.match(structureReplayPayload.reproducibility.dataHash, /^sha256:[0-9a-f]{64}$/)
+assert.equal(structureReplayPayload.reproducibility.seed, 20260101)
+assert.equal(structureReplayPayload.reproducibility.bootstrapSamples, 2000)
+assert.equal(structureReplayPayload.evidenceMode, 'historical-replay')
+assert.equal(structureReplayPayload.statistics.n, structureReplayPayload.trades.length)
+assert.ok(Number.isFinite(structureReplayPayload.statistics.meanPct), 'replay statistics must report a sample mean')
+assert.ok(Number.isFinite(structureReplayPayload.statistics.pValue))
+assert.ok(
+  structureReplayPayload.statistics.bootstrapCI95Pct.lowPct <= structureReplayPayload.statistics.bootstrapCI95Pct.highPct,
+  'bootstrap interval must be ordered',
+)
+assert.equal(structureReplayPayload.benchmarks.buyAndHoldSameHorizon.n, structureReplayPayload.trades.length)
+assert.ok(structureReplayPayload.benchmarks.randomEntrySameUniverse.n > 0, 'random-entry benchmark must draw samples')
+assert.equal(structureReplayPayload.walkForward.enabled, false)
+assert.equal(structureReplayPayload.hypothesis.provided, false)
+assert.equal(replayPayload.statistics, null, 'latest mode must not fabricate statistics without returns')
+assert.equal(replayPayload.benchmarks, null)
+assert.equal(replayPayload.walkForward, null)
+assert.equal(replayPayload.evidenceMode, 'latest-observation-only')
+
+const replayLooseArgs = [
+  '--market', '港股', '--fee', '0', '--target', '0.0001', '--min-z', '0',
+  '--ck-geometry-max', '100', '--max-hl', '10000', '--min-slope', '-100', '--max-slope', '100',
+  '--min-distance', '0', '--max-distance', '100', '--max-entry-gap', '100', '--min-entry-gap', '-100',
+]
+const deterministicPayload = runCliJson('.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs', [
+  '--mode', 'replay', '--profile', 'strict', '--format', 'json', ...replayLooseArgs,
+])
+assert.equal(
+  deterministicPayload.statistics.meanPct,
+  structureReplayPayload.statistics.meanPct,
+  'identical inputs and seed must reproduce identical statistics',
+)
+assert.equal(
+  deterministicPayload.benchmarks.randomEntrySameUniverse.avgReturnPct,
+  structureReplayPayload.benchmarks.randomEntrySameUniverse.avgReturnPct,
+  'seeded random-entry benchmark must be reproducible',
+)
+
+const walkForwardPayload = runCliJson('.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs', [
+  '--mode', 'replay', '--profile', 'strict', '--format', 'json', '--validate', 'walk-forward',
+  '--train-sessions', '200', '--test-sessions', '50', '--step-sessions', '50', '--min-folds', '3',
+  ...replayLooseArgs,
+])
+assert.equal(walkForwardPayload.walkForward.enabled, true)
+assert.ok(walkForwardPayload.walkForward.folds.length >= 3, 'walk-forward smoke must produce folds')
+assert.equal(walkForwardPayload.walkForward.aggregate.minFoldsSatisfied, true)
+assert.ok(walkForwardPayload.walkForward.aggregate.sharedCalendarSessions > 0)
+assert.ok(walkForwardPayload.walkForward.aggregate.outOfSampleTrades > 0, 'walk-forward smoke must place trades out of sample')
+assert.equal(walkForwardPayload.walkForward.folds[0].fold, 1)
+assert.ok(walkForwardPayload.walkForward.folds[0].trainStart < walkForwardPayload.walkForward.folds[0].testStart)
+assert.equal(walkForwardPayload.claimClasses.walkForward, 'sample-estimate')
+assert.equal(
+  walkForwardPayload.walkForward.warnings.filter((warning) => warning.startsWith('insufficient-history')).length,
+  0,
+  'a supported calendar must not report insufficient history',
+)
+
+assertCliFails('.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs', ['--fee', '0', '--validate', 'bogus'], 'unknown validate')
+assertCliFails(
+  '.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs',
+  ['--fee', '0', '--mode', 'latest', '--validate', 'walk-forward'],
+  'requires --mode replay',
+)
+assertCliFails('.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs', ['--fee', '0', '--seed', '1.5'], 'expected an integer')
+assertCliFails(
+  '.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs',
+  ['--fee', '0', '--hypothesis', 'missing-hypothesis.json'],
+  'cannot read',
+)
+
+assert.equal(structureReplayPayload.config.holdingGate, 'diagnostic')
+assert.match(structureReplayPayload.config.holdingGatePolicy, /^phase-gate-is-diagnostic-only/)
+assert.ok(
+  structureReplayPayload.trades.length > 0
+    && structureReplayPayload.trades.some((row) => row.holdingGateEnforced === false),
+  'the default diagnostic gate must keep overridden research samples instead of discarding them',
+)
+assert.ok(Array.isArray(structureReplayPayload.statistics.byHoldingGateVerdict))
+assert.ok(Array.isArray(structureReplayPayload.statistics.byDynamicPhase))
+assert.equal(structureReplayPayload.config.execution.slippageModel, 'none-declared')
+assert.equal(structureReplayPayload.config.execution.assumptionSource, 'default-none-declared')
+assert.match(structureReplayPayload.config.execution.priceLimit.rule, /^A-share board prefix/)
+assert.equal(structureReplayPayload.executionAudit.accepted, structureReplayPayload.trades.length)
+assert.equal(
+  structureReplayPayload.executionAudit.signals,
+  structureReplayPayload.executionAudit.accepted + structureReplayPayload.executionAudit['entry-gate-rejected'],
+  'the execution audit must account for every emitted signal that passed the research gates',
+)
+
+const enforcedReplayPayload = runCliJson('.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs', [
+  '--mode', 'replay', '--profile', 'strict', '--format', 'json', '--holding-gate', 'enforce', ...replayLooseArgs,
+])
+assert.equal(enforcedReplayPayload.config.holdingGate, 'enforce')
+assert.match(enforcedReplayPayload.config.holdingGatePolicy, /^phase-gate-discards-signals/)
+assert.ok(
+  enforcedReplayPayload.trades.every((row) => row.holdingGateEnforced === true && row.holdingGateVerdict === 'execute'),
+  'enforce mode must keep every accepted trade at an execute holding verdict',
+)
+assert.ok(
+  enforcedReplayPayload.trades.length <= structureReplayPayload.trades.length,
+  'enforce mode must not accept more trades than diagnostic mode on identical inputs',
+)
+
+const slippageReplayPayload = runCliJson('.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs', [
+  '--mode', 'replay', '--profile', 'strict', '--format', 'json', '--slippage-bps', '10', ...replayLooseArgs,
+])
+assert.equal(slippageReplayPayload.config.execution.slippageModel, 'fixed-bps')
+assert.equal(slippageReplayPayload.config.execution.assumptionSource, 'explicit-scenario')
+assert.ok(slippageReplayPayload.trades.every((row) => row.slippageRate === 0.001))
+assert.ok(
+  slippageReplayPayload.trades.every((row) => row.entryFillPrice >= row.entryPrice && row.exitFillPrice <= row.exitPrice),
+  'slippage must worsen both fills',
+)
+assert.ok(
+  slippageReplayPayload.statistics.meanPct < structureReplayPayload.statistics.meanPct,
+  'slippage must lower the sample mean on identical inputs',
+)
+
+const liquidityBlockedPayload = runCliJson('.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs', [
+  '--mode', 'replay', '--profile', 'strict', '--format', 'json', '--min-avg-turnover', '1e15', ...replayLooseArgs,
+])
+assert.equal(liquidityBlockedPayload.trades.length, 0)
+assert.ok(liquidityBlockedPayload.executionAudit['insufficient-liquidity'] > 0)
+
+const participationBlockedPayload = runCliJson('.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs', [
+  '--mode', 'replay', '--profile', 'strict', '--format', 'json',
+  '--volume-cap', '0.001', '--order-notional', '1e12', ...replayLooseArgs,
+])
+assert.equal(participationBlockedPayload.trades.length, 0)
+assert.ok(participationBlockedPayload.executionAudit['order-exceeds-volume-cap'] > 0)
+
+assertCliFails(
+  '.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs',
+  ['--fee', '0', '--holding-gate', 'bogus'],
+  'unknown holding-gate',
+)
+assertCliFails(
+  '.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs',
+  ['--fee', '0', '--volume-cap', '0.01'],
+  'must be supplied together',
+)
+assertCliFails(
+  '.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs',
+  ['--fee', '0', '--slippage-bps', '10', '--slippage-atr-fraction', '0.1'],
+  'mutually exclusive',
+)
+assertCliFails(
+  '.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs',
+  ['--fee', '0', '--slippage-bps', '-1'],
+  'expected a non-negative number',
+)
+
+assert.equal(structureReplayPayload.riskMetrics.simulationOnly, true)
+assert.equal(structureReplayPayload.riskMetrics.points, structureReplayPayload.trades.length)
+assert.equal(structureReplayPayload.equityCurve.length, structureReplayPayload.trades.length)
+assert.ok(structureReplayPayload.riskMetrics.maxDrawdownPct <= 0)
+assert.ok(Number.isFinite(structureReplayPayload.riskMetrics.finalEquity))
+assert.equal(
+  structureReplayPayload.equityCurve.at(-1).equity,
+  structureReplayPayload.riskMetrics.finalEquity,
+  'the equity curve must end at the reported final equity',
+)
+assert.equal(structureReplayPayload.signalDecayHorizonSource, 'default-research-ladder')
+assert.deepEqual(
+  structureReplayPayload.signalDecay.map((bucket) => bucket.sessions),
+  [1, 2, 3, 5, 10, 20],
+)
+assert.ok(structureReplayPayload.signalDecay.every((bucket) => bucket.n > 0 && Number.isFinite(bucket.avgNetPct)))
+assert.equal(structureReplayPayload.sensitivity.enabled, false)
+assert.equal(replayPayload.riskMetrics, null, 'latest mode must not fabricate an equity curve without returns')
+assert.equal(replayPayload.signalDecay, null)
+assert.equal(replayPayload.equityCurve, null)
+
+const sensitivityPayload = runCliJson('.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs', [
+  '--mode', 'replay', '--market', '港股', '--fee', '0', '--format', 'json',
+  '--sensitivity', 'thresholds', '--sensitivity-factors', '1.1',
+])
+assert.equal(sensitivityPayload.sensitivity.enabled, true)
+assert.equal(sensitivityPayload.sensitivity.variants.length, 6)
+assert.ok(sensitivityPayload.sensitivity.variants.every((variant) => ['ok', 'invalid', 'failed'].includes(variant.status)))
+assert.equal(typeof sensitivityPayload.sensitivity.stabilityScoreInterpretable, 'boolean')
+assert.equal(sensitivityPayload.sensitivity.tradesToleranceFactor, 2)
+assert.equal(sensitivityPayload.sensitivity.byParameter.length, 6)
+assert.ok(sensitivityPayload.sensitivity.byParameter.every((entry) => Number.isFinite(entry.baseValue)))
+assert.ok(
+  sensitivityPayload.sensitivity.warnings.some((warning) => warning.includes('below the 30-trade floor')),
+  'a base sample under the floor must be disclosed as non-evidence',
+)
+assertCliFails(
+  '.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs',
+  ['--fee', '0', '--mode', 'latest', '--sensitivity', 'thresholds'],
+  'requires --mode replay',
+)
+assertCliFails(
+  '.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs',
+  ['--fee', '0', '--decay-horizons', '1,zero'],
+  'expected numbers',
+)
+
 console.log('china-stock-selection runtime parity: ok')
 
 function read(path) {
@@ -908,7 +1116,11 @@ function syntaxCheck(path) {
 }
 
 function assertCliFails(path, args, expectedMessage) {
-  const result = spawnSync(process.execPath, [path, ...args], { cwd: root, encoding: 'utf8' })
+  const result = spawnSync(process.execPath, [path, ...args], {
+    cwd: root,
+    encoding: 'utf8',
+    maxBuffer: 512 * 1024 * 1024,
+  })
   assert.notEqual(result.status, 0, `${path} ${args.join(' ')} must fail`)
   assert.match(
     `${result.stderr}${result.stdout}`,
@@ -921,7 +1133,7 @@ function runCliJson(path, args) {
   const result = spawnSync(process.execPath, [path, ...args], {
     cwd: root,
     encoding: 'utf8',
-    maxBuffer: 16 * 1024 * 1024,
+    maxBuffer: 512 * 1024 * 1024,
   })
   assert.equal(result.status, 0, `${path} JSON smoke failed: ${result.stderr || result.stdout}`)
   try {

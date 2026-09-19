@@ -303,6 +303,25 @@ Replay safety rules:
 
 All deviation fields remain extremeness diagnostics, not a reversion probability. The CK percentile remains synthetic geometry, not a real LP metric.
 
+### P0 Evidence Gates
+
+Replay emits survivorship, reproducibility, sample-statistics, benchmark, and walk-forward
+blocks. They are the minimum honesty layer, not new signal:
+
+- `survivorshipBias` always reports `universe-is-current-membership-only`; an absolute return level is an upper bound, not an estimate.
+- `statistics.sampleWarning` marks `n<30` as not statistically meaningful and reports `no-sample` when the thresholds produced no trade.
+- `benchmarks` compares the rule with same-universe buy-and-hold and seeded random entry under the same fee drag.
+- `walkForward` splits the shared session calendar into train and test folds; `consistency` is the share of trading folds with a positive out-of-sample average. It measures stability, not a refitted edge.
+- `reproducibility` carries `configHash`, `dataHash`, `nodeVersion`, and `gitCommit`. `--hypothesis <file.json>` records a pre-registered rule and `--run-log <file.jsonl>` raises `multipleComparisonsWarning` when several configurations are logged against one dataset.
+- `--holding-gate diagnostic` is the default: it keeps a candidate whose domain holding phase is not `execute` and records the verdict instead of discarding it. Report every such trade as an override with `holdingGateEnforced=false`, never as a clean observation; `--holding-gate enforce` restores the hard gate.
+- `equityCurve`, `riskMetrics`, and `signalDecay` are always emitted in replay mode and stay `null` in latest mode. `riskMetrics` is a trade-sequence research curve (`simulationOnly`), never a portfolio NAV.
+- `--sensitivity thresholds` re-runs the same command once per perturbed threshold and reports `stabilityScore`. Read it only when `stabilityScoreInterpretable` is true, and never present a variant count as evidence on its own.
+- Execution reality is declared, never assumed: `--slippage-bps` or `--slippage-atr-fraction`, `--min-avg-volume`/`--min-avg-turnover`, and `--volume-cap` with `--order-notional`. `executionAudit` must reconcile `signals` with `accepted` plus every block reason, and a `none-declared` slippage model must be reported as an undeclared assumption.
+
+```bash
+node .agents/skills/china-stock-selection/scripts/replay-short-hold.mjs --profile strict --fee 0.0011 --validate walk-forward --min-folds 3 --hypothesis ./hypotheses/z2-hl12.json --format json
+```
+
 ## Data Validation
 
 Before using output for a dated request:

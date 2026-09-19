@@ -140,6 +140,17 @@ or coverage start. Preserve those separately when a byte-for-byte audit is requi
 | `--index`          | `src/data/stock-index.json` | repository-relative or absolute path          | Instrument index.                                                                                                        |
 | `--data-dir`       |               `public/data` | repository-relative or absolute directory     | OHLCV CSV directory.                                                                                                     |
 | `--name-map`       |      local reference lookup | repository-relative or absolute JSON path     | Optional display-name map and its source label.                                                                          |
+| `--validate`             |                       `none` | `none` or `walk-forward`   | Unknown values fail; walk-forward requires `--mode replay`.            |
+| `--hypothesis`           |                       none | JSON file path             | Pre-registered rule declaration; an unreadable path fails before the scan. |
+| `--run-log`              |                       none | JSONL file path            | Appends the run hash and raises `multipleComparisonsWarning`.          |
+| `--seed`                 |                   `20260101` | integer                    | Seeds bootstrap resampling and random-entry draws.                     |
+| `--bootstrap-samples`    |                      `2000` | positive integer           | Resamples behind `bootstrapCI95Pct`.                                  |
+| `--random-entry-samples` |                       `200` | positive integer           | Random entries drawn per instrument for the null benchmark.            |
+| `--train-sessions`       |                       `400` | positive integer           | In-sample window of each walk-forward fold.                           |
+| `--test-sessions`        |                        `60` | positive integer           | Out-of-sample window of each walk-forward fold.                       |
+| `--step-sessions`        |                        `60` | positive integer           | Calendar advance between consecutive folds.                           |
+| `--min-folds`            |                         `3` | positive integer           | Minimum fold count; shortfalls are reported, never satisfied silently. |
+| `--holding-gate`         |                `diagnostic` | `enforce` or `diagnostic`  | `diagnostic` keeps a candidate the domain holding plan does not mark `execute` and records the verdict; `enforce` discards it. |
 
 ### Profiles, structural horizon, and override units
 
@@ -321,6 +332,13 @@ Top-level fields are:
 - machine-readable `stateContract`, complete `claimClassContract.allowedValues`, and
   emitted-claim mapping `claimClasses`
 - `syntheticCkGeometry` disclosure
+- `evidenceSchemaVersion=china-stock-selection.evidence.v1`, `evidenceMode`,
+  `survivorshipBias`, `reproducibility`, `hypothesis`, `statistics`, `benchmarks`,
+  and `walkForward`
+- `executionAudit` and `config.execution`, covering the declared slippage model,
+  liquidity floors, participation cap, A-share price-limit rule, and suspension rule
+- `equityCurve`, `riskMetrics`, `signalDecay` with `signalDecayHorizonSource` and
+  `signalDecaySemantics`, and `sensitivity`
 - `summary`
 - `trades` in replay mode or `signals` in latest mode, plus reason-coded `skipped`
 
@@ -385,21 +403,179 @@ row count, freshness, names and name sources, audit counts, and skipped-symbol r
 It still does not emit the exact command string, per-file digest, or coverage start;
 preserve those separately when byte-for-byte auditability is required.
 
+### P0 evidence gates
+
+`--validate`, `--hypothesis`, `--run-log`, `--seed`, `--bootstrap-samples`,
+`--random-entry-samples`, `--train-sessions`, `--test-sessions`, `--step-sessions`,
+and `--min-folds` are additive: the existing gates, rows, and fill rules are unchanged,
+and every new block stays `research-only`.
+
+| Flag                     |                     Default | Unit / accepted value    | Runtime meaning                                                       |
+| ------------------------ | --------------------------: | ------------------------ | --------------------------------------------------------------------- |
+| `--validate`             |                      `none` | `none` or `walk-forward` | Unknown values fail. Walk-forward requires `--mode replay`.           |
+| `--train-sessions`       |                       `400` | positive integer         | In-sample window length of each walk-forward fold.                    |
+| `--test-sessions`        |                        `60` | positive integer         | Out-of-sample window length of each walk-forward fold.                |
+| `--step-sessions`        |                        `60` | positive integer         | Calendar advance between consecutive folds.                           |
+| `--min-folds`            |                         `3` | positive integer         | Minimum fold count; shortfalls are reported, never satisfied silently. |
+| `--hypothesis`           |                       none | JSON file path           | Pre-registered rule declaration. An unreadable path fails before the scan. |
+| `--run-log`              |                       none | JSONL file path          | Appends the run hash and raises `multipleComparisonsWarning`.          |
+| `--seed`                 |                   `20260101` | integer                  | Seeds the bootstrap and random-entry draws so output is reproducible.  |
+| `--bootstrap-samples`    |                      `2000` | positive integer         | Resamples behind `bootstrapCI95Pct`.                                  |
+| `--random-entry-samples` |                       `200` | positive integer         | Random entries drawn per instrument for the null benchmark.           |
+
+`survivorshipBias` always reports `warning=universe-is-current-membership-only`,
+`pointInTimeMembershipAvailable=false`, and `biasDirection=upward`. The local index is
+today's membership, so an absolute return level is an upper bound rather than an estimate,
+and the missing point-in-time membership stays an explicit missing input.
+
+`--holding-gate diagnostic` is a research override, not a new signal. The deep-discount
+profile gates select states whose drawdown is still expanding, while the domain holding plan
+only returns `execute` for `repair-start` or `mean-reverting`; enforcing both leaves an almost
+empty intersection. `diagnostic` keeps every other gate, stops discarding on the phase verdict,
+and records `holdingGateEnforced=false`, `holdingGateVerdict`, `holdingGatePhase`,
+`holdingGateShortTradeAction`, and `holdingGateBlockedReasons` on every row. `statistics`
+gains `byDynamicPhase` and `byHoldingGateVerdict` so an overridden trade is never reported
+inside the clean sample. The default is `diagnostic`, because a hard gate that discards every
+candidate leaves no sample to test; `--holding-gate enforce` restores the strict gate.
+
+`reproducibility` carries `configHash`, `dataHash`, `dataHashScope`, `nodeVersion`,
+`platform`, `gitCommit`, and the resolved seeds. `configHash` covers the resolved profiles,
+gates, fee, markets, and evidence options. `dataHash` covers the manifest of
+`symbol, market, rows, dataThrough, source` per instrument. Both are `sha256:` prefixed and
+independent of `--format`.
+
+`statistics` reports `n`, `meanPct`, `medianPct`, `stdPct`, `tStat`, `pValue`,
+`bootstrapCI95Pct`, and `sampleWarning`. `n<30` always sets
+`insufficient-sample: n<30, results are not statistically meaningful`; zero trades set
+`no-sample`. `testModel` states that the two-sided p-value is a normal-reference
+approximation on the sample t statistic, not an exact finite-sample test.
+
+`benchmarks` pairs the rule against `buyAndHoldSameHorizon` (accepted entry open to accepted
+exit close, same accepted trade sample) and `randomEntrySameUniverse` (seeded uniform entries
+per instrument held for the median accepted horizon). Both apply the same single fee drag.
+`excessReturnPctVsBuyAndHold` and `excessReturnPctVsRandomEntry` are differences of sample
+means, not significance proofs.
+
+`walkForward` cuts the union session calendar of every covered instrument into
+`trainSessions` and `testSessions` folds advanced by `stepSessions`. Each fold reports its
+date range, `inSampleTrades`, `outOfSampleTrades`, and both averages. `aggregate` adds
+`outOfSampleStdPct`, `outOfSampleWinRatePct`, `foldsWithOutOfSampleTrades`,
+`positiveOutOfSampleFolds`, and `consistency` (positive out-of-sample folds divided by folds
+that produced at least one trade). `degradationPct` is out-of-sample minus in-sample average,
+and `outOfSampleStatistics` reuses the statistics block on out-of-sample trades only. Folds
+hold the supplied thresholds fixed: the split measures stability, it does not refit the rule,
+and it cannot remove parameter-selection bias from how the thresholds were chosen. `warnings`
+reports short calendars, unmet `--min-folds`, and folds with no out-of-sample trade.
+
+`hypothesis` echoes the supplied declaration, compares its optional `configHash`, and lists
+`mismatches` when `rule` or `prediction` is missing. It is recorded, never enforced. When
+`--run-log` is supplied, a different `configHash` already logged against the same `dataHash`
+raises `multipleComparisonsWarning`.
+
+In `latest` mode `statistics`, `benchmarks`, and `walkForward` are `null` with
+`evidenceMode=latest-observation-only` rather than zero, because no return is simulated.
+
+
+### Execution Reality
+
+`--slippage-bps`, `--slippage-atr-fraction`, `--volume-cap` with `--order-notional`,
+`--min-avg-volume`, and `--min-avg-turnover` extend the replay from a fill model into an
+execution model. All of them are additive, and `config.execution.assumptionSource` records
+whether a scenario was declared or every mechanism stayed at its default.
+
+| Flag                      |        Default | Unit / accepted value       | Runtime meaning                                                       |
+| ------------------------- | -------------: | --------------------------- | --------------------------------------------------------------------- |
+| `--slippage-bps`          |            `0` | non-negative number         | Aggregate price concession per fill, in basis points.                 |
+| `--slippage-atr-fraction` |            `0` | non-negative number         | Alternative concession as a fraction of the signal-close ATR percent. |
+| `--volume-cap`            |           none | number in `(0,1]`           | Participation ceiling; requires `--order-notional`.                   |
+| `--order-notional`        |           none | positive number             | Declared order size, used only to compute participation.              |
+| `--min-avg-volume`        |            `0` | non-negative number         | Causal average-volume floor; `0` disables the gate.                   |
+| `--min-avg-turnover`      |            `0` | non-negative number         | Causal average-turnover floor; `0` disables the gate.                 |
+
+Slippage is frozen at signal close and applied to both fills: the entry fill pays up and the exit
+fill receives less, so `grossReturn = exitFillPrice / entryFillPrice - 1`. The structural target
+level is unchanged, and the stop is derived from the actual entry fill. `--slippage-bps` and
+`--slippage-atr-fraction` are mutually exclusive, and an undeclared concession is reported as
+`none-declared` rather than silently treated as zero cost.
+
+`executionAudit` accounts for every emitted signal: `signals` equals `accepted` plus the reason
+counters `entry-gate-rejected`, `insufficient-liquidity`, `suspended-entry-session`,
+`entry-at-price-limit-up`, and `order-exceeds-volume-cap`. A blocked signal produces no trade row
+at all, so the surviving sample is the execution-feasible one.
+
+The A-share price-limit rule blocks an entry whose session open is at or above the board limit over
+the previous close: `30` and `68` prefixes use 20%, `43`, `83`, `87`, and `88` use 30%, and other
+six-digit codes use 10%. Back-adjusted prices make the limit price approximate, and ST or newly
+listed boards cannot be detected locally, so the rule is a near-limit gap detector rather than an
+exchange-exact check. Hong Kong has no modeled daily limit. A suspended entry session, detected
+from zero volume or a calendar gap beyond the disclosed threshold, is not tradable. A suspension
+inside the holding window is disclosed per trade and is not re-simulated, and an exit session that
+closed at the board limit is flagged instead of re-priced.
+
+Liquidity gates consume only the visible prefix, with the averaging window taken from
+`adaptiveWindowSpec.analysisWindowRows` rather than a hidden fixed period.
+
+### P2 Research Outputs
+
+`--sensitivity`, `--sensitivity-factors`, and `--decay-horizons` are additive research
+outputs over the same accepted trades. `equityCurve`, `riskMetrics`, and `signalDecay` are
+always emitted in `replay` mode and stay `null` in `latest` mode, where no return exists.
+
+`riskMetrics` is `simulation-only` and uses an equal-weight, one-unit-per-accepted-trade curve
+compounded in exit-date order. `capitalModel` states that there is no position limit and no
+cash ledger, so concurrent trades compound sequentially and the curve is a trade-sequence
+research curve rather than a portfolio NAV. It reports `points`, `finalEquity`,
+`totalReturnPct`, `maxDrawdownPct`, `profitFactor`, `perTradeSharpe`, `annualizedSharpe` with
+its explicit annualization basis, `annualizedReturnPct`, `calmar`, and `avgHoldSessions`. A
+sample below 30 trades always carries the sample warning.
+
+`signalDecay` reports the forward net return after the accepted entry fill at each
+`--decay-horizons` coordinate (default `1,2,3,5,10,20`) under the same fee, with `n`,
+`avgNetPct`, `winRatePct`, and a per-bucket sample warning. The ladder is a fixed research
+coordinate, disclosed as `signalDecayHorizonSource`, not a holding recommendation.
+
+| Flag                     |          Default | Unit / accepted value   | Runtime meaning                                          |
+| ------------------------ | ---------------: | ----------------------- | -------------------------------------------------------- |
+| `--sensitivity`          |            `off` | `off` or `thresholds`   | `thresholds` re-runs the same command once per perturbed threshold. |
+| `--sensitivity-factors`  |       `0.8,1.2` | comma-separated numbers | Multipliers applied to each resolved profile threshold.   |
+| `--decay-horizons`       | `1,2,3,5,10,20` | comma-separated integers | Forward-return coordinates for `signalDecay`.            |
+
+`--sensitivity thresholds` perturbs `minZ`, `maxCkGeometryPercentile`, `maxHalfLifeSessions`,
+`minCostDistancePct`, `maxCostDistancePct`, and `minimumGrossReturn`. Each variant is a
+separate full replay, so the flag costs one whole run per variant. `stabilityScore` is the
+share of variants that keep a positive sample mean and a trade count within
+`tradesToleranceFactor` (2x) of the base. `byParameter` reports `baseValue`, `minTrades`,
+`maxTrades`, `tradesRangeRatio`, and `signFlips` per perturbed threshold, so one hypersensitive
+knob stays visible even when the aggregate score is high. An invalid perturbation, a variant
+with no sample, a base sample below the 30-trade floor, and any parameter whose sample size
+swings by 2x or more are all reported in `warnings`. `stabilityScoreInterpretable` states
+whether the score may be read as evidence at all.
+
 ## Unmodeled Execution and Cost Mechanisms
 
 Neither CLI models or verifies:
 
-- live bid/ask, depth, spread, slippage, impact, latency, partial fills, or rejected orders
+- live bid/ask, depth, spread, latency, partial fills, or rejected orders; the declared
+  `--slippage-bps` or `--slippage-atr-fraction` concession is not a book
 - gap-through stop/target fills; daily-bar boundaries are filled at the declared level
-- exchange price limits, trading halts, auctions, suspensions, tick size, board lot, or
-  broker minimum-order rules
+- exchange price limits beyond the disclosed A-share board-prefix rule, trading halts,
+  auctions, tick size, board lot, or broker minimum-order rules; ST and newly listed boards
+  are not detectable locally and Hong Kong has no modeled daily limit
 - A-share or Hong Kong commissions, taxes/stamp duty, levies, transfer/clearing fees,
   minimum commissions, or currency conversion
 - account cash, position size, portfolio loss budget, settlement availability, margin,
   financing, securities borrowing, liquidation, or cross-position exposure
-- point-in-time constituents, delistings, survivorship bias, corporate-action identity,
-  fundamentals, news, or event calendars
-- train/validation/holdout separation or parameter-selection bias
+- point-in-time constituents, delistings, corporate-action identity, fundamentals,
+  news, or event calendars; `survivorshipBias` discloses the resulting
+  current-membership bias instead of correcting it
+- a suspension inside the holding window, which is disclosed per trade rather than
+  re-simulated, and an exit session that closed at the board limit, which is flagged
+  rather than re-priced
+- parameter-selection bias in the threshold choice itself; `walkForward` splits the
+  timeline, `hypothesis` records a pre-registered rule, and `sensitivity` perturbs one
+  threshold at a time, but none of them can prove which thresholds were tried before the run
+- portfolio construction, capital allocation, rebalancing, position sizing, financing,
+  and any concurrent-position exposure; `riskMetrics` is a trade-sequence curve, not a NAV
 
 Therefore `eligible=true`, `观察`, a high score, a high win rate, or a positive
 `netReturnPct` never promotes output to `executable`. The safe terminal states remain
