@@ -18,14 +18,13 @@ const filter = ref('')
 const collapsedGroupIds = ref(new Set())
 
 const GROUP_META = [
-  { id: 'hk', label: '港股', icon: '🇭🇰' },
   { id: 'cn', label: 'A 股', icon: '🇨🇳' },
-  { id: 'fund', label: '基金', icon: '💰' },
+  { id: 'hk', label: '港股', icon: '🇭🇰' },
 ]
 
 // 按已识别市场分组；missing-input 样本不猜测 TDPY，也不混入任一市场组。
 const groupedSamples = computed(() => {
-  const buckets = { hk: [], cn: [], fund: [] }
+  const buckets = { cn: [], hk: [] }
   for (const s of props.samples) {
     const basis = inferTdpy(s).basis
     if (basis in buckets) buckets[basis].push(s)
