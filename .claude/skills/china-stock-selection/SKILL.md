@@ -16,7 +16,6 @@ node .claude/skills/china-stock-selection/scripts/replay-short-hold.mjs --profil
 
 In particular, preserve these canonical rules:
 
-- the social-security whitelist filters A shares only; Hong Kong stocks bypass it
 - normal-reference deviation percentile/tail and empirical ranks diagnose extremeness, not reversion probability
 - synthetic CK geometry is not a real LP position, token holding, fee income, or return
 - dynamic targets use the cost band and anchor only

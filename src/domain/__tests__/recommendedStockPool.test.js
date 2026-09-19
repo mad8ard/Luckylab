@@ -33,7 +33,6 @@ const STRONG = {
   meanReversionCalibrationStatus: 'sample-only',
   meanReversionCalibrationId: null,
   volSampleQualityScore: 0.85,
-  socialSecurityWhitelisted: false,
 }
 
 describe('维度配置库', () => {
@@ -47,7 +46,6 @@ describe('维度配置库', () => {
       'lpRatio3y',
       'halfLife',
       'volConfidence',
-      'socialSecurityWhitelist',
     ]) {
       expect(ids).toContain(id)
     }
@@ -170,16 +168,6 @@ describe('computeBuyScore', () => {
     const disabled = computeBuyScore(validated, { allowCatchKnife: false })
     expect(disabled.catchKnife).toBe(false)
     expect(disabled.dimensions.costSlope.ratio).toBe(0)
-  })
-
-  it('社保白名单 optional：未命中不进 maxScore，命中加分上调总分', () => {
-    const dimensions = buildScoreConfig([{ id: 'socialSecurityWhitelist', enabled: true }])
-    const base = { ...STRONG, lpValueRatio3y: 1.5 }
-    const r1 = computeBuyScore(base, { dimensions })
-    const r2 = computeBuyScore({ ...base, socialSecurityWhitelisted: true }, { dimensions })
-    expect(r2.score).toBeGreaterThan(r1.score)
-    // 命中后 maxScore 把社保权重也加进来
-    expect(r2.maxScore).toBeGreaterThan(r1.maxScore)
   })
 
   it('全部维度 disabled → score=0, maxScore=0', () => {

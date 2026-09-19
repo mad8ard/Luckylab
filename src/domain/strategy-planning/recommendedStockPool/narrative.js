@@ -73,10 +73,5 @@ export function buildNarrative({ label, score, maxScore, dimensions, catchKnife,
     lines.push(`${[entry, anchor].filter(Boolean).join('，')}；仅为研究坐标，不是买卖指令。`)
   }
 
-  // 社保白名单
-  if (metrics.socialSecurityWhitelisted) {
-    lines.push(`当前社保 Q1 名单命中；若用于历史回放必须使用当期快照，不能回填未来名单。`)
-  }
-
   return lines.join(' ')
 }

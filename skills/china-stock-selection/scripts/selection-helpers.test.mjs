@@ -7,7 +7,6 @@ import {
   buildSyntheticCkGeometryState,
   empiricalDeviationStats,
   isPositiveMonotonicMeanReversion,
-  passesAshareShebaoFilter,
   scoreFreshnessEvidence,
 } from '../../../.agents/skills/china-stock-selection/scripts/selection-helpers.mjs'
 
@@ -57,15 +56,6 @@ test('empirical deviation handles ties and invalid samples explicitly', () => {
   assert.equal(ties.twoSidedTailPct, 100)
   assert.equal(empiricalDeviationStats([], 2), null)
   assert.equal(empiricalDeviationStats([1, 2], Number.NaN), null)
-})
-
-test('social-security whitelist is an A-share-only gate', () => {
-  const whitelist = new Set(['000001'])
-
-  assert.equal(passesAshareShebaoFilter({ market: 'A股', symbol: '000001' }, whitelist, true), true)
-  assert.equal(passesAshareShebaoFilter({ market: 'A股', symbol: '000002' }, whitelist, true), false)
-  assert.equal(passesAshareShebaoFilter({ market: '港股', symbol: '00002_HK' }, whitelist, true), true)
-  assert.equal(passesAshareShebaoFilter({ market: 'A股', symbol: '000002' }, whitelist, false), true)
 })
 
 test('dynamic holding accepts only positive monotonic mean reversion', () => {

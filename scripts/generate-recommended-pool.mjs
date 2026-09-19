@@ -22,7 +22,6 @@ const INDEX_PATH = join(ROOT, 'src', 'data', 'stock-index.json')
 const DATA_DIR = join(ROOT, 'public', 'data')
 const OUT_DIR = join(ROOT, 'src', 'data', 'recommended-pools')
 const LATEST_PATH = join(ROOT, 'src', 'data', 'recommended-pool-latest.json')
-const WHITELIST_PATH = join(ROOT, 'src', 'data', 'social-security-q1-whitelist.json')
 
 const TOP_N = numberArg('--top', 10)
 const RANGE_WIDTH = numberArg('--range-width', 0.1)
@@ -40,7 +39,6 @@ async function main() {
   if (!Array.isArray(index)) throw new Error('stock-index.json 不是数组')
 
   const csvSet = new Set((await readdir(DATA_DIR)).filter((f) => f.endsWith('.csv')))
-  const whitelist = await loadWhitelist()
 
   const candidates = []
   let okCount = 0
@@ -54,7 +52,7 @@ async function main() {
     try {
       const text = await readFile(join(DATA_DIR, file), 'utf8')
       const rows = parseCsvText(text)
-      const metrics = computeMetricsForRows(rows, entry, whitelist)
+      const metrics = computeMetricsForRows(rows, entry)
       if (!metrics) {
         skipCount += 1
         continue
@@ -97,7 +95,6 @@ async function main() {
       indexEntries: index.length,
       processed: okCount,
       skipped: skipCount,
-      whitelistEntries: whitelist.size,
     },
   }
 
@@ -114,23 +111,11 @@ async function main() {
 
   console.log(
     `研究观察池生成完毕：focus=${pool.focusItems.length} / wait=${pool.waitItems.length}，` +
-      `processed=${okCount}, skipped=${skipCount}, whitelist=${whitelist.size}, dated=${datedPath}`,
+      `processed=${okCount}, skipped=${skipCount}, dated=${datedPath}`,
   )
 }
 
-async function loadWhitelist() {
-  try {
-    const text = await readFile(WHITELIST_PATH, 'utf8')
-    const data = JSON.parse(text)
-    const set = new Set()
-    if (Array.isArray(data?.symbols)) for (const s of data.symbols) set.add(String(s).trim())
-    return set
-  } catch {
-    return new Set()
-  }
-}
-
-function computeMetricsForRows(rows, entry, whitelist) {
+function computeMetricsForRows(rows, entry) {
   const market = entry.market
   const tdpy = inferTdpy({ symbol: entry.symbol, market }).value
   const historySessions1y = HISTORY_SESSIONS_OVERRIDE ?? tdpy
@@ -204,7 +189,6 @@ function computeMetricsForRows(rows, entry, whitelist) {
     historySessions1y,
     historySessions3y,
     minimumEvidenceSamples,
-    socialSecurityWhitelisted: whitelist.has(entry.symbol),
     observationDate: last.date,
   }
 }

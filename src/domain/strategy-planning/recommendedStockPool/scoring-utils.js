@@ -66,8 +66,6 @@ export function formatHit(id, m) {
       return `HL=${Math.round(m.halfLifeSessions)}会话`
     case 'volConfidence':
       return '波动样本质量'
-    case 'socialSecurityWhitelist':
-      return '社保 Q1 白名单'
     default:
       return id
   }

@@ -16,7 +16,6 @@ description: '拉取 Market Lab 的研究观察池，生成可审计的企业微
 - `annualVolSource=historical-realized-scenario-sigma` 表示历史实现波动的情景输入，不是市场期权 IV。
 - `meanReversionMonotonicGate=true` 只表示样本内 `0<rho<1` 的单调 AR 门禁，不等于统计校准。只有 `meanReversionCalibrationStatus=holdout-validated` 且存在 `meanReversionCalibrationId` 时才可称为经过独立留出校准。
 - `deltaReferencePrice`、`costBandReferencePrice` 是研究参考坐标，不得写成买点、卖点或指令。
-- 社保名单用于历史回放时必须是 point-in-time 快照；当前名单不得回填历史。
 - 保留 `riskNote`，不得输出“建议买入、确定反转、做市商囤满、赚手续费、机构托底”等结论。
 
 ## 数据入口
@@ -106,7 +105,7 @@ description: '拉取 Market Lab 的研究观察池，生成可审计的企业微
 合成几何：P{lpValuePercentilePct}% / zone={lpZone}
 AR：HL {halfLifeDays}天；{样本内单调门禁/未通过门禁}；校准 {meanReversionCalibrationStatus}
 参考坐标：Delta {deltaReferencePrice} / 成本带 {costBandReferencePrice}（非买卖指令）
-缺口：真实 LP、路径手续费、期权报价与点时名单未由该快照证明
+缺口：真实 LP、路径手续费与期权报价未由该快照证明
 
 {narrative}
 

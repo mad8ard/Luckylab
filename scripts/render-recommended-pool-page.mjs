@@ -506,7 +506,6 @@ function browserScript() {
       return 1 / (1 + m.formulaHorizonSessions / Math.sqrt(m.tradingDays));
     },
     volConfidence: function (m) { return clamp01(m.volSampleQualityScore); },
-    socialSecurityWhitelist: function (m) { return m.socialSecurityWhitelisted ? 1 : null; },
   };
   var REQUIRES = {
     lpValuePercentile: ['lpValuePercentile'],
@@ -516,7 +515,6 @@ function browserScript() {
     lpRatio3y: ['lpValueRatio3y'],
     halfLife: ['halfLifeSessions', 'meanReversionMonotonicGate'],
     volConfidence: ['volSampleQualityScore'],
-    socialSecurityWhitelist: ['socialSecurityWhitelisted'],
   };
 
   function scoreOne(m, dims, ctx) {
@@ -572,7 +570,6 @@ function browserScript() {
       case 'lpRatio3y':         return '几何代理 3 年 ' + m.lpValueRatio3y.toFixed(2) + '×';
       case 'halfLife':          return 'HL=' + Math.round(m.halfLifeSessions) + '会话';
       case 'volConfidence':     return '波动样本质量';
-      case 'socialSecurityWhitelist': return '社保 Q1 白名单';
       default: return id;
     }
   }
@@ -636,7 +633,6 @@ function browserScript() {
       var sell = isFinite(m.costBandReferencePrice) ? '成本带参考 ' + m.costBandReferencePrice : '';
       lines.push([buy, sell].filter(Boolean).join('，') + '；非买卖指令。');
     }
-    if (m.socialSecurityWhitelisted) lines.push('社保 Q1 重仓名单中。');
     return lines.join(' ');
   }
 

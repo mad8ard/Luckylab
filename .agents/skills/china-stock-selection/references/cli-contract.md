@@ -35,11 +35,6 @@ in the same change.
 | `--min-rows`              |                    adaptive | OHLCV row count                           | Optional explicit sample-gate scenario. Without it, the per-instrument gate is `ceil(sqrt(tradingDaysPerYear))`; output labels mode and source.      |
 | `--option-tenor-sessions` |                     missing | positive integer sessions                 | Optional explicit option-expiry scenario. It never defaults to or consumes `formulaHorizonSessions`; missing keeps option/Greek outputs missing.     |
 | `--format`                |                  `markdown` | `markdown` or `json`                      | Unknown values fail instead of silently changing the output contract.                                                                                |
-| `--require-shebao`        |                      `true` | boolean                                   | The whitelist is applied to A shares only; Hong Kong entries bypass it.                                                                              |
-| `--exclude-alcohol`       |                      `true` | boolean                                   | Controls the hard-coded A-share symbol exclusion.                                                                                                    |
-| `--exclude-banks`         |                      `true` | boolean                                   | Controls the hard-coded A-share symbol exclusion.                                                                                                    |
-| `--exclude-realestate`    |                      `true` | boolean                                   | Controls the hard-coded A-share symbol exclusion.                                                                                                    |
-| `--exclude-northeast`     |                      `true` | boolean                                   | Controls the hard-coded A-share symbol exclusion.                                                                                                    |
 | `--index`                 | `src/data/stock-index.json` | repository-relative or absolute path      | Instrument index and its local source labels.                                                                                                        |
 | `--data-dir`              |               `public/data` | repository-relative or absolute directory | Directory containing the CSV named by each index entry.                                                                                              |
 | `--name-map`              |      local reference lookup | repository-relative or absolute JSON path | Optional display-name map; it is not current identity evidence.                                                                                      |
@@ -54,8 +49,7 @@ Top-level fields are:
   top-level `rowGate`, and `optionScenario`
 - `provenance` with canonical runtime, local data model, index, data directory, and
   name-map inputs
-- complete `filters` with markets, all four optional exclusion toggles, and
-  `requireShebaoForAshareOnly`
+- complete `filters` with the resolved markets
 - aggregate `freshness` and `audit`, including considered/data-ready/emitted/skipped
   counts and `skipReasons`
 - the row-level `adaptiveWindowSpec` and `rowGate`; default windows use only the
@@ -141,7 +135,6 @@ or coverage start. Preserve those separately when a byte-for-byte audit is requi
 | `--mode`           |                    `replay` | `replay`, `latest`                            | Unknown values fail. Latest emits current eligible observations without simulated exits.                                 |
 | `--market`         |                       `A股` | `A股`, `港股`, or comma-separated combination | Unknown market labels fail; `config.markets` preserves the resolved set.                                                 |
 | `--fee`            |                    required | decimal return fraction                       | Must be explicit, including zero. Replay uses `netReturn = grossReturn - feeRate`; latest records but does not apply it. |
-| `--require-shebao` |                     `false` | boolean                                       | Enables the current static whitelist for A shares only; Hong Kong entries bypass it.                                     |
 | `--min-rows`       |                    adaptive | OHLCV row count                               | Optional explicit sample-gate scenario; default gate is derived per instrument and prefix.                               |
 | `--format`         |                  `markdown` | `markdown` or `json`                          | Unknown values fail.                                                                                                     |
 | `--index`          | `src/data/stock-index.json` | repository-relative or absolute path          | Instrument index.                                                                                                        |
@@ -292,8 +285,7 @@ More exactly:
 
 Both A-share and Hong Kong annualization currently use the market metadata value of
 242 trading days per year. This is an annualization basis, not a sample-window length.
-Hong Kong entries bypass
-the A-share social-security whitelist. The A-share one-session resale lag is a settlement
+The A-share one-session resale lag is a settlement
 rule (`settlementLagSessions=1`), never a minimum holding-period estimate.
 
 ### Fee and return semantics
@@ -320,10 +312,10 @@ Top-level fields are:
 
 - `schemaVersion=china-stock-selection.replay.v4` and `generatedAt`
 - resolved `config`, including `profile`, `mode`, `market`, `feeRate`,
-- `markets`, `feeAppliedToReturns`, `feeModel`, `requireShebao`, `rowGate`, `format`,
-  `intrabarPolicy`, `targetTiming`, `targetContextPolicy`, `shebaoEvidence`, resolved
+- `markets`, `feeAppliedToReturns`, `feeModel`, `rowGate`, `format`,
+  `intrabarPolicy`, `targetTiming`, `targetContextPolicy`, resolved
   `profiles`, `horizonPolicy`, `fixedHorizonApplied`, `executionAuthority`,
-  `settlementPolicy`, and `requireShebaoForAshareOnly`
+  and `settlementPolicy`
 - `provenance`, complete `filters`, aggregate `freshness`, `audit`, and
   `researchBoundary`
 - machine-readable `stateContract`, complete `claimClassContract.allowedValues`, and
@@ -420,7 +412,7 @@ For a result intended to be reproducible, retain:
 
 1. exact command and resolved profile configuration
 2. symbol, market, source/name source, CSV identity, coverage start/end, rows, and freshness
-3. active filters, including the point-in-time limitation of a static whitelist
+3. the active market filter
 4. `dataState`, raw `scoreStatus`, gated `candidateStatus`, and `executionStatus`
 5. signal, entry, settlement lag, target/q/horizon recomputation, tail sufficiency,
    non-overlap, intrabar, explicit fixed-scenario horizon (if any), and fee assumptions

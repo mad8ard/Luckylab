@@ -80,7 +80,7 @@ For A-share T+1 research, a signal after close enters no earlier than the next s
 - Report sample size, coverage period, skipped signals, fees, fill timing, stop/target ambiguity policy, and point-in-time limitations.
 - Average return and win rate are insufficient. Include median, downside quantile, worst result, and profile-level counts.
 - A replay on the same data used to design thresholds is an in-sample diagnostic, not validated expectancy.
-- Static current whitelists, names, or classifications applied to history introduce lookahead and must be disclosed.
+- Static current names or classifications applied to history introduce lookahead and must be disclosed.
 
 ## Language
 

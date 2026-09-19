@@ -1,0 +1,7 @@
+interface:
+  display_name: "China Stock Selection"
+  short_description: "A-share/HK screening and dynamic holding research"
+  brand_color: "#2563EB"
+  default_prompt: "Use $china-stock-selection to build a source-labeled A-share/HK watchlist, dynamic holding-state view, or T+1 short-hold replay from the local Market Lab data."
+policy:
+  allow_implicit_invocation: true

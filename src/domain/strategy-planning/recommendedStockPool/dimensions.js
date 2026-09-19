@@ -116,14 +116,4 @@ export const DIMENSION_LIBRARY = [
     requires: ['volSampleQualityScore'],
     score: (m) => clamp01(m.volSampleQualityScore),
   }),
-  // 8. 社保 Q1 白名单（可选加分项 +5）
-  dim({
-    id: 'socialSecurityWhitelist',
-    label: '社保 Q1 白名单',
-    weight: 5,
-    enabled: false,
-    optional: true, // optional=true：未命中不参与归一计算（视为 missing）
-    requires: ['socialSecurityWhitelisted'],
-    score: (m) => (m.socialSecurityWhitelisted ? 1 : null),
-  }),
 ]
