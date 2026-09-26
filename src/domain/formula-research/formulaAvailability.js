@@ -100,7 +100,6 @@ const AVAILABILITY_RULES = Object.freeze({
           positive(ctx.graph?.inputs?.tradingDaysPerYear) ? null : 'trading-days-per-year',
           'liquidity-fingerprint-output',
         ]),
-  'lp-pool-coverage': lpPoolCoverageMissing,
   'amm-geometry': (ctx) => (positive(ctx.market?.markPrice ?? ctx.graph?.inputs?.entryPrice) ? [] : ['mark-price']),
   'capital-efficiency': lpCapitalEfficiencyMissing,
   funding: fundingMissing,
@@ -275,12 +274,6 @@ function lpValuationMissing(ctx) {
   return ['declared-lp-scenario-or-complete-position']
 }
 
-function lpPoolCoverageMissing(ctx) {
-  const row = ctx.latestFormulaRow
-  if ([row?.lpPoolTurnover24h, row?.lpPoolTopReserveShare].some(finite)) return []
-  const missing = fieldMissing(ctx, 'lpPoolTurnover24h')
-  return missing.length ? missing : ['pool-coverage-snapshot']
-}
 
 function fundingMissing(ctx) {
   if ([ctx.graph?.funding?.basisFraction, ctx.graph?.funding?.cumulativeFundingProxy].every(finite)) return []

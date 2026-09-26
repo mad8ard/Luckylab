@@ -115,7 +115,7 @@ Drop below any of these and the command exits non-zero. Thresholds sit slightly 
 4. `pnpm run build`
 5. `pnpm run verify:pine` (only when Pine files changed)
 
-Skipped on commits that only touch `public/data/**`, `src/data/stock-index.json`, `src/data/lp-onchain-snapshots.json`, `docs/**`, or top-level `*.md` files.
+Skipped on commits that only touch `public/data/**`, `src/data/stock-index.json`, `docs/**`, or top-level `*.md` files.
 
 ## Before Merge
 

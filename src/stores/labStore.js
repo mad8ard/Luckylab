@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { buildMarketStatePath } from '../domain/market-data/cost.js'
-import lpOnchainSnapshots from '../data/lp-onchain-snapshots.json'
-import { resolveLpOnchainSnapshot } from '../domain/market-data/lpOnchain.js'
 import { marketSamples } from '../domain/market-data/ohlcv.js'
 import { inferTdpy } from '../domain/market-data/tdpy.js'
 import { buildResearchSnapshot } from '../domain/formula-research/researchSnapshot.js'
@@ -101,7 +99,7 @@ export const useLabStore = defineStore('lab', () => {
       formulaHorizonState: formulaPoint?.fieldStates?.formulaHorizonSessions ?? null,
       modelVersion: formulaPoint?.modelVersion ?? marketState.market.value?.modelVersion ?? null,
       dynamicHoldingGate: dynamicHoldingGate.value,
-      lpOnchainSnapshot: resolveLpOnchainSnapshot(data.source.value, lpOnchainSnapshots),
+
       strategyProfile:
         planning.featureFlags.replayAccount && planning.featureFlags.replayAutoProfile
           ? replayLayer.recommendedProfile.value.id

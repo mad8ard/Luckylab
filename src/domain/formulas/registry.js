@@ -180,18 +180,7 @@ export const formulaStages = [
     status: 'research-only',
     feeds: [],
   },
-  {
-    id: 'lp-pool-coverage',
-    layer: 'LP',
-    label: 'LP 池覆盖',
-    role: '聚合池快照：用真实池 reserve / volume / 主池占比标注链上覆盖状态',
-    inputs: ['poolCoverage.reserveUsd', 'poolCoverage.volumeUsd24h', 'poolCoverage.topPoolReserveShare'],
-    outputs: ['turnover24h', 'topReserveShare'],
-    formulas: ['turnover24h = volumeUsd24h / reserveUsd', 'topReserveShare = topPoolReserveUsd / reserveUsd'],
-    sources: ['geckoterminal-pool-aggregate'],
-    status: 'research-only',
-    feeds: ['liquidity-fingerprint'],
-  },
+
   {
     id: 'amm-geometry',
     layer: 'AMM',
@@ -451,7 +440,6 @@ export const formulaCapabilities = [
       'lp-inventory',
       'lp-research-range',
       'liquidity-fingerprint',
-      'lp-pool-coverage',
       'amm-geometry',
       'capital-efficiency',
     ],

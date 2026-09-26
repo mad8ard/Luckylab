@@ -67,16 +67,7 @@ export const formulaEvidenceCatalog = [
       invalidWhen: ['display range is presented as real LP inventory, fees, IL or PnL'],
     },
   ),
-  entry(
-    'lp-pool-coverage',
-    'real-data-snapshot',
-    'research-only',
-    false,
-    ['poolCoverage.reserveUsd', 'poolCoverage.volumeUsd24h', 'poolCoverage.topPoolReserveShare'],
-    ['turnover24h', 'topReserveShare'],
-    ['geckoterminal-pool-aggregate'],
-    ['tick-liquidity-history', 'lp-add-remove-events'],
-  ),
+
   entry(
     'liquidity-fingerprint',
     'desmos-source',

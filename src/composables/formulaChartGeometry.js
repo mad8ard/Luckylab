@@ -52,26 +52,6 @@ export function buildLpV3Marker({ market, layout }) {
   }
 }
 
-export function buildLpRealMarker({ market, graph, layout }) {
-  const { W, PL, PR, pw } = layout
-  try {
-    const mp = market?.markPrice
-    const price = graph.lpOnchain?.quotePrice
-    if (!mp || !Number.isFinite(price) || price <= 0) return null
-    const lo = mp * 0.5
-    const hi = mp * 2
-    const x = PL + ((price - lo) / (hi - lo)) * pw
-    if (!Number.isFinite(x) || x < PL || x > W - PR) return null
-    return {
-      x,
-      price,
-      label: graph.lpOnchain?.pool?.label ?? '链上池价',
-      divergence: (mp - price) / price,
-    }
-  } catch {
-    return null
-  }
-}
 
 export function buildLpV3Bounds({ market, graph, researchInputs, layout }) {
   const { PL, pw } = layout

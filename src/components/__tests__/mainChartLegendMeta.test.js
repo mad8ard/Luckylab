@@ -8,9 +8,9 @@ import {
 } from '../mainChartLegendMeta.js'
 
 describe('SERIES_META', () => {
-  it('包含全部 27 个 series key 且每个都含 title/color/unit/group', () => {
+  it('包含全部 24 个 series key 且每个都含 title/color/unit/group', () => {
     const keys = Object.keys(SERIES_META)
-    expect(keys).toHaveLength(27)
+    expect(keys).toHaveLength(24)
     for (const k of keys) {
       const meta = SERIES_META[k]
       expect(typeof meta.title).toBe('string')
@@ -130,12 +130,6 @@ describe('fallbackValue', () => {
     expect(fallbackValue('stop', 0, ctx)).toBe(93)
   })
 
-  it('真实池覆盖指标只在 latest-only 点显示，避免伪造历史曲线值', () => {
-    expect(fallbackValue('lpPoolTurnover', 0, ctx)).toBeNull()
-    expect(fallbackValue('lpPoolConcentration', 0, ctx)).toBeNull()
-    expect(fallbackValue('lpPoolTurnover', 1, ctx)).toBe(0.25)
-    expect(fallbackValue('lpPoolConcentration', 1, ctx)).toBe(0.4)
-  })
 
   it('未知 key 返回 null', () => {
     expect(fallbackValue('unknown-key', 0, ctx)).toBeNull()

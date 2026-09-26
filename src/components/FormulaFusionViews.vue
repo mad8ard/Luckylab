@@ -5,7 +5,6 @@ import { formatFormulaBlockReason, formatFormulaInputList } from '../domain/form
 const props = defineProps({
   formulaId: { type: String, required: true },
   netLpData: { type: Object, default: null },
-  lpPoolData: { type: Object, default: null },
   dynamicHoldingData: { type: Object, default: null },
   fmt: { type: Function, required: true },
   pctFmt: { type: Function, required: true },

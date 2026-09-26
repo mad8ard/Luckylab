@@ -226,9 +226,7 @@ function syncChart() {
     )
   if (series.lpDelta) setPathLine('lpDelta', props.formulaPath, 'lpNormalizedDelta')
   if (series.lpValue) setPathLine('lpValue', props.formulaPath, 'lpValue')
-  if (series.lpRealDiv) setPathLine('lpRealDiv', props.formulaPath, 'lpRealDivergence')
-  if (series.lpPoolTurnover) setLatestPoint('lpPoolTurnover', props.formulaPath, 'lpPoolTurnover24h')
-  if (series.lpPoolConcentration) setLatestPoint('lpPoolConcentration', props.formulaPath, 'lpPoolTopReserveShare')
+
   if (series.lpCe) setPathLine('lpCe', props.formulaPath, 'capitalEfficiency')
   if (series.lpZero)
     setLine(

@@ -49,6 +49,12 @@ src/data/.generated-*/
 src/data/recommended-pool-latest.json
 src/data/recommended-pools/
 public/recommended-pool/
+src/data/replay-latest.json
+src/data/replay-reports/
+public/replay/
+src/data/stock-news-latest.json
+src/data/stock-news/
+public/stock-news/
 page-snapshot*.md
 *-snapshot.md
 *-check.md

@@ -48,15 +48,6 @@ describe('FormulaChart', () => {
     expect(wrapper.text()).toContain('情景毛收益 ≥ 3.00%')
   })
 
-  it('LP 池覆盖展示聚合池快照指标', () => {
-    const wrapper = mount(FormulaChart, {
-      props: makeProps('lp-pool-coverage'),
-    })
-
-    expect(wrapper.text()).toContain('LP 池覆盖')
-    expect(wrapper.text()).toContain('24h 换手')
-    expect(wrapper.text()).toContain('主池占比')
-  })
 
   it('公式图按 active costPath 限制 rows，避免历史光标读取未来样本', () => {
     const rows = makeRows(80)

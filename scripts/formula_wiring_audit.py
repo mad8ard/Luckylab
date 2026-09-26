@@ -43,7 +43,6 @@ def run_node_checks() -> list[dict]:
       import { buildCostPath, buildMarketState, buildMarketStatePath } from './src/domain/market-data/cost.js'
       import { buildFormulaPath } from './src/domain/market-data/formulaPath.js'
       import { deriveFormulaPathLpResearchRange } from './src/domain/market-data/formulaPathLpResearchRange.js'
-      import { lpPoolCoverageMetrics } from './src/domain/market-data/lpPoolMetrics.js'
       import { parseCsvText } from './src/domain/market-data/ohlcv.js'
       import { inferTdpy } from './src/domain/market-data/tdpy.js'
       import { buildDecisionGraph } from './src/domain/strategy-planning/orderPlan.js'
@@ -55,16 +54,7 @@ def run_node_checks() -> list[dict]:
         { symbol: '000001', tdpy: 242, rows: parseCsvText(await readFile('./public/data/000001-1d.csv', 'utf8')).slice(-220) },
       ]
       const market = buildMarketState(rows, 242)
-      const lpOnchainSnapshot = {
-        hasPool: true,
-        hasPosition: false,
-        pool: { label: 'A股 模拟聚合池' },
-        pools: [],
-        quoteRoutes: [],
-        poolCoverage: { reserveUsd: 1000000, volumeUsd24h: 240000, topPoolReserveShare: 0.68 },
-        quotePrice: market.markPrice,
-        quoteSymbol: 'CNY',
-      }
+
       const input = {
         entryPrice: market.markPrice,
         formulaHorizonSessions: 30,
@@ -112,7 +102,6 @@ def run_node_checks() -> list[dict]:
           executionAuthority: 'none',
           source: 'audit-fixture',
         },
-        lpOnchainSnapshot,
       }
       const formulaPath = buildFormulaPath(rows, input)
       const marketPath = buildMarketStatePath(rows, 365)
@@ -144,7 +133,6 @@ def run_node_checks() -> list[dict]:
         deltaBands: bands,
         horizon: { modelHorizonSessions: 30, recoveryFraction: 0.5, availableAt: 'audit-snapshot-known-at' },
       })
-      const lpCoverage = lpPoolCoverageMetrics(lpOnchainSnapshot.poolCoverage)
       const lpBelow = uniswapV3Inventory({ markPrice: 70, lowerPrice: 80, upperPrice: 120, liquidity: 10 })
       const lpInside = uniswapV3Inventory({ markPrice: 100, lowerPrice: 80, upperPrice: 120, liquidity: 10 })
       const lpAbove = uniswapV3Inventory({ markPrice: 130, lowerPrice: 80, upperPrice: 120, liquidity: 10 })
@@ -335,7 +323,6 @@ def run_node_checks() -> list[dict]:
         'asian-option': finite(asian?.price) && finite(asian?.optionDelta) && finite(bach?.price) && finite(bach?.optionDelta),
         'lp-inventory': finite(lp?.token0) && finite(lp?.token1) && finite(lp?.value) && lp?.inventoryDeltaToken0 === lp?.token0 && !Object.prototype.hasOwnProperty.call(lp, 'delta') && pathFinite('lpValue') && pathFinite('lpInventoryDeltaToken0') && lpBelow?.zone === 'token0' && lpInside?.zone === 'range' && lpAbove?.zone === 'token1',
         'lp-research-range': lpResearchRange?.status === 'research-only' && lpResearchRange?.claimClass === 'scenario-proxy' && lpResearchRange?.executionAuthority === 'none' && finite(lpResearchRange?.lowerPrice) && finite(lpResearchRange?.upperPrice) && lpResearchRange.lowerPrice < 100 && lpResearchRange.upperPrice > 100 && formulaPathInvariantOk,
-        'lp-pool-coverage': finite(lpCoverage?.turnover24h) && finite(lpCoverage?.topReserveShare) && pathFinite('lpPoolTurnover24h') && pathFinite('lpPoolTopReserveShare'),
         'liquidity-fingerprint': nonEmpty(fingerprint?.segments) && fingerprint.inputMode === 'hybrid-model' && fingerprint.stats?.orderShare > 0 && Math.abs(fingerprint.segments.reduce((sum, seg) => sum + seg.weight, 0) - 1) < 1e-6,
         'amm-geometry': nonEmpty(amm?.points) && numoen?.status === 'protocol-unverified' && finite(numoen?.R0),
         'capital-efficiency': finite(ce?.efficiency) && ce.efficiency > 1 && finite(ckCe?.rangeWidth) && Math.abs(ckCe.secondDerivative) < 1e-10 && pathFinite('capitalEfficiency'),

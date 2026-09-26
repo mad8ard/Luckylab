@@ -88,7 +88,7 @@ export function buildLiquidityRackModel({
   if (!fingerprint) {
     return blockedRack(range, visibleRows.windowSpec, basis, ['liquidityFingerprint'])
   }
-  const realProfile = buildRealPoolProfile({ range, lpOnchain: graph?.lpOnchain, binCount: count })
+  const realProfile = buildRealPoolProfile({ binCount: count })
   const effectiveViewMode = realProfile.hasSignal ? mode : 'simulate'
   const shelves = buildShelves({
     range,
@@ -127,7 +127,6 @@ export function buildLiquidityRackModel({
     meta: buildMeta({
       orders,
       fingerprint,
-      lpOnchain: graph?.lpOnchain,
       viewMode: mode,
       gapMode: normalizedGapMode,
       hasRealSignal: realProfile.hasSignal,
@@ -231,7 +230,7 @@ function buildPriceTicks(range) {
 
 function emptyRack(range = { lower: null, upper: null }, windowSpec = null) {
   return {
-    meta: buildMeta({ orders: [], lpOnchain: null, viewMode: 'compare' }),
+    meta: buildMeta({ orders: [], viewMode: 'compare' }),
     viewMode: 'compare',
     effectiveViewMode: 'simulate',
     gapMode: 'shortfall',

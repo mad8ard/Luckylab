@@ -93,10 +93,7 @@ export function buildFormulaChartGuide({
           ? `在 GetDelta 价格带 [${fmt(b.long.low)}, ${fmt(b.long.high)}] 上展开 Greeks：Delta 曲线（绿）从虚值到实值，Gamma（蓝）在入场价附近最大；这里风险敏感度最高，调仓最频繁。`
           : '风险曲面需要同周期 GetDelta 价格带和独立期权到期会话；任一缺失时保持空白，不用固定期限补洞。',
     },
-    'lp-pool-coverage': {
-      title: '研究层：LP 池覆盖',
-      body: '池覆盖只读聚合池快照，展示 24h 换手和主池资金占比；tick 流动性历史和 LP 加减仓事件未接入，不作为交易结论。',
-    },
+
     'net-lp-efficiency': {
       title: '研究层：LP 归因拆解',
       body: nl

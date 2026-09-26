@@ -74,7 +74,7 @@ function fullQuery(overlays = ALL_ON) {
 }
 
 describe('Market Lab chart indicator catalog', () => {
-  it('覆盖 19 条 formula 曲线及执行、权益和 Lab 技术曲线', () => {
+  it('覆盖 15 条 formula 曲线及执行、权益和 Lab 技术曲线', () => {
     expect(MARKET_LAB_CHART_INDICATOR_GROUPS.map((group) => group.id)).toEqual([
       'price',
       'greeks',
@@ -84,8 +84,8 @@ describe('Market Lab chart indicator catalog', () => {
       'kdj',
       'rsi',
     ])
-    expect(MARKET_LAB_CHART_INDICATOR_CATALOG).toHaveLength(27)
-    expect(new Set(MARKET_LAB_CHART_INDICATOR_CATALOG.map((item) => item.id)).size).toBe(27)
+    expect(MARKET_LAB_CHART_INDICATOR_CATALOG).toHaveLength(23)
+    expect(new Set(MARKET_LAB_CHART_INDICATOR_CATALOG.map((item) => item.id)).size).toBe(23)
     expect(
       MARKET_LAB_CHART_INDICATOR_CATALOG.filter((item) => item.source === 'formulaPath')
         .map((item) => item.field)
@@ -114,8 +114,8 @@ describe('queryMarketLabChartSeries', () => {
 
     expect(model.dates).toEqual(rows.map((row) => row.date))
     expect(model.groups.map((group) => group.id)).toEqual(['price', 'greeks', 'lp', 'carry', 'equity', 'kdj', 'rsi'])
-    expect(model.activeSeriesCount).toBe(27)
-    expect(model.availableSeriesCount).toBe(27)
+    expect(model.activeSeriesCount).toBe(23)
+    expect(model.availableSeriesCount).toBe(23)
     expect(model.availability).toBe(model.controls)
 
     const price = model.groups[0]
@@ -127,8 +127,8 @@ describe('queryMarketLabChartSeries', () => {
       active: true,
       state: 'estimated',
       reason: 'research-estimate',
-      activeSeriesCount: 12,
-      availableSeriesCount: 12,
+      activeSeriesCount: 11,
+      availableSeriesCount: 11,
     })
     expect(price.series.map((series) => series.id)).toEqual([
       'cost',
@@ -138,7 +138,6 @@ describe('queryMarketLabChartSeries', () => {
       'deltaLower',
       'lpLower',
       'lpUpper',
-      'lpRealPrice',
       'entry',
       'mark',
       'target',
@@ -170,7 +169,7 @@ describe('queryMarketLabChartSeries', () => {
     const model = fullQuery(ALL_OFF)
 
     expect(model.groups).toHaveLength(7)
-    expect(model.availableSeriesCount).toBe(27)
+    expect(model.availableSeriesCount).toBe(23)
     expect(model.activeSeriesCount).toBe(1)
     expect(model.groups[0]).toMatchObject({ active: true, activeSeriesCount: 1 })
     expect(model.groups[0].series.map((series) => series.id)).toEqual(['mark'])
@@ -342,27 +341,6 @@ describe('queryMarketLabChartSeries', () => {
     })
   })
 
-  it('真实池覆盖只输出最新快照点，公式 cost 全空时回退 costPath', () => {
-    const formulaPath = rows.map((row, index) => ({
-      date: row.date,
-      costAnchor: null,
-      lpNormalizedDelta: 0.1,
-      lpPoolTurnover24h: 0.2 + index,
-      lpPoolTopReserveShare: 0.3 + index,
-    }))
-    const costPath = rows.map((row, index) => ({ date: row.date, anchor: 10 + index }))
-    const model = queryMarketLabChartSeries({ rows, formulaPath, costPath, overlays: ALL_ON })
-    const price = model.groups.find((group) => group.id === 'price')
-    const lp = model.groups.find((group) => group.id === 'lp')
-
-    expect(price.series.find((series) => series.id === 'cost').sourceField).toBe('costPath.anchor')
-    expect(lp.series.find((series) => series.id === 'lpPoolTurnover').points).toEqual([
-      { time: rows.at(-1).date, value: 19.2 },
-    ])
-    expect(lp.series.find((series) => series.id === 'lpPoolConcentration').points).toEqual([
-      { time: rows.at(-1).date, value: 19.3 },
-    ])
-  })
 
   it('空输入仍返回稳定结构并明确所有缺失项', () => {
     const model = queryMarketLabChartSeries({ rows: null, formulaPath: {}, costPath: 'bad' })

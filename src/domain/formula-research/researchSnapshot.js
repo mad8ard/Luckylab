@@ -18,15 +18,13 @@ import {
   uniswapV3Inventory,
 } from '../formulas/core.js'
 import { resolveLpValuationSpec } from '../lp/lpValuationSpec.js'
-import { buildLpDataState } from '../market-data/lpOnchain.js'
 import { buildPortfolioResearch } from './portfolioResearch.js'
 
 export function buildResearchSnapshot({ market, input, executable }) {
   const { entryPrice, iv } = executable.inputs
   const formulaHorizonSessions = positive(executable.inputs.formulaHorizonSessions)
   const optionTenorSessions = positive(input.optionTenorSessions)
-  const lpDataState = buildLpDataState(input.lpOnchainSnapshot)
-  const lpValuation = resolveLpValuationSpec({ input, lpDataState })
+  const lpValuation = resolveLpValuationSpec({ input })
   const rangeSpec = lpValuation.rangeSpec
   const rangeWidth = lpValuation.rangeWidth
   const tdpy = positive(input.tradingDaysPerYear)
@@ -288,11 +286,6 @@ export function buildResearchSnapshot({ market, input, executable }) {
     efficiency: lpValuation.available ? capitalEfficiency({ rangeWidth, skew }) : null,
     funding,
     netCarry: fundingCarry,
-    lpOnchain: {
-      ...lpDataState,
-      quotePrice: input.lpOnchainSnapshot?.quotePrice ?? lpDataState.quotePrice,
-      quoteSymbol: input.lpOnchainSnapshot?.quoteSymbol ?? lpDataState.quoteSymbol,
-    },
     portfolioResearch: portfolioResearchState,
   }
 }

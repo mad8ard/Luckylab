@@ -3,7 +3,6 @@ import { Minus, Plus, RotateCcw, X } from 'lucide-vue-next'
 import LiquidityComponentStrip from './LiquidityComponentStrip.vue'
 import LiquidityOpportunityPanel from './LiquidityOpportunityPanel.vue'
 import LiquidityRackDepth from './LiquidityRackDepth.vue'
-import LiquidityRouteStrip from './LiquidityRouteStrip.vue'
 import LiquidityViewControls from './LiquidityViewControls.vue'
 
 const props = defineProps({
@@ -119,7 +118,6 @@ function fmt(value, digits = props.precision) {
                 <small>{{ layer.note }}</small>
               </div>
             </div>
-            <LiquidityRouteStrip :model="model" :precision="precision" />
           </div>
 
           <LiquidityRackDepth :model="model" variant="expanded" :precision="precision" show-table />

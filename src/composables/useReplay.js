@@ -17,7 +17,7 @@ import { strategyProfileList } from '../domain/planning/orderPlan.js'
  * （= strategyProfileList.length）。
  *
  * 单一信源：profileReplays 与 fallback 路径都基于 effectiveInput.value 派生，
- * 仅 strategyProfile 一个字段不同。如果调用方未来把更多字段（如 lpOnchainSnapshot）
+ * 仅 strategyProfile 一个字段不同。如果调用方未来把更多字段
  * 写进 effectiveInput 且 buildDailyReplay 开始消费它，dedupe 仍然保持等价；
  * 不会出现 shape 漂移。
  */

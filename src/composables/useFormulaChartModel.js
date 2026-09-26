@@ -20,7 +20,6 @@ import {
 import { useFormulaSecondOrderModel } from './useFormulaSecondOrderModel.js'
 import { buildFormulaChartGuide, buildFormulaOrderData } from './formulaChartGuide.js'
 import {
-  buildLpRealMarker,
   buildLpV3Bounds,
   buildLpV3Curve,
   buildLpV3Marker,
@@ -52,10 +51,6 @@ export function useFormulaChartModel(props) {
     return Math.max(0, Math.min(props.rows.length - 1, next, costLimited))
   })
   const activeRows = computed(() => props.rows.slice(0, activeIndex.value + 1))
-  const activeFormulaRow = computed(() => {
-    if (!props.formulaPath?.length) return null
-    return props.formulaPath[Math.min(activeIndex.value, props.formulaPath.length - 1)]
-  })
 
   const { W, H, PL, PR, PT, PB } = FORMULA_CHART_LAYOUT
   const pw = W - PL - PR; const ph = H - PT - PB
@@ -147,9 +142,6 @@ export function useFormulaChartModel(props) {
     }),
   )
   const lpV3Marker = computed(() => buildLpV3Marker({ market: props.market, layout: geometry }))
-  const lpRealMarker = computed(() =>
-    buildLpRealMarker({ market: props.market, graph: props.graph, layout: geometry }),
-  )
   const lpV3Bounds = computed(() =>
     buildLpV3Bounds({
       market: props.market,
@@ -313,20 +305,7 @@ export function useFormulaChartModel(props) {
 
   const netCarryData = computed(() => props.graph.netCarry ?? null)
   const netCarryDisplay = computed(() => buildNetCarryDisplay(netCarryData.value, geometry))
-  const lpPoolData = computed(() => {
-    const row = activeFormulaRow.value
-    if (!row) return null
-    if (![row.lpPoolTurnover24h, row.lpPoolTopReserveShare].some(Number.isFinite)) return null
-    const state = row.fieldStates?.lpPoolTurnover24h
-    return {
-      turnover24h: row.lpPoolTurnover24h,
-      topReserveShare: row.lpPoolTopReserveShare,
-      inputMode: state?.inputMode,
-      missingInputs: state?.missingInputs ?? [],
-      isSynthetic: state?.isSynthetic,
-      poolCoverage: state?.context?.poolCoverage,
-    }
-  })
+
   const {
     mrData,
     dynamicHoldingData,
@@ -382,7 +361,6 @@ export function useFormulaChartModel(props) {
     syH,
     lpV3Curve,
     lpV3Marker,
-    lpRealMarker,
     lpV3Bounds,
     ceData,
     ceCurve,
@@ -400,7 +378,6 @@ export function useFormulaChartModel(props) {
     normalCurve,
     zMarker,
     riskSurfaceData,
-    lpPoolData,
     netLpData,
     netCarryData,
     netCarryDisplay,

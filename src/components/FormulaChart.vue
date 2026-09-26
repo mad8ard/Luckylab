@@ -15,10 +15,10 @@ const props = defineProps({
 
 const {
   stage, availability, orderReview, activeIndex, fmt, f4, pctFmt, pathData, costData, volData, bandData,
-  greeksData, lpData, syH, lpV3Curve, lpV3Marker, lpRealMarker, lpV3Bounds, ceData,
+  greeksData, lpData, syH, lpV3Curve, lpV3Marker, lpV3Bounds, ceData,
   ceCurve, ceDot, ceFrontierDot, fundData, portData, waterfallBars, portfolioCurves, asianData,
   bachelierData, ammData, fingerprintData, devScoreData, normalCurve, zMarker,
-  riskSurfaceData, lpPoolData, netLpData, netCarryData, netCarryDisplay, guide, mrData, dynamicHoldingData,
+  riskSurfaceData, netLpData, netCarryData, netCarryDisplay, guide, mrData, dynamicHoldingData,
   decayCurve, hlMarker, gpData, gammaCurve, gpMarker, vcData, orderData,
   W, H, PL, PR, pw, ph, sx, sy,
 } = useFormulaChartModel(props)
@@ -149,14 +149,11 @@ function greekTone(value) {
       <!-- Entry price marker -->
       <circle v-if="lpV3Curve" :cx="lpV3Marker?.cx" :cy="lpV3Marker?.cy" r="4" fill="var(--ink)" />
       <text v-if="lpV3Curve" :x="lpV3Marker?.cx + 8" :y="lpV3Marker?.cy - 6" class="fc-tick">入场</text>
-      <!-- Real on-chain pool price marker -->
-      <line v-if="lpRealMarker" :x1="lpRealMarker.x" :x2="lpRealMarker.x" :y1="syH(1)" :y2="syH(0.08)" stroke="#8b5a16" stroke-width="1.6" stroke-dasharray="2,2" />
-      <text v-if="lpRealMarker" :x="lpRealMarker.x + 6" :y="syH(0.14)" class="fc-tick" fill="#8b5a16">链上 {{ fmt(lpRealMarker.price) }}</text>
-      <text v-if="lpRealMarker" :x="lpRealMarker.x + 6" :y="syH(0.23)" class="fc-tick" fill="#8b5a16">偏离 {{ pctFmt(lpRealMarker.divergence) }}</text>
+
       <!-- Range bounds -->
       <line v-if="lpV3Curve" :x1="lpV3Bounds?.loX" :x2="lpV3Bounds?.loX" :y1="syH(1)" :y2="syH(0.1)" stroke="var(--blue)" stroke-width="0.8" stroke-dasharray="3,3" />
       <line v-if="lpV3Curve" :x1="lpV3Bounds?.hiX" :x2="lpV3Bounds?.hiX" :y1="syH(1)" :y2="syH(0.1)" stroke="var(--red)" stroke-width="0.8" stroke-dasharray="3,3" />
-      <text :x="PL" :y="218" class="fc-tick">绿线=情景 LP 模型价值 · 棕线=当前链上池价 · 蓝/红=情景区间边界</text>
+      <text :x="PL" :y="218" class="fc-tick">绿线=情景 LP 模型价值 · 蓝/红=情景区间边界</text>
     </svg>
 
     <!-- LIQUIDITY FINGERPRINT -->
@@ -350,12 +347,10 @@ function greekTone(value) {
     <FormulaFusionViews
       v-else-if="
         (formulaId === 'net-lp-efficiency' && netLpData) ||
-        (formulaId === 'dynamic-holding-state' && dynamicHoldingData) ||
-        (formulaId === 'lp-pool-coverage' && lpPoolData)
+        (formulaId === 'dynamic-holding-state' && dynamicHoldingData)
       "
       :formula-id="formulaId"
       :net-lp-data="netLpData"
-      :lp-pool-data="lpPoolData"
       :dynamic-holding-data="dynamicHoldingData"
       :fmt="fmt"
       :pct-fmt="pctFmt"

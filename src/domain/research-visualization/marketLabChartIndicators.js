@@ -60,9 +60,7 @@ const DEFINITIONS = Object.freeze([
   pathIndicator('lpUpper', 'LP 动态研究区间上沿', 'price', 'price', '#7a5cff', 'main', 'price.lpBand', 'lpUpperPrice', {
     controls: ['priceBands', 'lpBand'],
   }),
-  pathIndicator('lpRealPrice', '链上池价', 'price', 'price', '#8b5a16', 'main', 'price.lpRealPrice', 'lpRealPrice', {
-    controls: ['priceBands', 'lpBand'],
-  }),
+
   constantIndicator('entry', '入场价', 'price', 'price', '#b3261e', 'main', 'price.entryLine', 'input', 'entryPrice', {
     controls: ['entryLine'],
     state: 'ready',
@@ -119,34 +117,9 @@ const DEFINITIONS = Object.freeze([
   pathIndicator('lpValue', 'LP 情景库存价值', 'price', 'lp', '#7a5cff', 'lp', 'paneOn.lp', 'lpValue', {
     controls: ['lpPane'],
   }),
-  pathIndicator('lpRealDiv', '链上池价偏离', 'pct', 'lp', '#8b5a16', 'lp', 'paneOn.lp', 'lpRealDivergence', {
-    controls: ['lpPane'],
-  }),
-  pathIndicator(
-    'lpPoolTurnover',
-    '真实池24h换手',
-    'pct',
-    'lp',
-    '#b3261e',
-    'lp',
-    'paneOn.lpPoolCoverage',
-    'lpPoolTurnover24h',
-    {
-      controls: ['lpPane'],
-      pointMode: 'latest',
-    },
-  ),
-  pathIndicator(
-    'lpPoolConcentration',
-    '主池资金占比',
-    'ratio',
-    'lp',
-    '#274f9f',
-    'lp',
-    'paneOn.lpPoolCoverage',
-    'lpPoolTopReserveShare',
-    { controls: ['lpPane'], pointMode: 'latest' },
-  ),
+
+
+
   pathIndicator('lpCe', 'CK 几何资本效率（情景）', 'num', 'lp', '#8b5a16', 'lp', 'paneOn.lp', 'capitalEfficiency', {
     controls: ['lpPane'],
   }),

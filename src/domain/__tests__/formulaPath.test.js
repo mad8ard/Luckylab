@@ -154,27 +154,6 @@ describe('buildFormulaPath causal horizon contract', () => {
     expect(row.fieldStates.lpValue.missingInputs).toEqual(['declared-lp-scenario-or-complete-position'])
   })
 
-  it('池聚合快照只标在观察日，绝不伪造为历史指标路径', () => {
-    const path = buildFormulaPath(makeRows(20), {
-      lpOnchainSnapshot: {
-        hasPool: true,
-        quotePrice: 101,
-        poolCoverage: { reserveUsd: 1000, volumeUsd24h: 250, topPoolReserveShare: 0.4 },
-      },
-      tradingDaysPerYear: 242,
-    })
-
-    expect(path.slice(0, -1).every((row) => row.lpRealPrice === null)).toBe(true)
-    expect(path.slice(0, -1).every((row) => row.lpRealDivergence === null)).toBe(true)
-    expect(path.slice(0, -1).every((row) => row.lpPoolTurnover24h === null)).toBe(true)
-    expect(path.slice(0, -1).every((row) => row.lpPoolTopReserveShare === null)).toBe(true)
-    expect(path.at(-1)).toMatchObject({
-      lpRealPrice: 101,
-      lpPoolTurnover24h: 0.25,
-      lpPoolTopReserveShare: 0.4,
-    })
-    expect(path.at(-1).fieldStates.lpRealPrice.source).toBe('lp-pool-coverage')
-  })
 
   it('期权路径只使用明确的每交易会话 Theta 字段', () => {
     const row = buildFormulaPath(makeRows(40), {

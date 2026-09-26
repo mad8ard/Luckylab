@@ -20,16 +20,7 @@ def node_summary() -> dict:
       import { parseCsvText } from './src/domain/market-data/ohlcv.js'
       const rows = parseCsvText(await readFile('./public/data/600519-1d.csv', 'utf8')).slice(-220)
       const market = buildMarketState(rows, 242)
-      const lpOnchainSnapshot = {
-        hasPool: true,
-        hasPosition: false,
-        pool: { label: 'A股 模拟聚合池' },
-        pools: [],
-        quoteRoutes: [],
-        poolCoverage: { reserveUsd: 1000000, volumeUsd24h: 240000, topPoolReserveShare: 0.68 },
-        quotePrice: market.markPrice,
-        quoteSymbol: 'CNY',
-      }
+
       const input = {
         entryPrice: market.markPrice,
         formulaHorizonSessions: 30,
@@ -58,12 +49,11 @@ def node_summary() -> dict:
         fundingSessionCalendarId: 'CRYPTO-UTC-24H',
         recoveryNotionalBasis: 'cycle-start-quote-notional',
         fundingNotionalBasis: 'cycle-start-quote-notional',
-        lpOnchainSnapshot,
         tradingDaysPerYear: 365,
       }
       const path = buildFormulaPath(rows, input)
       const dynamicPath = buildFormulaPath(rows, { ...input, pathUsesScenarioInputs: false })
-      const fallbackPath = buildFormulaPath(rows.slice(-80), { ...input, perpTwap: null, spotTwap: null, lpOnchainSnapshot: null })
+      const fallbackPath = buildFormulaPath(rows.slice(-80), { ...input, perpTwap: null, spotTwap: null })
       const summary = {}
       for (const key of Object.keys(path[0] ?? {})) {
         summary[key] = [...path, ...dynamicPath].filter((row) => Number.isFinite(row[key])).length

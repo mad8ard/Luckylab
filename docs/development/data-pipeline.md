@@ -14,8 +14,6 @@ src/data/stock-index.json
 src/data/generated/*
   generated JS modules created from CSV files
 
-src/data/lp-onchain-snapshots.json
-  aggregated crypto pool snapshots for the liquidity fingerprint layer
 ```
 
 The generated JS modules let Vite own data delivery in the bundled app. This avoids hosted static fallback problems where `/data/*.csv` can be served as SPA HTML instead of CSV.
@@ -70,21 +68,6 @@ Daily coverage policy:
 - If the instrument has no data that far back, keep the latest two years.
 - `--rows` is only a hard cap; by default it is `0`, so the coverage policy decides the range.
 
-LP on-chain refresh:
-
-```bash
-pnpm run fetch:lp-data
-```
-
-`scripts/fetch-lp-pool-aggregate.mjs` reads public GeckoTerminal pool aggregates for WETH related pools. The static snapshot keeps pool reserve, 24h volume, trade count, quote price, pair, protocol, and fee where available. Domain code then builds USDT/USDC quote routes from all matching direct pools and WETH-routed pools, so the research layer shows an aggregate pool signal instead of one single ruler.
-
-When Position NFT level detail is needed, run the lower-level RPC script directly:
-
-```bash
-pnpm run fetch:lp-uniswap-rpc
-```
-
-`scripts/fetch-lp-onchain-data.mjs` reads Uniswap v3 pool state through Ethereum JSON-RPC. Set `ETH_RPC_URL` to use a private RPC and `UNISWAP_V3_POSITION_IDS=123,456` to include actual position NFT snapshots.
 
 ## Validation Rules
 

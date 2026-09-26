@@ -87,7 +87,7 @@ describe('buildLiquidityRackModel', () => {
     expect(model.shelves).toEqual([])
   })
 
-  it('标注池级链上数据与目标仓模型比例的边界', () => {
+  it('缺少真实池数据时只标注模型目标仓', () => {
     const rows = [
       { date: '2024-01-01', open: 100, high: 105, low: 95, close: 100, volume: 1000 },
       { date: '2024-01-02', open: 100, high: 106, low: 94, close: 102, volume: 1100 },
@@ -103,48 +103,21 @@ describe('buildLiquidityRackModel', () => {
       graph: {
         inputs: { entryPrice: 100, iv: 0.35, tradingDaysPerYear: 252 },
         plan: { primaryOrders: [] },
-        lpOnchain: {
-          inputMode: 'pool-real',
-          quotePrice: 102,
-          pool: { label: 'WETH / USDT 0.05%', tickSpacing: 10, liquidity: '1000' },
-          quoteRoutes: [
-            {
-              quoteSymbol: 'USDT',
-              quotePrice: 102,
-              weight: 8,
-              pools: [{ label: 'WETH / USDT 0.05%', tickSpacing: 10, reserveUsd: 100 }],
-            },
-            {
-              quoteSymbol: 'USDC',
-              quotePrice: 101.8,
-              weight: 6,
-              pools: [{ label: 'WETH / USDC 0.05%', tickSpacing: 10, reserveUsd: 80 }],
-            },
-          ],
-          poolCoverage: {
-            poolCount: 2,
-            routeCount: 2,
-            quoteSymbols: ['USDT', 'USDC'],
-            reserveUsd: 180,
-            volumeUsd24h: 40,
-          },
-        },
       },
     })
 
-    expect(model.meta.dataLabel).toContain('2 个池 / 2 条 USDT+USDC 路径')
-    expect(model.meta.dataLabel).toContain('蓄水')
-    expect(model.meta.dataLabel).toContain('仅校准报价与覆盖')
-    expect(model.realProfile.routes).toHaveLength(2)
+    expect(model.meta.dataLabel).toBe('未匹配链上池级快照，当前只显示模型目标仓参考')
+    expect(model.meta.lpMode).toBe('fallback')
+    expect(model.meta.lpModeLabel).toBe('待匹配')
+    expect(model.realProfile.routes).toHaveLength(0)
     expect(model.realProfile.hasSignal).toBe(false)
-    expect(model.realProfile.hasCalibrationSignal).toBe(true)
-    expect(model.realProfile.evidence).toBe('price-kernel-proxy')
+    expect(model.realProfile.hasCalibrationSignal).toBe(false)
+    expect(model.realProfile.evidence).toBe('missing')
     expect(model.shelves.reduce((sum, shelf) => sum + shelf.realShare, 0)).toBe(0)
     expect(model.meta.nextInputs).toContain('补充 tick 分布 / liquidityGross / liquidityNet 或区间深度')
     expect(model.meta.nextInputs).toContain('接入完整 Position NFT 区间和本金')
   })
-
-  it('支持模拟、真实、对照和缺口权重视图', () => {
+  it('没有真实层时所有视图模式都回退到模型目标仓', () => {
     const rows = [
       { date: '2024-01-01', open: 100, high: 105, low: 95, close: 100, volume: 1000 },
       { date: '2024-01-02', open: 100, high: 106, low: 94, close: 102, volume: 1100 },
@@ -154,65 +127,23 @@ describe('buildLiquidityRackModel', () => {
     const graph = {
       inputs: { entryPrice: 100, iv: 0.35, tradingDaysPerYear: 252 },
       plan: { primaryOrders: [] },
-      lpOnchain: {
-        inputMode: 'pool-real',
-        tickEvidence: 'tick-real',
-        quotePrice: 102,
-        pool: { label: 'WETH / USDT 0.05%', tickSpacing: 10, liquidity: '1000' },
-        quoteRoutes: [
-          {
-            quoteSymbol: 'USDT',
-            quotePrice: 102,
-            weight: 8,
-            pools: [{ label: 'WETH / USDT 0.05%', tickSpacing: 10, reserveUsd: 100 }],
-          },
-          {
-            quoteSymbol: 'USDC',
-            quotePrice: 101.8,
-            weight: 6,
-            pools: [{ label: 'WETH / USDC 0.05%', tickSpacing: 10, reserveUsd: 80 }],
-          },
-        ],
-        poolCoverage: { poolCount: 2, routeCount: 2, quoteSymbols: ['USDT', 'USDC'], reserveUsd: 180 },
-        ticks: [
-          { lowerPrice: 88, upperPrice: 98, liquidityGross: 80 },
-          { lowerPrice: 98, upperPrice: 108, liquidityGross: 140 },
-          { lowerPrice: 108, upperPrice: 116, liquidityGross: 45 },
-        ],
-      },
     }
 
-    const simulated = buildLiquidityRackModel({
-      rows,
-      costPath,
-      formulaPath,
-      graph,
-      activeIndex: 1,
-      viewMode: 'simulate',
-    })
+    const simulated = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'simulate' })
     const real = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'real' })
-    const compared = buildLiquidityRackModel({
-      rows,
-      costPath,
-      formulaPath,
-      graph,
-      activeIndex: 1,
-      viewMode: 'compare',
-    })
+    const compared = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'compare' })
     const gap = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'gap' })
 
+    expect(simulated.effectiveViewMode).toBe('simulate')
     expect(simulated.shareLabel).toBe('目标分配权重')
-    expect(real.shareLabel).toBe('tick 深度权重')
-    expect(compared.shareLabel).toBe('模型 / tick')
-    expect(gap.shareLabel).toBe('缺口')
-    expect(real.shelves.some((shelf) => shelf.densityShare === shelf.realShare && shelf.realShare > 0)).toBe(true)
-    expect(compared.shelves.some((shelf) => shelf.densityShare === shelf.modelShare && shelf.realShare > 0)).toBe(true)
-    expect(gap.shelves.some((shelf) => shelf.densityShare === Math.max(shelf.modelShare - shelf.realShare, 0))).toBe(
-      true,
-    )
+    for (const model of [real, compared, gap]) {
+      expect(model.effectiveViewMode).toBe('simulate')
+      expect(model.shareLabel).toBe('目标分配权重')
+      expect(model.shelves.every((shelf) => shelf.realShare === 0)).toBe(true)
+      expect(model.shelves.some((shelf) => shelf.densityShare === shelf.modelShare && shelf.modelShare > 0)).toBe(true)
+    }
   })
-
-  it('缺口视图支持缺口、偏差和反差三种差值风格', () => {
+  it('缺口视图的三种差值风格在缺少真实层时都退化为模型权重', () => {
     const rows = [
       { date: '2024-01-01', open: 100, high: 105, low: 95, close: 100, volume: 1000 },
       { date: '2024-01-02', open: 100, high: 106, low: 94, close: 102, volume: 1100 },
@@ -222,69 +153,21 @@ describe('buildLiquidityRackModel', () => {
     const graph = {
       inputs: { entryPrice: 100, iv: 0.35, tradingDaysPerYear: 252 },
       plan: { primaryOrders: [] },
-      lpOnchain: {
-        inputMode: 'pool-real',
-        tickEvidence: 'tick-real',
-        quotePrice: 102,
-        pool: { label: 'WETH / USDT 0.05%', tickSpacing: 10, liquidity: '1000' },
-        quoteRoutes: [
-          {
-            quoteSymbol: 'USDT',
-            quotePrice: 102,
-            weight: 8,
-            pools: [{ label: 'WETH / USDT 0.05%', tickSpacing: 10, reserveUsd: 100 }],
-          },
-          {
-            quoteSymbol: 'USDC',
-            quotePrice: 101.8,
-            weight: 6,
-            pools: [{ label: 'WETH / USDC 0.05%', tickSpacing: 10, reserveUsd: 80 }],
-          },
-        ],
-        poolCoverage: { poolCount: 2, routeCount: 2, quoteSymbols: ['USDT', 'USDC'], reserveUsd: 180 },
-        ticks: [
-          { lowerPrice: 88, upperPrice: 98, liquidityGross: 80 },
-          { lowerPrice: 98, upperPrice: 108, liquidityGross: 140 },
-          { lowerPrice: 108, upperPrice: 116, liquidityGross: 45 },
-        ],
-      },
     }
 
     const shortfall = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'gap' })
-    const signed = buildLiquidityRackModel({
-      rows,
-      costPath,
-      formulaPath,
-      graph,
-      activeIndex: 1,
-      viewMode: 'gap',
-      gapMode: 'signed',
-    })
-    const absolute = buildLiquidityRackModel({
-      rows,
-      costPath,
-      formulaPath,
-      graph,
-      activeIndex: 1,
-      viewMode: 'gap',
-      gapMode: 'absolute',
-    })
-    const negativeSignedShelf = signed.shelves.find((shelf) => shelf.realGap < 0)
+    const signed = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'gap', gapMode: 'signed' })
+    const absolute = buildLiquidityRackModel({ rows, costPath, formulaPath, graph, activeIndex: 1, viewMode: 'gap', gapMode: 'absolute' })
 
     expect(shortfall.gapModeLabel).toBe('缺口')
     expect(signed.gapModeLabel).toBe('偏差')
     expect(absolute.gapModeLabel).toBe('反差')
-    expect(shortfall.shelves.every((shelf) => shelf.gapShare === Math.max(shelf.modelShare - shelf.realShare, 0))).toBe(
-      true,
-    )
-    expect(signed.shelves.every((shelf) => shelf.gapShare === shelf.modelShare - shelf.realShare)).toBe(true)
-    expect(absolute.shelves.every((shelf) => shelf.gapShare === Math.abs(shelf.modelShare - shelf.realShare))).toBe(
-      true,
-    )
-    expect(negativeSignedShelf?.gapShare).toBeLessThan(0)
-    expect(negativeSignedShelf?.densityShare).toBeCloseTo(Math.abs(negativeSignedShelf.gapShare))
+    for (const model of [shortfall, signed, absolute]) {
+      expect(model.effectiveViewMode).toBe('simulate')
+      expect(model.shelves.every((shelf) => shelf.realShare === 0)).toBe(true)
+      expect(model.shelves.some((shelf) => shelf.densityShare === shelf.modelShare && shelf.modelShare > 0)).toBe(true)
+    }
   })
-
   it('fallback 链上数据不伪装成真实池状态', () => {
     const rows = [
       { date: '2024-01-01', open: 100, high: 105, low: 95, close: 100, volume: 1000 },

@@ -130,7 +130,7 @@ for (let colIdx = 0; colIdx < codes.length; colIdx++) {
   const safeName = code.replace(/[^a-zA-Z0-9\u4e00-\u9fff_-]/g, '_')
   const symbol = normalizeSymbol(code)
   const market = inferMarket(code)
-  if (market !== 'A股' && market !== '港股') {
+  if (!market) {
     console.log(`  SKIP ${code} (${name}): non A-share/HK instrument`)
     continue
   }
@@ -143,7 +143,7 @@ for (let colIdx = 0; colIdx < codes.length; colIdx++) {
     label: name && name !== 'null' ? name : symbol,
     market,
     interval: '1日',
-    source: inferSource(code),
+    source: inferSource(market),
     priceBasis: inferPriceBasis(code),
     dataThrough,
     isPartial: false,
@@ -260,14 +260,13 @@ function inferMarket(code) {
   const value = normalizeSymbol(code)
   if (/^\d{6}$/.test(value)) return 'A股'
   if (/\.HK$/i.test(value)) return '港股'
-  return '美股'
+  return null
 }
 
-function inferSource(code) {
-  const market = inferMarket(code)
+function inferSource(market) {
   if (market === 'A股') return 'BaoStock / AkShare'
   if (market === '港股') return 'AkShare adjusted / Tencent adjusted'
-  return 'Nasdaq / AkShare adjusted / Alpha Vantage'
+  return null
 }
 
 function inferPriceBasis(code) {

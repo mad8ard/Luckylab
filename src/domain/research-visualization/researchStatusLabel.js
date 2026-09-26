@@ -27,5 +27,5 @@ export function buildResearchStatusLabel(statuses = [], fieldStates = []) {
 }
 
 function isLpState(state) {
-  return state?.source === 'lp-inventory' || state?.source === 'lp-pool-coverage'
+  return state?.source === 'lp-inventory'
 }

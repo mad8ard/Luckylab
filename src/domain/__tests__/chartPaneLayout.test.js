@@ -30,7 +30,6 @@ describe('resolveChartOverlayPlan', () => {
       ],
     })
     expect(plan.paneOn.carry).toBe(false)
-    expect(plan.paneOn.lpPoolCoverage).toBe(true)
     expect(plan.panes.volume).toBe(1)
     expect(plan.panes.greeks).toBe(2)
     expect(plan.panes.lp).toBe(3)
@@ -53,15 +52,6 @@ describe('resolveChartOverlayPlan', () => {
     expect(plan.panes.rsi).toBe(7)
   })
 
-  it('没有聚合池真实快照时不打开 LP 真实覆盖线', () => {
-    const plan = resolveChartOverlayPlan({
-      overlays: baseOverlays,
-      formulaPath: [{ lpValue: 1, lpNormalizedDelta: 0.2 }],
-    })
-
-    expect(plan.paneOn.lp).toBe(true)
-    expect(plan.paneOn.lpPoolCoverage).toBe(false)
-  })
 
   it('价格带组关闭时不会继续画成本和波动价带', () => {
     const plan = resolveChartOverlayPlan({
@@ -83,7 +73,6 @@ describe('resolveChartOverlayPlan', () => {
     expect(plan.price.costBand).toBe(true)
     expect(plan.price.deltaBand).toBe(true)
     expect(plan.price.lpBand).toBe(false)
-    expect(plan.price.lpRealPrice).toBe(false)
   })
 
   it('当前没有合法 GetDelta 时仍保留历史稀疏分段，不插值当前值', () => {

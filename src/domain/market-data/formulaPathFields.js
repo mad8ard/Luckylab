@@ -19,10 +19,7 @@ export const FORMULA_PATH_FIELDS = {
   lpValue: field('lp-inventory', 'quote', 'lpPane', 'research-only', true),
   lpInventoryDeltaToken0: field('lp-inventory', 'token0', 'lpPane', 'research-only'),
   lpNormalizedDelta: field('lp-inventory', 'ratio', 'lpPane', 'research-only', true),
-  lpRealPrice: field('lp-inventory', 'price', 'priceBands', 'research-only', true),
-  lpRealDivergence: field('lp-inventory', 'return', 'lpPane', 'research-only', true),
-  lpPoolTurnover24h: field('lp-pool-coverage', 'return', 'lpPane', 'research-only', true),
-  lpPoolTopReserveShare: field('lp-pool-coverage', 'ratio', 'lpPane', 'research-only', true),
+
   capitalEfficiency: field('capital-efficiency', 'multiple', 'lpPane', 'research-only', true),
   fullRangeV2IlProxy: field('lp-inventory', 'return', 'lpPane', 'research-only'),
   rangeV3Il: field('lp-inventory', 'return', 'lpPane', 'research-only'),

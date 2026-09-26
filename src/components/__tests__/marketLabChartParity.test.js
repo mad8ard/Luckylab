@@ -154,25 +154,6 @@ describe('Market Lab Light / HQ chart parity', () => {
     expect(buildHqResearchChartConfig(model).overlayIndex[0]).toMatchObject({ Windows: 0, IsShareY: true })
   })
 
-  it('latest-only pool snapshots stay anchored to the active formula observation date', () => {
-    const activeLength = 10
-    const activeFixture = { ...fixture, formulaPath: formulaPath.slice(0, activeLength) }
-    const model = queryMarketLabChartSeries(activeFixture)
-    const turnover = findSeries(model, 'lpPoolTurnover')
-    const concentration = findSeries(model, 'lpPoolConcentration')
-
-    expect(turnover.points).toEqual([
-      { time: rows[activeLength - 1].date, value: formulaPath[activeLength - 1].lpPoolTurnover24h },
-    ])
-    expect(concentration.points).toEqual([
-      { time: rows[activeLength - 1].date, value: formulaPath[activeLength - 1].lpPoolTopReserveShare },
-    ])
-    expect(latestFinitePathPoint(rows, activeFixture.formulaPath, 'lpPoolTurnover24h')).toEqual(turnover.points[0])
-    expect(fallbackValue('lpPoolTurnover', activeLength - 1, activeFixture)).toBe(
-      formulaPath[activeLength - 1].lpPoolTurnover24h,
-    )
-    expect(fallbackValue('lpPoolTurnover', rows.length - 1, activeFixture)).toBeNull()
-  })
 
   it('HQ responses preserve every active domain series name, color, render mode and aligned values', () => {
     const model = queryMarketLabChartSeries(fixture)

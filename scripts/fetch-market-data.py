@@ -110,7 +110,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--end-date")
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--delay", type=float, default=0.2)
-    parser.add_argument("--alpha-vantage-key", default=os.getenv("ALPHA_VANTAGE_API_KEY", ""))
     parser.add_argument("--plan", action="store_true", help="Print fetch plan without importing data deps")
     return parser.parse_args()
 
@@ -198,7 +197,7 @@ def fetch_one(item, start, end, pd, ak, bs, requests, args):
         return fetch_a_share(item, start, end, pd, ak, bs)
     if item.market == "港股":
         return fetch_hk(item, start, end, pd, ak, requests)
-    return fetch_us(item, start, end, pd, ak, requests, args.alpha_vantage_key)
+    raise ValueError(f"unsupported market {item.market!r} for {item.symbol}; only A股 and 港股 are supported")
 
 
 def fetch_a_share(item, start, end, pd, ak, bs):
@@ -217,18 +216,6 @@ def fetch_hk(item, start, end, pd, ak, requests):
     if usable(frame):
         return frame
     return fetch_tencent_hk_daily(item.symbol, start, end, pd, requests)
-
-
-def fetch_us(item, start, end, pd, ak, requests, alpha_key):
-    frame = fetch_nasdaq_daily(item.symbol, start, end, pd, requests)
-    if usable(frame):
-        return frame
-    frame = fetch_ak_us_daily(item.symbol, pd, ak)
-    if usable(frame):
-        return frame
-    if alpha_key:
-        return fetch_alpha_vantage_daily(item.symbol, pd, requests, alpha_key)
-    return None
 
 
 def fetch_baostock_daily(symbol, start, end, pd, bs):
@@ -273,27 +260,6 @@ def fetch_ak_hk_daily(symbol, pd, ak):
         return None
 
 
-def fetch_ak_us_daily(symbol, pd, ak):
-    try:
-        frame = ak.stock_us_daily(symbol=symbol, adjust="qfq")
-        return normalize_frame(frame, pd)
-    except Exception as exc:
-        print(f"  [akshare US] {exc}")
-    try:
-        factors = ak.stock_us_daily(symbol=symbol, adjust="qfq-factor")
-        identity = (
-            len(factors) == 1
-            and abs(float(factors.iloc[0]["qfq_factor"]) - 1) < 1e-12
-            and abs(float(factors.iloc[0]["adjust"])) < 1e-12
-        )
-        if identity:
-            print(f"  [akshare US] using raw OHLC; adjustment factor is identity")
-            return normalize_frame(ak.stock_us_daily(symbol=symbol, adjust=""), pd)
-    except Exception as exc:
-        print(f"  [akshare US factor] {exc}")
-    return None
-
-
 def fetch_tencent_hk_daily(symbol, start, end, pd, requests):
     code = f"hk{symbol.replace('.HK', '').replace('_HK', '').zfill(5)}"
     url = "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get"
@@ -318,78 +284,6 @@ def fetch_tencent_hk_daily(symbol, start, end, pd, requests):
     except Exception as exc:
         print(f"  [tencent HK {symbol}] {exc}")
         return None
-
-
-def fetch_nasdaq_daily(symbol, start, end, pd, requests):
-    url = f"https://api.nasdaq.com/api/quote/{symbol}/historical"
-    headers = {
-        "Accept": "application/json",
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-    }
-    last_error = None
-    for asset_class in ("stocks", "etf"):
-        params = {
-            "assetclass": asset_class,
-            "fromdate": start,
-            "todate": end,
-            "limit": 5000,
-        }
-        try:
-            payload = requests.get(url, params=params, headers=headers, timeout=30).json()
-            table = ((payload.get("data") or {}).get("tradesTable") or {})
-            values = table.get("rows") or []
-            if not values:
-                continue
-            frame = pd.DataFrame([{
-                "date": row.get("date"),
-                "open": market_number(row.get("open")),
-                "high": market_number(row.get("high")),
-                "low": market_number(row.get("low")),
-                "close": market_number(row.get("close")),
-                "volume": market_number(row.get("volume")),
-            } for row in values])
-            return normalize_frame(frame, pd)
-        except Exception as exc:
-            last_error = exc
-    if last_error:
-        print(f"  [nasdaq US {symbol}] {last_error}")
-    return None
-
-
-def market_number(value):
-    raw = str(value or "").strip().replace("$", "").replace(",", "")
-    return None if raw in ("", "--", "N/A") else raw
-
-
-def fetch_alpha_vantage_daily(symbol, pd, requests, api_key):
-    url = "https://www.alphavantage.co/query"
-    params = {"function": "TIME_SERIES_DAILY_ADJUSTED", "symbol": symbol, "outputsize": "full", "apikey": api_key}
-    data = requests.get(url, params=params, timeout=30).json()
-    series = data.get("Time Series (Daily)")
-    if not series:
-        print(f"  [alpha] {data.get('Note') or data.get('Information') or data.get('Error Message')}")
-        return None
-    rows = []
-    for day, values in series.items():
-        raw_close = market_number(values.get("4. close"))
-        adjusted_close = market_number(values.get("5. adjusted close"))
-        if raw_close is None or adjusted_close is None or float(raw_close) <= 0:
-            continue
-        adjustment_factor = float(adjusted_close) / float(raw_close)
-        rows.append({
-            "date": day,
-            "open": scaled_market_number(values.get("1. open"), adjustment_factor),
-            "high": scaled_market_number(values.get("2. high"), adjustment_factor),
-            "low": scaled_market_number(values.get("3. low"), adjustment_factor),
-            "close": adjusted_close,
-            "volume": values.get("6. volume"),
-        })
-    return normalize_frame(pd.DataFrame(rows), pd)
-
-
-def scaled_market_number(value, factor):
-    number = market_number(value)
-    return None if number is None else float(number) * factor
 
 
 def normalize_frame(frame, pd, date_candidates=("date", "日期")):
@@ -425,7 +319,6 @@ def keep_completed_daily_bars(frame, market, now_utc=None):
     timezone_name, completed_after = {
         "A股": ("Asia/Shanghai", clock_time(15, 30)),
         "港股": ("Asia/Hong_Kong", clock_time(16, 30)),
-        "美股": ("America/New_York", clock_time(16, 30)),
     }.get(market, ("UTC", clock_time(23, 59)))
     market_now = now_utc.astimezone(ZoneInfo(timezone_name))
     if market_now.time().replace(tzinfo=None) >= completed_after:
@@ -491,7 +384,7 @@ def infer_market(symbol):
         return "港股"
     if symbol.isdigit():
         return "A股"
-    return "美股"
+    return None
 
 
 if __name__ == "__main__":

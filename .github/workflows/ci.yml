@@ -8,7 +8,6 @@ on:
     paths-ignore:
       - 'public/data/**'
       - 'src/data/stock-index.json'
-      - 'src/data/lp-onchain-snapshots.json'
       - 'docs/**'
       - '*.md'
   pull_request:

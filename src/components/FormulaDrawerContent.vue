@@ -123,7 +123,6 @@ const decisionImpact = computed(() => {
     'delta-band': '生成同周期价格带；市场与账户门禁同时满足后才进入模拟梯队',
     'option-greeks': '研究层风险拆解；模拟挂单不消费期权组合',
     'lp-inventory': 'LP 库存暴露 → 组合 Delta 一部分',
-    'lp-pool-coverage': '标注聚合池覆盖质量，不推断历史 tick 流动性',
     'capital-efficiency': '比较区间几何与资金放大倍数；不代表净收益或可执行性',
     funding: '永续持仓的累计成本，影响 net carry',
     portfolio: '统一检查 LP/期权/对冲/费用是否相加正',

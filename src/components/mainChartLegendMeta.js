@@ -25,9 +25,6 @@ const GROUPS = {
   bsTheta: 'greeks',
   lpDelta: 'lp',
   lpValue: 'lp',
-  lpRealDiv: 'lp',
-  lpPoolTurnover: 'lp',
-  lpPoolConcentration: 'lp',
   lpCe: 'lp',
   cumulativeFundingProxy: 'carry',
   netCarry: 'carry',
@@ -115,12 +112,7 @@ export function fallbackValue(key, idx, ctx = {}) {
       return fp?.lpNormalizedDelta
     case 'lpValue':
       return fp?.lpValue
-    case 'lpRealDiv':
-      return fp?.lpRealDivergence
-    case 'lpPoolTurnover':
-      return fp && fp === ctx.formulaPath?.at(-1) ? fp.lpPoolTurnover24h : null
-    case 'lpPoolConcentration':
-      return fp && fp === ctx.formulaPath?.at(-1) ? fp.lpPoolTopReserveShare : null
+
     case 'lpCe':
       return fp?.capitalEfficiency
     case 'cumulativeFundingProxy':

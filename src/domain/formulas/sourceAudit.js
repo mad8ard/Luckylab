@@ -12,8 +12,7 @@ const BOUNDARIES = {
   'lp-research-range':
     'Research-only scenario proxy for display geometry; it has no execution or valuation authority and cannot imply LP inventory, fees, IL or PnL.',
   'liquidity-fingerprint': 'Model distribution only; not an order book or real LP interval map.',
-  'lp-pool-coverage':
-    'Real pool aggregate snapshot only; it marks coverage quality and must not infer historical tick liquidity.',
+
   'amm-geometry': 'Geometry and protocol research only; no default order output.',
   'capital-efficiency': 'Describes range geometry; does not imply profitability.',
   funding: 'Proxy-only TWAP basis estimate until exchange funding schedules and settlement history are wired.',

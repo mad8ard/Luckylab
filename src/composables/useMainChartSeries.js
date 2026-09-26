@@ -77,15 +77,7 @@ export function useMainChartSeries({ getChart, getProps }) {
 
     toggle('lpDelta', overlayPlan.paneOn.lp, () => addPaneLine('lpDelta', paneLayout.lp, { priceScaleId: 'lp-ratio' }))
     toggle('lpValue', overlayPlan.paneOn.lp, () => addPaneLine('lpValue', paneLayout.lp, { priceScaleId: 'lp-quote' }))
-    toggle('lpRealDiv', overlayPlan.paneOn.lp, () =>
-      addPaneLine('lpRealDiv', paneLayout.lp, { priceScaleId: 'lp-ratio' }),
-    )
-    toggle('lpPoolTurnover', overlayPlan.paneOn.lpPoolCoverage, () =>
-      addPaneLine('lpPoolTurnover', paneLayout.lp, { priceScaleId: 'lp-ratio' }),
-    )
-    toggle('lpPoolConcentration', overlayPlan.paneOn.lpPoolCoverage, () =>
-      addPaneLine('lpPoolConcentration', paneLayout.lp, { priceScaleId: 'lp-ratio' }),
-    )
+
     toggle('lpCe', overlayPlan.paneOn.lp, () => addPaneLine('lpCe', paneLayout.lp, { priceScaleId: 'lp-multiple' }))
     toggle('lpZero', overlayPlan.paneOn.lp, () =>
       addGuideLine('lpZero', 'LP暴露零线', '#888', paneLayout.lp, {

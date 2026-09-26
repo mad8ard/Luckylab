@@ -12,8 +12,7 @@ import {
 import { resolveLpValuationSpec } from '../lp/lpValuationSpec.js'
 import { buildCostPath } from './cost.js'
 import { buildFormulaModelContext, buildFormulaPointModelMetadata } from './modelVersion.js'
-import { buildLpDataState } from './lpOnchain.js'
-import { lpPoolCoverageMetrics } from './lpPoolMetrics.js'
+
 import { classifyFormulaDeltaAvailability, classifyFormulaHorizonAvailability } from './formulaPathAvailability.js'
 import { resolveFormulaPathHorizon } from './formulaPathHorizon.js'
 import { deriveFormulaPathLpResearchRange } from './formulaPathLpResearchRange.js'
@@ -27,9 +26,7 @@ export function buildFormulaPath(rows, input = {}) {
   const costDistancePath = costPath.map((cost, index) =>
     cost?.anchor > 0 && rows[index]?.close > 0 ? (rows[index].close - cost.anchor) / cost.anchor : null,
   )
-  const lpDataState = buildLpDataState(input.lpOnchainSnapshot)
-  const lpValuation = resolveLpValuationSpec({ input, lpDataState })
-  const lpPoolMetrics = lpPoolCoverageMetrics(lpDataState.poolCoverage)
+  const lpValuation = resolveLpValuationSpec({ input })
   return rows.map((row, index) => {
     const metadata = buildFormulaPointModelMetadata({ costPoint: costPath[index], row, tradingDaysPerYear: tdpy })
     const { modelVersion, bandAnchor } = metadata
@@ -142,13 +139,6 @@ export function buildFormulaPath(rows, input = {}) {
     const positionLowerPrice = lpValuation.lowerPrice
     const positionUpperPrice = lpValuation.upperPrice
     const liquidity = lpValuation.liquidity
-    // Pool snapshots are observed at one fetch time, not a historical price
-    // series.  Writing the same quote into every candle would manufacture a
-    // non-causal divergence curve, so expose it only on the observed row.
-    const observedLpSnapshot = index === rows.length - 1
-    const lpRealPrice = observedLpSnapshot ? positive(lpDataState.quotePrice) : null
-    const lpPoolTurnover24h = observedLpSnapshot ? lpPoolMetrics.turnover24h : null
-    const lpPoolTopReserveShare = observedLpSnapshot ? lpPoolMetrics.topReserveShare : null
     const lpState = fieldState({
       source: 'lp-inventory',
       status: lpValuation.available ? 'research-only' : 'missing-input',
@@ -159,12 +149,6 @@ export function buildFormulaPath(rows, input = {}) {
         valuationBasis: lpValuation.valuationBasis,
         availableAt: lpValuation.availableAt,
         declaredScenario: input.lpScenarioEnabled === true,
-        pool: lpDataState.pool,
-        blockNumber: lpDataState.blockNumber,
-        fetchedAt: lpDataState.fetchedAt,
-        quotePrice: lpDataState.quotePrice,
-        quoteSymbol: lpDataState.quoteSymbol,
-        poolCoverage: lpDataState.poolCoverage,
       },
     })
     const lpRangeState = fieldState({
@@ -180,22 +164,7 @@ export function buildFormulaPath(rows, input = {}) {
         valuationAuthority: 'none',
       },
     })
-    const lpPoolState = fieldState({
-      source: 'lp-pool-coverage',
-      status: 'research-only',
-      inputMode: lpDataState.inputMode,
-      isSynthetic: lpDataState.inputMode === 'fallback',
-      missingInputs: [
-        lpDataState.inputMode === 'fallback' ? 'real-lp-pool' : null,
-        'tick-liquidity-history',
-        'lp-add-remove-events',
-      ].filter(Boolean),
-      context: {
-        poolCoverage: lpDataState.poolCoverage,
-        fetchedAt: lpDataState.fetchedAt,
-        blockNumber: lpDataState.blockNumber,
-      },
-    })
+
     const lp = lpValuation.available
       ? uniswapV3Inventory({
           markPrice: row.close,
@@ -303,7 +272,6 @@ export function buildFormulaPath(rows, input = {}) {
       optionState,
       lpRangeState,
       lpState,
-      lpPoolState,
       fundingState,
       carryState,
     })
@@ -329,10 +297,7 @@ export function buildFormulaPath(rows, input = {}) {
       lpValue: finite(lp?.value),
       lpInventoryDeltaToken0: finite(lp?.inventoryDeltaToken0),
       lpNormalizedDelta: finite(normalizeInventory(lp, row.close)),
-      lpRealPrice: finite(lpRealPrice),
-      lpRealDivergence: finite(lpRealPrice ? (row.close - lpRealPrice) / lpRealPrice : null),
-      lpPoolTurnover24h: finite(lpPoolTurnover24h),
-      lpPoolTopReserveShare: finite(lpPoolTopReserveShare),
+
       capitalEfficiency: finite(ce?.efficiency),
       fullRangeV2IlProxy: finite(fullRangeV2Il?.fullRangeV2IlProxy),
       rangeV3Il: finite(rangeV3Il?.rangeV3Il),
@@ -348,7 +313,6 @@ export function buildFormulaPath(rows, input = {}) {
         fundingState,
         lpRangeState,
         lpState,
-        lpPoolState,
       }),
       fieldStates,
     }
@@ -397,7 +361,6 @@ function buildFieldStates({
   optionState,
   lpRangeState,
   lpState,
-  lpPoolState,
   fundingState,
   carryState,
 }) {
@@ -425,8 +388,7 @@ function buildFieldStates({
     'netLpEfficiency',
   ])
     base[field] = lpState
-  for (const field of ['lpRealPrice', 'lpRealDivergence', 'lpPoolTurnover24h', 'lpPoolTopReserveShare'])
-    base[field] = lpPoolState
+
   for (const field of ['fundingBasis', 'cumulativeFundingProxy']) base[field] = fundingState
   for (const field of ['netCarry', 'breakEvenFundingNetCostReturn']) base[field] = carryState
   return base
@@ -439,10 +401,9 @@ function buildFormulaPathStatus({
   fundingState,
   lpRangeState,
   lpState,
-  lpPoolState,
 }) {
   const statuses = new Set()
-  for (const state of [horizonState, deltaState, optionState, fundingState, lpRangeState, lpState, lpPoolState]) {
+  for (const state of [horizonState, deltaState, optionState, fundingState, lpRangeState, lpState]) {
     if (state?.status) statuses.add(state.status)
     if (state?.missingInputs?.length) statuses.add('missing-input')
     if (state?.isSynthetic) statuses.add(`${state.inputMode}-input`)
