@@ -11,6 +11,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { SECTION_NOTES, TOP_LEVEL_NOTES, TRADE_FIELD_NOTES } from './replay-field-glossary.mjs'
+import { HIDDEN_TOP_LEVEL_BLOCKS, HIDDEN_TRADE_COLUMNS } from './replay-hidden-columns.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
@@ -18,11 +19,12 @@ const SRC_JSON = join(ROOT, 'src', 'data', 'replay-latest.json')
 const PUBLIC_DIR = join(ROOT, 'public', 'replay')
 const INLINE_LIMIT = 8 * 1024 * 1024
 
+// 成交明细的排序：先按出场原因分组（target → modelHorizon → stop），
+// 组内按出场日、代码排序，保证同一份数据每次渲染顺序一致。
+const REASON_ORDER = { target: 0, modelHorizon: 1, stop: 2 }
 const LEADING_COLUMNS = [
   'symbol',
   'name',
-  'market',
-  'profile',
   'signalDate',
   'entryDate',
   'exitDate',
@@ -65,7 +67,7 @@ if (collectUndocumented(rows, columns).length) {
 
 function buildColumns(list, leading) {
   const seen = new Set()
-  for (const row of list) for (const key of Object.keys(row ?? {})) seen.add(key)
+  for (const row of list) for (const key of Object.keys(row ?? {})) if (!HIDDEN_TRADE_COLUMNS.has(key)) seen.add(key)
   const head = leading.filter((key) => seen.has(key))
   const tail = [...seen].filter((key) => !head.includes(key)).sort((a, b) => a.localeCompare(b))
   return [...head, ...tail]
@@ -111,8 +113,15 @@ function renderPage({ payload, rows, rowKey, columns }) {
   table.grid { border-collapse: separate; border-spacing: 0; font-size: .7rem; }
   table.grid th, table.grid td { padding: 5px 8px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); white-space: nowrap; text-align: left; }
   table.grid th { position: sticky; top: 0; background: var(--surface); z-index: 3; font-size: .64rem; color: var(--muted); }
-  table.grid td.sticky, table.grid th.sticky { position: sticky; background: var(--bg); z-index: 2; }
-  table.grid th.sticky { z-index: 4; background: var(--surface); }
+  /* 冻结列：position:sticky 必须配 left 偏移，否则横向滚动不会吸附。
+     第一列宽度锁死 66px，第二列才有确定的 left 偏移可用。 */
+  table.grid td.freeze, table.grid th.freeze { position: sticky; z-index: 2; background: var(--surface); }
+  table.grid th.freeze { z-index: 4; }
+  table.grid td.freeze-symbol, table.grid th.freeze-symbol { left: 0; width: 66px; min-width: 66px; max-width: 66px; }
+  table.grid td.freeze-name, table.grid th.freeze-name { left: 66px; width: 110px; min-width: 110px; max-width: 110px; }
+  table.grid td.freeze > span { display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+  table.grid td.freeze-symbol > span { max-width: 50px; }
+  table.grid td.freeze-name > span { max-width: 94px; }
   table.grid tbody tr:nth-child(even) td { background: #f6f6f4; }
   table.grid tbody tr:hover td { background: #eef5f1; }
   .scroll-x { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
@@ -155,11 +164,10 @@ function renderPage({ payload, rows, rowKey, columns }) {
   ${renderWalkForward(walkForward)}
   ${renderDecay(decay, payload)}
   ${renderSensitivity(sensitivity)}
-  ${renderSkipped(payload.skipped)}
   <h2>成交明细（${rowKey} = ${rows.length}）</h2>
   <div class="toolbar">
     <label><input type="checkbox" id="hide-empty" /> 隐藏全空列</label>
-    <span>表格可以横向滚动；左侧 4 列固定。</span>
+    <span>表格可以横向滚动；左侧 symbol / name 两列固定。</span>
   </div>
   <div class="scroll-x" id="trade-scroll">${renderTradeTable(rows, columns)}</div>
   ${renderGlossary({ columns, undocumented, sectionNotes: SECTION_NOTES })}
@@ -288,33 +296,63 @@ function renderSensitivity(sensitivity) {
   return `<h2>参数敏感性</h2>${parts.join('')}`
 }
 
-function renderSkipped(skipped) {
-  if (!Array.isArray(skipped) || !skipped.length) return ''
-  const sample = skipped.slice(0, 50)
-  return `<h2>被跳过的标的（${skipped.length}，最多显示 50）</h2>${renderObjectTable(sample)}`
-}
+
 
 function renderTradeTable(rows, columns) {
   if (!rows.length) return '<p class="hint" style="padding:12px">本次没有成交行。</p>'
+  const freeze = freezeClasses(columns)
+  const ordered = sortTradesByReason(rows)
   const head = columns
-    .map((key, index) => `<th class="${index < 4 ? 'sticky' : ''}" title="${esc(TRADE_FIELD_NOTES[key] ?? '')}">${esc(key)}</th>`)
+    .map((key) => `<th class="${freeze.get(key) ?? ''}" title="${esc(TRADE_FIELD_NOTES[key] ?? '')}">${esc(key)}</th>`)
     .join('')
-  const body = rows
+  const body = ordered
     .map(
       (row) =>
         `<tr>${columns
-          .map((key, index) => `<td class="${index < 4 ? 'sticky' : ''}" title="${esc(TRADE_FIELD_NOTES[key] ?? '')}">${esc(valueText(row[key]))}</td>`)
+          .map((key) => {
+            const extra = freeze.get(key) ?? ''
+            const text = esc(valueText(row[key]))
+            const inner = extra ? `<span>${text}</span>` : text
+            return `<td class="${extra}" title="${esc(TRADE_FIELD_NOTES[key] ?? '')}">${inner}</td>`
+          })
           .join('')}</tr>`,
     )
     .join('')
   return `<table class="grid"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`
 }
 
+// 只冻结最前面的 symbol / name 两列；它们必须真的排在第 1、2 位，
+// 否则第二列的 left 偏移会盖住别的内容。
+function freezeClasses(columns) {
+  const map = new Map()
+  if (columns[0] === 'symbol') map.set('symbol', 'freeze freeze-symbol')
+  if (columns[1] === 'name' && map.has('symbol')) map.set('name', 'freeze freeze-name')
+  return map
+}
+
+function sortTradesByReason(rows) {
+  return rows
+    .map((row, ordinal) => ({ row, ordinal }))
+    .sort((a, b) => {
+      const rankA = REASON_ORDER[a.row.reason] ?? 9
+      const rankB = REASON_ORDER[b.row.reason] ?? 9
+      if (rankA !== rankB) return rankA - rankB
+      const exitA = String(a.row.exitDate ?? '')
+      const exitB = String(b.row.exitDate ?? '')
+      if (exitA !== exitB) return exitA < exitB ? -1 : 1
+      const symbolA = String(a.row.symbol ?? '')
+      const symbolB = String(b.row.symbol ?? '')
+      if (symbolA !== symbolB) return symbolA < symbolB ? -1 : 1
+      return a.ordinal - b.ordinal
+    })
+    .map((item) => item.row)
+}
+
 function renderGlossary({ columns, undocumented, sectionNotes }) {
   const tradeRows = columns
     .map((key) => `<tr><td class="k"><code>${esc(key)}</code></td><td>${esc(TRADE_FIELD_NOTES[key] ?? '未注明')}</td></tr>`)
     .join('')
-  const topRows = Object.entries(TOP_LEVEL_NOTES)
+  const topRows = Object.entries(TOP_LEVEL_NOTES).filter(([key]) => !HIDDEN_TOP_LEVEL_BLOCKS.has(key))
     .map(([key, note]) => `<tr><td class="k"><code>${esc(key)}</code></td><td>${esc(note)}</td></tr>`)
     .join('')
   const sectionRows = Object.entries(sectionNotes)
@@ -336,10 +374,10 @@ function renderGlossary({ columns, undocumented, sectionNotes }) {
   <table class="plain glossary"><tbody>${sectionRows}</tbody></table>`
 }
 
-function renderObjectTable(list) {
+function renderObjectTable(list, omit = null) {
   if (!Array.isArray(list) || !list.length) return ''
   const keys = []
-  for (const item of list) for (const key of Object.keys(item ?? {})) if (!keys.includes(key)) keys.push(key)
+  for (const item of list) for (const key of Object.keys(item ?? {})) if (!keys.includes(key) && !omit?.has(key)) keys.push(key)
   const head = keys.map((key) => `<th>${esc(key)}</th>`).join('')
   const body = list
     .map((item) => `<tr>${keys.map((key) => `<td>${esc(valueText(item?.[key]))}</td>`).join('')}</tr>`)

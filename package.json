@@ -10,7 +10,7 @@
   },
   "packageManager": "pnpm@11.1.2",
   "scripts": {
-    "dev": "pnpm run generate:data && pnpm run generate:recommended-pool && vite",
+    "dev": "pnpm run generate:data && pnpm run generate:recommended-pool && pnpm run control:page && vite",
     "build": "pnpm run generate:data && pnpm run generate:recommended-pool && pnpm run check:size && pnpm run check:domain-boundary && pnpm run check:data && pnpm run check:generated-data && pnpm run check:skill-runtime && pnpm run verify:domain && vite build",
     "generate:data": "node scripts/csv2js.mjs",
     "generate:recommended-pool": "node scripts/generate-recommended-pool.mjs && node scripts/render-recommended-pool-page.mjs",
@@ -18,6 +18,9 @@
     "replay:page": "node scripts/render-replay-page.mjs",
     "fetch:stock-news": "node scripts/run-stock-news.mjs",
     "news:page": "node scripts/render-stock-news-page.mjs",
+    "fetch:market-regime": "node scripts/run-market-regime.mjs",
+    "regime:page": "node scripts/render-market-regime-page.mjs",
+    "control:page": "node scripts/render-control-panel-page.mjs",
     "fetch:market-data": "python3 scripts/fetch-market-data.py --output data/workbooks/stocks_latest.xlsx",
 
     "plan:market-data": "python3 scripts/fetch-market-data.py --plan",

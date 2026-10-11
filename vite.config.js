@@ -1,10 +1,12 @@
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { labControlPanelPlugin } from './scripts/control-panel-dev-api.mjs'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  // 控制台面板：只在 vite serve（pnpm dev）下生效，生产构建不含该中间件。
+  plugins: [vue(), labControlPanelPlugin()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

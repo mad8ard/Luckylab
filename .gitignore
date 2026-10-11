@@ -55,6 +55,9 @@ public/replay/
 src/data/stock-news-latest.json
 src/data/stock-news/
 public/stock-news/
+src/data/market-regime/*.json
+public/market-regime/
+public/control/
 page-snapshot*.md
 *-snapshot.md
 *-check.md
