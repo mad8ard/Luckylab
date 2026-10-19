@@ -36,7 +36,6 @@ const NOTES = {
   'breadth.活跃度': '上游给出的全市场活跃度百分比。',
   'breadthHistory': '宽度历史是本地逐日累积出来的，因为上游只给当日快照。样本越多，宽度分位越可靠。',
   'fundingDetail.marginLatestDate': '两融数据最新日期。',
-  'fundingDetail.hsgtLatestDate': '北向资金最后可用的披露日期。',
   'disclosures': '口径披露。每一条都说明了一个已知缺口或替代关系。',
   'failures': '本次抓取失败的接口。为空表示全部数据源正常。',
   'provenance': '溯源：原始数据文件、各数据源的接口名、所用成本模型与窗口长度。',
@@ -202,11 +201,9 @@ function renderBreadth(breadth, history) {
 
 function renderFunding(data) {
   const detail = data.fundingDetail ?? {}
-  return `<h2>资金明细与缺口</h2>
+  return `<h2>资金明细（两融）</h2>
   <table class="plain glossary"><thead><tr><th>项</th><th>值</th><th>说明</th></tr></thead><tbody>
     <tr><td class="k"><code>marginLatestDate</code></td><td>${esc(detail.marginLatestDate ?? '—')}</td><td>${esc(NOTES['fundingDetail.marginLatestDate'])}</td></tr>
-    <tr><td class="k"><code>hsgtLatestDate</code></td><td>${esc(detail.hsgtLatestDate ?? '—')}</td><td>${esc(NOTES['fundingDetail.hsgtLatestDate'])}</td></tr>
-    <tr><td class="k"><code>hsgtNote</code></td><td colspan="2">${esc(detail.hsgtNote ?? '')}</td></tr>
   </tbody></table>`
 }
 

@@ -1,0 +1,3293 @@
+{
+  "schemaVersion": "northbound-marks.v3",
+  "generatedAt": "2026-10-20T00:28:02+08:00",
+  "dataThrough": "2026-10-20",
+  "source": "客户端导出：沪股通.xls / 深股通.xls（名称 / JINGE 净额 / 市盈 / 市净率）",
+  "note": "名单表示股东名单含香港中央结算；* 标记全部名单内股票，悬停显示 JINGE 净额。",
+  "totalScanned": 365,
+  "totalMatched": 361,
+  "totalMarked": 361,
+  "inflow": 249,
+  "outflow": 112,
+  "flat": 0,
+  "unmatchedCount": 4,
+  "exports": [
+    {
+      "file": "沪股通.xls",
+      "count": 1642
+    },
+    {
+      "file": "深股通.xls",
+      "count": 1887
+    }
+  ],
+  "unmatched": [
+    {
+      "symbol": "002743",
+      "label": "富煌钢构"
+    },
+    {
+      "symbol": "300527",
+      "label": "ST应急"
+    },
+    {
+      "symbol": "600798",
+      "label": "宁波海运"
+    },
+    {
+      "symbol": "601059",
+      "label": "信达证券"
+    }
+  ],
+  "symbols": {
+    "000001": {
+      "label": "平安银行",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -114812458.0,
+      "direction": "out"
+    },
+    "000039": {
+      "label": "中集集团",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 2331450.0,
+      "direction": "in"
+    },
+    "000060": {
+      "label": "中金岭南",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -15504704.0,
+      "direction": "out"
+    },
+    "000063": {
+      "label": "中兴通讯",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 58049686.0,
+      "direction": "in"
+    },
+    "000066": {
+      "label": "中国长城",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 38972106.0,
+      "direction": "in"
+    },
+    "000088": {
+      "label": "盐田港",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 5953548.0,
+      "direction": "in"
+    },
+    "000089": {
+      "label": "深圳机场",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -4111981.0,
+      "direction": "out"
+    },
+    "000100": {
+      "label": "TCL科技",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -28450274.0,
+      "direction": "out"
+    },
+    "000157": {
+      "label": "中联重科",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 51565135.0,
+      "direction": "in"
+    },
+    "000166": {
+      "label": "申万宏源",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 8263331.0,
+      "direction": "in"
+    },
+    "000301": {
+      "label": "东方盛虹",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -4359974.0,
+      "direction": "out"
+    },
+    "000333": {
+      "label": "美的集团",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 289173770.0,
+      "direction": "in"
+    },
+    "000338": {
+      "label": "潍柴动力",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -58443850.0,
+      "direction": "out"
+    },
+    "000401": {
+      "label": "金隅冀东",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -838036.0,
+      "direction": "out"
+    },
+    "000408": {
+      "label": "藏格矿业",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 120243221.0,
+      "direction": "in"
+    },
+    "000425": {
+      "label": "徐工机械",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 134563259.0,
+      "direction": "in"
+    },
+    "000507": {
+      "label": "珠海港",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 5049206.0,
+      "direction": "in"
+    },
+    "000519": {
+      "label": "中兵红箭",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 2273367.0,
+      "direction": "in"
+    },
+    "000538": {
+      "label": "云南白药",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 84062636.0,
+      "direction": "in"
+    },
+    "000568": {
+      "label": "泸州老窖",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 48936942.0,
+      "direction": "in"
+    },
+    "000582": {
+      "label": "北部湾港",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 3337646.0,
+      "direction": "in"
+    },
+    "000596": {
+      "label": "古井贡酒",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 33433590.0,
+      "direction": "in"
+    },
+    "000617": {
+      "label": "中油资本",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 56963975.0,
+      "direction": "in"
+    },
+    "000625": {
+      "label": "长安汽车",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 42242353.0,
+      "direction": "in"
+    },
+    "000630": {
+      "label": "铜陵有色",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -18053410.0,
+      "direction": "out"
+    },
+    "000651": {
+      "label": "格力电器",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 194574181.0,
+      "direction": "in"
+    },
+    "000661": {
+      "label": "长春高新",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 4346395.0,
+      "direction": "in"
+    },
+    "000672": {
+      "label": "上峰材料",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -5420384.0,
+      "direction": "out"
+    },
+    "000708": {
+      "label": "中信特钢",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 8886625.0,
+      "direction": "in"
+    },
+    "000725": {
+      "label": "京东方A",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -243693010.0,
+      "direction": "out"
+    },
+    "000768": {
+      "label": "中航西飞",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -2996553.0,
+      "direction": "out"
+    },
+    "000776": {
+      "label": "广发证券",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 69289154.0,
+      "direction": "in"
+    },
+    "000786": {
+      "label": "北新建材",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -7523245.0,
+      "direction": "out"
+    },
+    "000792": {
+      "label": "盐湖股份",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -8386194.0,
+      "direction": "out"
+    },
+    "000799": {
+      "label": "酒鬼酒",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 4696486.0,
+      "direction": "in"
+    },
+    "000807": {
+      "label": "云铝股份",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 87532018.0,
+      "direction": "in"
+    },
+    "000858": {
+      "label": "五粮液",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 103000740.0,
+      "direction": "in"
+    },
+    "000895": {
+      "label": "双汇发展",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 18138076.0,
+      "direction": "in"
+    },
+    "000905": {
+      "label": "厦门港务",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -2452374.0,
+      "direction": "out"
+    },
+    "000935": {
+      "label": "四川双马",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -4066777.0,
+      "direction": "out"
+    },
+    "000938": {
+      "label": "紫光股份",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 38453989.0,
+      "direction": "in"
+    },
+    "000951": {
+      "label": "中国重汽",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 6150472.0,
+      "direction": "in"
+    },
+    "000963": {
+      "label": "华东医药",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 15773159.0,
+      "direction": "in"
+    },
+    "000975": {
+      "label": "山金国际",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 20586282.0,
+      "direction": "in"
+    },
+    "000977": {
+      "label": "浪潮信息",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 27707516.0,
+      "direction": "in"
+    },
+    "000983": {
+      "label": "山西焦煤",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 3800022.0,
+      "direction": "in"
+    },
+    "000988": {
+      "label": "华工科技",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 49020918.0,
+      "direction": "in"
+    },
+    "000999": {
+      "label": "华润三九",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 69606524.0,
+      "direction": "in"
+    },
+    "001391": {
+      "label": "国货航",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 1848767.0,
+      "direction": "in"
+    },
+    "001872": {
+      "label": "招商港口",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 132770.0,
+      "direction": "in"
+    },
+    "001965": {
+      "label": "招商公路",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 5347990.0,
+      "direction": "in"
+    },
+    "001979": {
+      "label": "招商蛇口",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 9393973.0,
+      "direction": "in"
+    },
+    "002001": {
+      "label": "新和成",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 5221528.0,
+      "direction": "in"
+    },
+    "002027": {
+      "label": "分众传媒",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 63599483.0,
+      "direction": "in"
+    },
+    "002028": {
+      "label": "思源电气",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 111381189.0,
+      "direction": "in"
+    },
+    "002040": {
+      "label": "南京港",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -762028.0,
+      "direction": "out"
+    },
+    "002049": {
+      "label": "紫光国微",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -30589275.0,
+      "direction": "out"
+    },
+    "002050": {
+      "label": "三花智控",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 176793632.0,
+      "direction": "in"
+    },
+    "002074": {
+      "label": "国轩高科",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 7285362.0,
+      "direction": "in"
+    },
+    "002135": {
+      "label": "东南网架",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -1213735.0,
+      "direction": "out"
+    },
+    "002142": {
+      "label": "宁波银行",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 16424259.0,
+      "direction": "in"
+    },
+    "002179": {
+      "label": "中航光电",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 6028053.0,
+      "direction": "in"
+    },
+    "002230": {
+      "label": "科大讯飞",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 20704665.0,
+      "direction": "in"
+    },
+    "002236": {
+      "label": "大华股份",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 14589375.0,
+      "direction": "in"
+    },
+    "002241": {
+      "label": "歌尔股份",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 17360228.0,
+      "direction": "in"
+    },
+    "002252": {
+      "label": "上海莱士",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -2867981.0,
+      "direction": "out"
+    },
+    "002261": {
+      "label": "拓维信息",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 16636676.0,
+      "direction": "in"
+    },
+    "002281": {
+      "label": "光迅科技",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -45242492.0,
+      "direction": "out"
+    },
+    "002304": {
+      "label": "洋河股份",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 2286891.0,
+      "direction": "in"
+    },
+    "002311": {
+      "label": "海大集团",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -2212830.0,
+      "direction": "out"
+    },
+    "002352": {
+      "label": "顺丰控股",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 123615405.0,
+      "direction": "in"
+    },
+    "002371": {
+      "label": "北方华创",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -146263920.0,
+      "direction": "out"
+    },
+    "002384": {
+      "label": "东山精密",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 194564560.0,
+      "direction": "in"
+    },
+    "002401": {
+      "label": "中远海科",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 867104.0,
+      "direction": "in"
+    },
+    "002415": {
+      "label": "海康威视",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 66810370.0,
+      "direction": "in"
+    },
+    "002422": {
+      "label": "科伦药业",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 28662734.0,
+      "direction": "in"
+    },
+    "002456": {
+      "label": "欧菲光",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -481497.0,
+      "direction": "out"
+    },
+    "002460": {
+      "label": "赣锋锂业",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 76812335.0,
+      "direction": "in"
+    },
+    "002463": {
+      "label": "沪电股份",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 48232940.0,
+      "direction": "in"
+    },
+    "002466": {
+      "label": "天齐锂业",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 32816505.0,
+      "direction": "in"
+    },
+    "002475": {
+      "label": "立讯精密",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 476602270.0,
+      "direction": "in"
+    },
+    "002493": {
+      "label": "荣盛石化",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 19006143.0,
+      "direction": "in"
+    },
+    "002541": {
+      "label": "鸿路钢构",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -5400934.0,
+      "direction": "out"
+    },
+    "002594": {
+      "label": "比亚迪",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 165924403.0,
+      "direction": "in"
+    },
+    "002600": {
+      "label": "领益智造",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 100716589.0,
+      "direction": "in"
+    },
+    "002601": {
+      "label": "龙佰集团",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -5770197.0,
+      "direction": "out"
+    },
+    "002625": {
+      "label": "光启技术",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 75416622.0,
+      "direction": "in"
+    },
+    "002645": {
+      "label": "华宏科技",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -4227613.0,
+      "direction": "out"
+    },
+    "002648": {
+      "label": "卫星化学",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 31381822.0,
+      "direction": "in"
+    },
+    "002709": {
+      "label": "天赐材料",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 52934917.0,
+      "direction": "in"
+    },
+    "002714": {
+      "label": "牧原股份",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 68735002.0,
+      "direction": "in"
+    },
+    "002736": {
+      "label": "国信证券",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 35245698.0,
+      "direction": "in"
+    },
+    "002738": {
+      "label": "中矿资源",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 10891284.0,
+      "direction": "in"
+    },
+    "002837": {
+      "label": "英维克",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 14870938.0,
+      "direction": "in"
+    },
+    "002891": {
+      "label": "中宠股份",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 5379708.0,
+      "direction": "in"
+    },
+    "002916": {
+      "label": "深南电路",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 66829303.0,
+      "direction": "in"
+    },
+    "002920": {
+      "label": "德赛西威",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 6442512.0,
+      "direction": "in"
+    },
+    "002938": {
+      "label": "鹏鼎控股",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 30968226.0,
+      "direction": "in"
+    },
+    "003816": {
+      "label": "中国广核",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 58208744.0,
+      "direction": "in"
+    },
+    "300014": {
+      "label": "亿纬锂能",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -137131695.0,
+      "direction": "out"
+    },
+    "300015": {
+      "label": "爱尔眼科",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 94930692.0,
+      "direction": "in"
+    },
+    "300033": {
+      "label": "同花顺",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 16120110.0,
+      "direction": "in"
+    },
+    "300059": {
+      "label": "东方财富",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -55628200.0,
+      "direction": "out"
+    },
+    "300122": {
+      "label": "智飞生物",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 2751524.0,
+      "direction": "in"
+    },
+    "300124": {
+      "label": "汇川技术",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 122938061.0,
+      "direction": "in"
+    },
+    "300251": {
+      "label": "光线传媒",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -34779490.0,
+      "direction": "out"
+    },
+    "300274": {
+      "label": "阳光电源",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 71704710.0,
+      "direction": "in"
+    },
+    "300308": {
+      "label": "中际旭创",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 101112160.0,
+      "direction": "in"
+    },
+    "300316": {
+      "label": "晶盛机电",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -2072924.0,
+      "direction": "out"
+    },
+    "300347": {
+      "label": "泰格医药",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 3481676.0,
+      "direction": "in"
+    },
+    "300394": {
+      "label": "天孚通信",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -118216060.0,
+      "direction": "out"
+    },
+    "300408": {
+      "label": "三环集团",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 247759720.0,
+      "direction": "in"
+    },
+    "300413": {
+      "label": "芒果超媒",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -18628330.0,
+      "direction": "out"
+    },
+    "300433": {
+      "label": "蓝思科技",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 71337525.0,
+      "direction": "in"
+    },
+    "300442": {
+      "label": "润泽科技",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 44473208.0,
+      "direction": "in"
+    },
+    "300476": {
+      "label": "胜宏科技",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -25133010.0,
+      "direction": "out"
+    },
+    "300496": {
+      "label": "中科创达",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 5161450.0,
+      "direction": "in"
+    },
+    "300498": {
+      "label": "温氏股份",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 3829192.0,
+      "direction": "in"
+    },
+    "300502": {
+      "label": "新易盛",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 476695600.0,
+      "direction": "in"
+    },
+    "300602": {
+      "label": "飞荣达",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 18888256.0,
+      "direction": "in"
+    },
+    "300628": {
+      "label": "亿联网络",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 4488724.0,
+      "direction": "in"
+    },
+    "300661": {
+      "label": "圣邦股份",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 27287668.0,
+      "direction": "in"
+    },
+    "300718": {
+      "label": "长盛轴承",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 15464320.0,
+      "direction": "in"
+    },
+    "300750": {
+      "label": "宁德时代",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 78202480.0,
+      "direction": "in"
+    },
+    "300759": {
+      "label": "康龙化成",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -9076660.0,
+      "direction": "out"
+    },
+    "300760": {
+      "label": "迈瑞医疗",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 133921665.0,
+      "direction": "in"
+    },
+    "300782": {
+      "label": "卓胜微",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -4070280.0,
+      "direction": "out"
+    },
+    "300803": {
+      "label": "指南针",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -49690373.0,
+      "direction": "out"
+    },
+    "300832": {
+      "label": "新产业",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 23721012.0,
+      "direction": "in"
+    },
+    "300866": {
+      "label": "安克创新",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -8512891.0,
+      "direction": "out"
+    },
+    "300896": {
+      "label": "爱美客",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 717271.0,
+      "direction": "in"
+    },
+    "300979": {
+      "label": "华利集团",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -4009932.0,
+      "direction": "out"
+    },
+    "300999": {
+      "label": "金龙鱼",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -5512423.0,
+      "direction": "out"
+    },
+    "301071": {
+      "label": "力量钻石",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 3720691.0,
+      "direction": "in"
+    },
+    "301236": {
+      "label": "软通动力",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 5814052.0,
+      "direction": "in"
+    },
+    "301269": {
+      "label": "华大九天",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -31670513.0,
+      "direction": "out"
+    },
+    "301308": {
+      "label": "江波龙",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 109774440.0,
+      "direction": "in"
+    },
+    "302132": {
+      "label": "中航成飞",
+      "exports": [
+        "深股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 44976035.0,
+      "direction": "in"
+    },
+    "600000": {
+      "label": "浦发银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 43074652.0,
+      "direction": "in"
+    },
+    "600004": {
+      "label": "白云机场",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 6270536.0,
+      "direction": "in"
+    },
+    "600009": {
+      "label": "上海机场",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 4005311.0,
+      "direction": "in"
+    },
+    "600010": {
+      "label": "包钢股份",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -12625419.0,
+      "direction": "out"
+    },
+    "600011": {
+      "label": "华能国际",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 35562540.0,
+      "direction": "in"
+    },
+    "600015": {
+      "label": "华夏银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 94892384.0,
+      "direction": "in"
+    },
+    "600016": {
+      "label": "民生银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 61779705.0,
+      "direction": "in"
+    },
+    "600017": {
+      "label": "日照港",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -4790925.0,
+      "direction": "out"
+    },
+    "600018": {
+      "label": "上港集团",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -6175019.0,
+      "direction": "out"
+    },
+    "600019": {
+      "label": "宝钢股份",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 70708762.0,
+      "direction": "in"
+    },
+    "600023": {
+      "label": "浙能电力",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 7698841.0,
+      "direction": "in"
+    },
+    "600025": {
+      "label": "华能水电",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 2605617.0,
+      "direction": "in"
+    },
+    "600026": {
+      "label": "中远海能",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 9424873.0,
+      "direction": "in"
+    },
+    "600027": {
+      "label": "华电国际",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 2632919.0,
+      "direction": "in"
+    },
+    "600028": {
+      "label": "中国石化",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 2205869.0,
+      "direction": "in"
+    },
+    "600029": {
+      "label": "南方航空",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -15209981.0,
+      "direction": "out"
+    },
+    "600030": {
+      "label": "中信证券",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 192686496.0,
+      "direction": "in"
+    },
+    "600031": {
+      "label": "三一重工",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 31891172.0,
+      "direction": "in"
+    },
+    "600036": {
+      "label": "招商银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 197638870.0,
+      "direction": "in"
+    },
+    "600038": {
+      "label": "中直股份",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -3424029.0,
+      "direction": "out"
+    },
+    "600039": {
+      "label": "四川路桥",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -2118461.0,
+      "direction": "out"
+    },
+    "600048": {
+      "label": "保利发展",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 34307752.0,
+      "direction": "in"
+    },
+    "600050": {
+      "label": "中国联通",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 63105454.0,
+      "direction": "in"
+    },
+    "600056": {
+      "label": "中国医药",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -99864.0,
+      "direction": "out"
+    },
+    "600061": {
+      "label": "国投资本",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 24231514.0,
+      "direction": "in"
+    },
+    "600066": {
+      "label": "宇通客车",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 4029149.0,
+      "direction": "in"
+    },
+    "600085": {
+      "label": "同仁堂",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 68316942.0,
+      "direction": "in"
+    },
+    "600088": {
+      "label": "中视传媒",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 10639355.0,
+      "direction": "in"
+    },
+    "600089": {
+      "label": "特变电工",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 75189197.0,
+      "direction": "in"
+    },
+    "600104": {
+      "label": "上汽集团",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -7250764.0,
+      "direction": "out"
+    },
+    "600111": {
+      "label": "北方稀土",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -22023335.0,
+      "direction": "out"
+    },
+    "600115": {
+      "label": "中国东航",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 20422564.0,
+      "direction": "in"
+    },
+    "600118": {
+      "label": "中国卫星",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -8925860.0,
+      "direction": "out"
+    },
+    "600138": {
+      "label": "中青旅",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -5335616.0,
+      "direction": "out"
+    },
+    "600150": {
+      "label": "中国船舶",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -47503305.0,
+      "direction": "out"
+    },
+    "600158": {
+      "label": "中体产业",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 12758371.0,
+      "direction": "in"
+    },
+    "600160": {
+      "label": "巨化股份",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 1149454.0,
+      "direction": "in"
+    },
+    "600161": {
+      "label": "天坛生物",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 3642152.0,
+      "direction": "in"
+    },
+    "600176": {
+      "label": "中国巨石",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 80900730.0,
+      "direction": "in"
+    },
+    "600183": {
+      "label": "生益科技",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 401495440.0,
+      "direction": "in"
+    },
+    "600188": {
+      "label": "兖矿能源",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 61550990.0,
+      "direction": "in"
+    },
+    "600196": {
+      "label": "复星医药",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 1081753.0,
+      "direction": "in"
+    },
+    "600219": {
+      "label": "南山铝业",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 31226591.0,
+      "direction": "in"
+    },
+    "600233": {
+      "label": "圆通速递",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 6760814.0,
+      "direction": "in"
+    },
+    "600276": {
+      "label": "恒瑞医药",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -32703855.0,
+      "direction": "out"
+    },
+    "600279": {
+      "label": "重庆港",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -1819654.0,
+      "direction": "out"
+    },
+    "600309": {
+      "label": "万华化学",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 76677052.0,
+      "direction": "in"
+    },
+    "600326": {
+      "label": "西藏天路",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -4474626.0,
+      "direction": "out"
+    },
+    "600346": {
+      "label": "恒力石化",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 10461703.0,
+      "direction": "in"
+    },
+    "600362": {
+      "label": "江西铜业",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -38382765.0,
+      "direction": "out"
+    },
+    "600372": {
+      "label": "中航机载",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 17175419.0,
+      "direction": "in"
+    },
+    "600373": {
+      "label": "中文传媒",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -5262902.0,
+      "direction": "out"
+    },
+    "600377": {
+      "label": "宁沪高速",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -4206058.0,
+      "direction": "out"
+    },
+    "600406": {
+      "label": "国电南瑞",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 156884825.0,
+      "direction": "in"
+    },
+    "600415": {
+      "label": "小商品城",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 36931947.0,
+      "direction": "in"
+    },
+    "600425": {
+      "label": "青松建化",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -1271538.0,
+      "direction": "out"
+    },
+    "600426": {
+      "label": "华鲁恒升",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 48240253.0,
+      "direction": "in"
+    },
+    "600428": {
+      "label": "中远海特",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 11067269.0,
+      "direction": "in"
+    },
+    "600436": {
+      "label": "片仔癀",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 50438136.0,
+      "direction": "in"
+    },
+    "600449": {
+      "label": "宁夏建材",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 1104319.0,
+      "direction": "in"
+    },
+    "600460": {
+      "label": "士兰微",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -1198130.0,
+      "direction": "out"
+    },
+    "600477": {
+      "label": "杭萧钢构",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -5612520.0,
+      "direction": "out"
+    },
+    "600482": {
+      "label": "中国动力",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 455111.0,
+      "direction": "in"
+    },
+    "600489": {
+      "label": "中金黄金",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 12344046.0,
+      "direction": "in"
+    },
+    "600496": {
+      "label": "精工钢构",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -2643685.0,
+      "direction": "out"
+    },
+    "600515": {
+      "label": "海南机场",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -3371204.0,
+      "direction": "out"
+    },
+    "600519": {
+      "label": "贵州茅台",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 674661380.0,
+      "direction": "in"
+    },
+    "600522": {
+      "label": "中天科技",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 192692100.0,
+      "direction": "in"
+    },
+    "600536": {
+      "label": "中国软件",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 67047662.0,
+      "direction": "in"
+    },
+    "600547": {
+      "label": "山东黄金",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 8092047.0,
+      "direction": "in"
+    },
+    "600570": {
+      "label": "恒生电子",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 23584413.0,
+      "direction": "in"
+    },
+    "600580": {
+      "label": "卧龙电驱",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 17932512.0,
+      "direction": "in"
+    },
+    "600584": {
+      "label": "长电科技",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 117505870.0,
+      "direction": "in"
+    },
+    "600585": {
+      "label": "海螺水泥",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -23003130.0,
+      "direction": "out"
+    },
+    "600600": {
+      "label": "青岛啤酒",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 4513800.0,
+      "direction": "in"
+    },
+    "600660": {
+      "label": "福耀玻璃",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 46108171.0,
+      "direction": "in"
+    },
+    "600674": {
+      "label": "川投能源",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 31507723.0,
+      "direction": "in"
+    },
+    "600685": {
+      "label": "中船防务",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 34840900.0,
+      "direction": "in"
+    },
+    "600690": {
+      "label": "海尔智家",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 22290659.0,
+      "direction": "in"
+    },
+    "600717": {
+      "label": "天津港",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -672516.0,
+      "direction": "out"
+    },
+    "600741": {
+      "label": "华域汽车",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 18526244.0,
+      "direction": "in"
+    },
+    "600760": {
+      "label": "中航沈飞",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 123823591.0,
+      "direction": "in"
+    },
+    "600764": {
+      "label": "中国海防",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 16306863.0,
+      "direction": "in"
+    },
+    "600765": {
+      "label": "中航重机",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 1322902.0,
+      "direction": "in"
+    },
+    "600779": {
+      "label": "水井坊",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -428291.0,
+      "direction": "out"
+    },
+    "600787": {
+      "label": "中储股份",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -4271704.0,
+      "direction": "out"
+    },
+    "600795": {
+      "label": "国电电力",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -24142537.0,
+      "direction": "out"
+    },
+    "600801": {
+      "label": "华新建材",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 3526843.0,
+      "direction": "in"
+    },
+    "600803": {
+      "label": "新奥股份",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 2427521.0,
+      "direction": "in"
+    },
+    "600809": {
+      "label": "山西汾酒",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 140401485.0,
+      "direction": "in"
+    },
+    "600845": {
+      "label": "宝信软件",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 6715275.0,
+      "direction": "in"
+    },
+    "600862": {
+      "label": "中航高科",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 1824677.0,
+      "direction": "in"
+    },
+    "600875": {
+      "label": "东方电气",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 11434718.0,
+      "direction": "in"
+    },
+    "600886": {
+      "label": "国投电力",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -3157808.0,
+      "direction": "out"
+    },
+    "600887": {
+      "label": "伊利股份",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 73644654.0,
+      "direction": "in"
+    },
+    "600893": {
+      "label": "航发动力",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 44930936.0,
+      "direction": "in"
+    },
+    "600897": {
+      "label": "厦门空港",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 689017.0,
+      "direction": "in"
+    },
+    "600900": {
+      "label": "长江电力",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 342424920.0,
+      "direction": "in"
+    },
+    "600905": {
+      "label": "三峡能源",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 6256824.0,
+      "direction": "in"
+    },
+    "600918": {
+      "label": "中泰证券",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 8321397.0,
+      "direction": "in"
+    },
+    "600919": {
+      "label": "江苏银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 108569126.0,
+      "direction": "in"
+    },
+    "600926": {
+      "label": "杭州银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 35983585.0,
+      "direction": "in"
+    },
+    "600930": {
+      "label": "华电新能",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 17108909.0,
+      "direction": "in"
+    },
+    "600938": {
+      "label": "中国海油",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 169898618.0,
+      "direction": "in"
+    },
+    "600941": {
+      "label": "中国移动",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 26366299.0,
+      "direction": "in"
+    },
+    "600958": {
+      "label": "东方证券",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -33939554.0,
+      "direction": "out"
+    },
+    "600977": {
+      "label": "中国电影",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 3290095.0,
+      "direction": "in"
+    },
+    "600989": {
+      "label": "宝丰能源",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 21453114.0,
+      "direction": "in"
+    },
+    "600999": {
+      "label": "招商证券",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 6512317.0,
+      "direction": "in"
+    },
+    "601000": {
+      "label": "唐山港",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 6576074.0,
+      "direction": "in"
+    },
+    "601006": {
+      "label": "大秦铁路",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -22598334.0,
+      "direction": "out"
+    },
+    "601008": {
+      "label": "连云港",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 1207589.0,
+      "direction": "in"
+    },
+    "601009": {
+      "label": "南京银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 49601569.0,
+      "direction": "in"
+    },
+    "601018": {
+      "label": "宁波港",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -12304707.0,
+      "direction": "out"
+    },
+    "601021": {
+      "label": "春秋航空",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -10057562.0,
+      "direction": "out"
+    },
+    "601058": {
+      "label": "赛轮轮胎",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 18997439.0,
+      "direction": "in"
+    },
+    "601066": {
+      "label": "中信建投",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -10852918.0,
+      "direction": "out"
+    },
+    "601077": {
+      "label": "渝农商行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 39980579.0,
+      "direction": "in"
+    },
+    "601088": {
+      "label": "中国神华",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 124577748.0,
+      "direction": "in"
+    },
+    "601100": {
+      "label": "恒立液压",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 18135495.0,
+      "direction": "in"
+    },
+    "601106": {
+      "label": "中国一重",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 13822647.0,
+      "direction": "in"
+    },
+    "601111": {
+      "label": "中国国航",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 2197223.0,
+      "direction": "in"
+    },
+    "601117": {
+      "label": "中国化学",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -16233328.0,
+      "direction": "out"
+    },
+    "601127": {
+      "label": "赛力斯",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -86100954.0,
+      "direction": "out"
+    },
+    "601136": {
+      "label": "首创证券",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -17206280.0,
+      "direction": "out"
+    },
+    "601138": {
+      "label": "工业富联",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -57218100.0,
+      "direction": "out"
+    },
+    "601166": {
+      "label": "兴业银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 73296774.0,
+      "direction": "in"
+    },
+    "601169": {
+      "label": "北京银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 181447800.0,
+      "direction": "in"
+    },
+    "601179": {
+      "label": "中国西电",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 43628798.0,
+      "direction": "in"
+    },
+    "601186": {
+      "label": "中国铁建",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 8952563.0,
+      "direction": "in"
+    },
+    "601211": {
+      "label": "国泰海通",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 54248392.0,
+      "direction": "in"
+    },
+    "601225": {
+      "label": "陕西煤业",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -16392415.0,
+      "direction": "out"
+    },
+    "601228": {
+      "label": "广州港",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -942918.0,
+      "direction": "out"
+    },
+    "601229": {
+      "label": "上海银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 47573033.0,
+      "direction": "in"
+    },
+    "601236": {
+      "label": "红塔证券",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -534516.0,
+      "direction": "out"
+    },
+    "601288": {
+      "label": "农业银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 428678670.0,
+      "direction": "in"
+    },
+    "601298": {
+      "label": "青岛港",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -1181138.0,
+      "direction": "out"
+    },
+    "601318": {
+      "label": "中国平安",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 213306806.0,
+      "direction": "in"
+    },
+    "601319": {
+      "label": "中国人保",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 15134130.0,
+      "direction": "in"
+    },
+    "601326": {
+      "label": "秦港股份",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -6802594.0,
+      "direction": "out"
+    },
+    "601328": {
+      "label": "交通银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 214783093.0,
+      "direction": "in"
+    },
+    "601336": {
+      "label": "新华保险",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 25403953.0,
+      "direction": "in"
+    },
+    "601360": {
+      "label": "三六零",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -16521718.0,
+      "direction": "out"
+    },
+    "601377": {
+      "label": "兴业证券",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -11105408.0,
+      "direction": "out"
+    },
+    "601390": {
+      "label": "中国中铁",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -16820381.0,
+      "direction": "out"
+    },
+    "601398": {
+      "label": "工商银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 529113260.0,
+      "direction": "in"
+    },
+    "601456": {
+      "label": "国联民生",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -5954776.0,
+      "direction": "out"
+    },
+    "601598": {
+      "label": "中国外运",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -9959332.0,
+      "direction": "out"
+    },
+    "601600": {
+      "label": "中国铝业",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 38464930.0,
+      "direction": "in"
+    },
+    "601601": {
+      "label": "中国太保",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 84542029.0,
+      "direction": "in"
+    },
+    "601607": {
+      "label": "上海医药",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 12931217.0,
+      "direction": "in"
+    },
+    "601608": {
+      "label": "中信重工",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -108835.0,
+      "direction": "out"
+    },
+    "601611": {
+      "label": "中国核建",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -6751471.0,
+      "direction": "out"
+    },
+    "601618": {
+      "label": "中国中冶",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -8037312.0,
+      "direction": "out"
+    },
+    "601628": {
+      "label": "中国人寿",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 42823395.0,
+      "direction": "in"
+    },
+    "601633": {
+      "label": "长城汽车",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 930162.0,
+      "direction": "in"
+    },
+    "601658": {
+      "label": "邮储银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 153739857.0,
+      "direction": "in"
+    },
+    "601668": {
+      "label": "中国建筑",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 76332079.0,
+      "direction": "in"
+    },
+    "601669": {
+      "label": "中国电建",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -19552337.0,
+      "direction": "out"
+    },
+    "601688": {
+      "label": "华泰证券",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 45499717.0,
+      "direction": "in"
+    },
+    "601689": {
+      "label": "拓普集团",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 14978580.0,
+      "direction": "in"
+    },
+    "601698": {
+      "label": "中国卫通",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 12525617.0,
+      "direction": "in"
+    },
+    "601728": {
+      "label": "中国电信",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 30850480.0,
+      "direction": "in"
+    },
+    "601766": {
+      "label": "中国中车",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -34033081.0,
+      "direction": "out"
+    },
+    "601788": {
+      "label": "光大证券",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 12403000.0,
+      "direction": "in"
+    },
+    "601800": {
+      "label": "中国交建",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -13853459.0,
+      "direction": "out"
+    },
+    "601808": {
+      "label": "中海油服",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -4418189.0,
+      "direction": "out"
+    },
+    "601816": {
+      "label": "京沪高铁",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 112157168.0,
+      "direction": "in"
+    },
+    "601818": {
+      "label": "光大银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -37445984.0,
+      "direction": "out"
+    },
+    "601825": {
+      "label": "沪农商行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 14129934.0,
+      "direction": "in"
+    },
+    "601838": {
+      "label": "成都银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 34574921.0,
+      "direction": "in"
+    },
+    "601857": {
+      "label": "中国石油",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 31014607.0,
+      "direction": "in"
+    },
+    "601866": {
+      "label": "中远海发",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -11057154.0,
+      "direction": "out"
+    },
+    "601868": {
+      "label": "中国能建",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 19557890.0,
+      "direction": "in"
+    },
+    "601872": {
+      "label": "招商轮船",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -41671883.0,
+      "direction": "out"
+    },
+    "601877": {
+      "label": "正泰电器",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 5125464.0,
+      "direction": "in"
+    },
+    "601878": {
+      "label": "浙商证券",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 4625332.0,
+      "direction": "in"
+    },
+    "601881": {
+      "label": "中国银河",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -28389277.0,
+      "direction": "out"
+    },
+    "601888": {
+      "label": "中国中免",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 22733931.0,
+      "direction": "in"
+    },
+    "601898": {
+      "label": "中煤能源",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 31333598.0,
+      "direction": "in"
+    },
+    "601899": {
+      "label": "紫金矿业",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -75391800.0,
+      "direction": "out"
+    },
+    "601901": {
+      "label": "方正证券",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 347654.0,
+      "direction": "in"
+    },
+    "601916": {
+      "label": "浙商银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 52815070.0,
+      "direction": "in"
+    },
+    "601919": {
+      "label": "中远海控",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -38803690.0,
+      "direction": "out"
+    },
+    "601939": {
+      "label": "建设银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 85518958.0,
+      "direction": "in"
+    },
+    "601985": {
+      "label": "中国核电",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 56120848.0,
+      "direction": "in"
+    },
+    "601988": {
+      "label": "中国银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 554600980.0,
+      "direction": "in"
+    },
+    "601995": {
+      "label": "中金公司",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 27510924.0,
+      "direction": "in"
+    },
+    "601998": {
+      "label": "中信银行",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 46251821.0,
+      "direction": "in"
+    },
+    "603019": {
+      "label": "中科曙光",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 196393720.0,
+      "direction": "in"
+    },
+    "603195": {
+      "label": "公牛集团",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 11879366.0,
+      "direction": "in"
+    },
+    "603259": {
+      "label": "药明康德",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -60787230.0,
+      "direction": "out"
+    },
+    "603260": {
+      "label": "合盛硅业",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -51414587.0,
+      "direction": "out"
+    },
+    "603288": {
+      "label": "海天味业",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 22359950.0,
+      "direction": "in"
+    },
+    "603296": {
+      "label": "华勤技术",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 55654180.0,
+      "direction": "in"
+    },
+    "603369": {
+      "label": "今世缘",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 1401879.0,
+      "direction": "in"
+    },
+    "603392": {
+      "label": "万泰生物",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -944735.0,
+      "direction": "out"
+    },
+    "603501": {
+      "label": "豪威集团",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 31942494.0,
+      "direction": "in"
+    },
+    "603799": {
+      "label": "华友钴业",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 44584368.0,
+      "direction": "in"
+    },
+    "603885": {
+      "label": "吉祥航空",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -786330.0,
+      "direction": "out"
+    },
+    "603893": {
+      "label": "瑞芯微",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 5772744.0,
+      "direction": "in"
+    },
+    "603986": {
+      "label": "兆易创新",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -120939760.0,
+      "direction": "out"
+    },
+    "603993": {
+      "label": "洛阳钼业",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -144472763.0,
+      "direction": "out"
+    },
+    "605117": {
+      "label": "德业股份",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -1305589.0,
+      "direction": "out"
+    },
+    "605499": {
+      "label": "东鹏饮料",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -16997862.0,
+      "direction": "out"
+    },
+    "688008": {
+      "label": "澜起科技",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 7390940.0,
+      "direction": "in"
+    },
+    "688009": {
+      "label": "中国通号",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 5798658.0,
+      "direction": "in"
+    },
+    "688012": {
+      "label": "中微公司",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 150124310.0,
+      "direction": "in"
+    },
+    "688017": {
+      "label": "绿的谐波",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 99329156.0,
+      "direction": "in"
+    },
+    "688036": {
+      "label": "传音控股",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 37931867.0,
+      "direction": "in"
+    },
+    "688041": {
+      "label": "海光信息",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -53291580.0,
+      "direction": "out"
+    },
+    "688047": {
+      "label": "龙芯中科",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 3932801.0,
+      "direction": "in"
+    },
+    "688082": {
+      "label": "盛美上海",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 35521647.0,
+      "direction": "in"
+    },
+    "688111": {
+      "label": "金山办公",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 68285181.0,
+      "direction": "in"
+    },
+    "688146": {
+      "label": "中船特气",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 71293901.0,
+      "direction": "in"
+    },
+    "688169": {
+      "label": "石头科技",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 3994858.0,
+      "direction": "in"
+    },
+    "688187": {
+      "label": "时代电气",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 7511525.0,
+      "direction": "in"
+    },
+    "688256": {
+      "label": "寒武纪",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 702187870.0,
+      "direction": "in"
+    },
+    "688271": {
+      "label": "联影医疗",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 4386143.0,
+      "direction": "in"
+    },
+    "688396": {
+      "label": "华润微",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 40077569.0,
+      "direction": "in"
+    },
+    "688472": {
+      "label": "阿特斯",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": 4419120.0,
+      "direction": "in"
+    },
+    "688521": {
+      "label": "芯原股份",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -21962080.0,
+      "direction": "out"
+    },
+    "688981": {
+      "label": "中芯国际",
+      "exports": [
+        "沪股通.xls"
+      ],
+      "date": "2026-10-20",
+      "netAmount": -8847070.0,
+      "direction": "out"
+    }
+  }
+}

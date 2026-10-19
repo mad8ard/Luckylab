@@ -104,7 +104,7 @@ Source files should stay under 500 lines when possible. `pnpm run build` runs si
 
 ## Data and Formula Status
 
-The static data directory currently contains 400 indexed CSV samples. Datasets are exposed through `src/data/stock-index.json` and `src/domain/market-data/ohlcv.js`; the build checks that index entries and files stay consistent.
+The static data directory currently contains 385 indexed CSV samples (365 A-shares + 20 Hong Kong stocks). Datasets are exposed through `src/data/stock-index.json` and `src/domain/market-data/ohlcv.js`; the build checks that index entries and files stay consistent.
 
 Market data refresh is intentionally offline-first:
 
@@ -118,11 +118,32 @@ pnpm run refresh:market-data
 
 中文辅助：不要把 CSV 当成线上运行时接口。刷新数据后必须重新跑 `generate:data`，让 Amplify 发布 JS 化的数据资产。
 
-`refresh:market-data` 链路在 `generate:data` 之后会自动运行 `generate:recommended-pool`，按当日 J / RSI / 成本与 LP 关键区域计算 `buyScore`，写出 `src/data/recommended-pools/stock-pool-YYYY-MM-DD.json` 与 `src/data/recommended-pool-latest.json`。页面会把 `recommended-pool-latest.json` 直接渲染到主区域的「今日推荐股票池」模块（DOM 直渲，方便 OpenClaw 抓取后推送企业微信）。手动重新生成可单独运行：
+`refresh:market-data` 链路在 `generate:data` 之后会自动运行 `generate:recommended-pool`，按当日 J / RSI / 成本与 LP 关键区域计算 `buyScore`，写出 `src/data/recommended-pools/stock-pool-YYYY-MM-DD.json` 与 `src/data/recommended-pool-latest.json`。手动重新生成可单独运行 `pnpm run generate:recommended-pool`。
+
+## 四个日常入口
+
+日常只需要这四个功能；打开 `pnpm dev` 后访问 <http://localhost:5173/control/>，页面上就是对应的四个按钮。
+
+| 功能 | 命令 | 结果位置 |
+| --- | --- | --- |
+| 更新实时股票仓库 | `pnpm refresh` | `public/data/*.csv` + `src/data/stock-index.json` |
+| 推荐（SCREEN + POOL 合并） | `pnpm recommend` | `public/recommendation/` |
+| Replay 回测验证 | `pnpm replay` | `public/replay/` |
+| 大盘信息 | `pnpm market` | `public/market-regime/` |
+
+`pnpm recommend` 先用 7 维加权给全池排序，再要求筛选状态为「观察/等待」且筛选分 ≥50，最后只保留 5 只观察档 + 5 只等待档。推荐档门槛为满分的 75%（观察）与 55%（等待）。
+
+`pnpm replay` 默认使用 `--min-z 2.13 --target 0.032`，成交约 17 笔；报告页同时包含 walk-forward 样本外折和 10bps 滑点变体。其他 `generate:*` / `fetch:*` 脚本保留为维护用途，不需要日常记忆。
+
+报告只写入本地 `public/` 目录，不再推送企业微信。
+
+北向标记来自客户端导出的 `data/northbound/沪股通.xls` 与 `深股通.xls`（GBK 制表符，只有“名称”一列）。更新名单后运行：
 
 ```bash
-pnpm run generate:recommended-pool
+python3 scripts/build-northbound-marks.py
 ```
+
+它会按名称匹配当前 A 股池，写出 `src/data/northbound-marks.json`；名单里没有的股票不会保留旧标记。导出表的 `JINGE` 列是净额（元），主应用右侧列表用 `*` 标 `JINGE > 0`（净买入）、`†` 标 `JINGE < 0`（净卖出），悬停显示具体净额；名单里没有的股票不打标记。客户端会截断部分名称（如 `XD中国人`、`XD大秦铁`），脚本会去掉 XD/DR/XR/ST 前缀后做前缀匹配。大盘模块不包含北向指标。
 
 Formula surfaces are split into two categories:
 

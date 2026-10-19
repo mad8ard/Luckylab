@@ -421,7 +421,7 @@ assertCompactTokens(
   screenSource,
   [
     "parseMarkets(args.market??'A股,港股')",
-    "top=positiveIntArg(args.top,20,'top')",
+    "top=positiveIntArg(args.top,10,'top')",
     "explicitMinRows=optionalPositiveIntArg(args['min-rows'],'min-rows')",
     "explicitOptionTenorSessions=optionalPositiveIntArg(args['option-tenor-sessions'],'option-tenor-sessions')",
     "mode:explicitMinRows===null?'adaptive':'explicit-scenario'",

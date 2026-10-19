@@ -51,6 +51,10 @@ function toggleThemeFromOverflow() {
   closeOverflow()
 }
 
+function openConsole() {
+  if (typeof window !== 'undefined') window.location.assign('/control/')
+}
+
 function resetFromOverflow() {
   emit('reset')
   closeOverflow()
@@ -143,6 +147,7 @@ function pctSign(v) {
         @set="(id) => emit('set-profile', id)"
         @set-auto="(v) => emit('set-auto-profile', v)"
       />
+      <a class="tb-reset tb-console" href="/control/" title="打开四功能控制台">控制台</a>
       <button class="tb-theme" type="button" title="切换主题" @click="$emit('toggle-theme')">
         <Moon v-if="theme === 'light'" :size="14" />
         <Sun v-else :size="14" />
@@ -165,6 +170,7 @@ function pctSign(v) {
           切换主题（当前 {{ theme === 'dark' ? '深色' : '浅色' }}）
         </button>
         <button class="tb-overflow-item" @click="resetFromOverflow">重置工作台</button>
+        <button class="tb-overflow-item" @click="openConsole">打开控制台（四个功能）</button>
         <div class="tb-overflow-section">策略 Profile</div>
         <button
           v-for="p in profileList"
@@ -319,6 +325,12 @@ function pctSign(v) {
 .tb-reset:hover {
   opacity: 1;
   border-color: var(--green);
+}
+.tb-console {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.85;
 }
 
 @media (max-width: 1024px) {

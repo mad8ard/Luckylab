@@ -10,6 +10,7 @@ import { useLabStore } from './stores/labStore.js'
 import { clearPersistedLab, persistedRef } from './composables/usePersisted.js'
 import { useBreakpoint } from './composables/useBreakpoint.js'
 import stockIndex from './data/stock-index.json'
+import northboundMarks from './data/northbound-marks.json'
 
 const lab = useLabStore()
 const { isCompact } = useBreakpoint()
@@ -119,6 +120,12 @@ const allSamples = computed(() => {
   }
   return [...curated.values()]
 })
+
+// 北向持股标记（客户端导出名单快照，只用于右侧列表打点）
+const northbound = computed(() => ({
+  dataThrough: northboundMarks.dataThrough || '',
+  symbols: northboundMarks.symbols || {},
+}))
 
 // 决策摘要派生
 const briefExtremeness = computed(() => lab.graph?.decision?.signalStrength ?? 0)
@@ -341,6 +348,7 @@ const rootStyle = computed(() => ({
       <RightPanel
         :open="effectiveRightOpen"
         :samples="allSamples"
+        :northbound="northbound"
         :current-source="lab.source"
         :loading-sample-id="lab.loadingSampleId"
         @toggle="toggleRightPanel"

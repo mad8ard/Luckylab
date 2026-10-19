@@ -49,6 +49,8 @@ src/data/.generated-*/
 src/data/recommended-pool-latest.json
 src/data/recommended-pools/
 public/recommended-pool/
+src/data/recommendation-latest.json
+public/recommendation/
 src/data/replay-latest.json
 src/data/replay-reports/
 public/replay/

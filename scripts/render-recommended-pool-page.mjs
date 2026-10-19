@@ -103,7 +103,7 @@ function renderPage({ pool, focusItems, waitItems, candidatesAll, dimensionsMeta
   const total = Number(pool.totalCandidates ?? 0)
   const logic = escapeHtml(pool.logic ?? '')
   const riskNote = escapeHtml(pool.riskNote ?? '研究排序不代表立即反转或执行建议，仍需注意继续下跌和趋势延续风险。')
-  const tiers = pool.tiers ?? { focus: 0.65, wait: 0.4 }
+  const tiers = pool.tiers ?? { focus: 0.75, wait: 0.55 }
   const allowCatchKnife = pool.options?.allowCatchKnife === true
 
   const defaultMaxScore = dimensionsMeta.filter((d) => d.enabled).reduce((s, d) => s + (d.weight || 0), 0)
@@ -420,7 +420,7 @@ function browserScript() {
   var data = window.__POOL_DATA__ || {};
   var candidates = data.candidates || [];
   var defaultDims = (data.dimensions || []).map(function (d) { return Object.assign({}, d); });
-  var defaultTiers = data.tiers || { focus: 0.65, wait: 0.40 };
+  var defaultTiers = data.tiers || { focus: 0.75, wait: 0.55 };
   var defaultAllowKnife = Boolean(data.options && data.options.allowCatchKnife === true);
 
   // localStorage 持久化
@@ -594,9 +594,11 @@ function browserScript() {
     var m = item.metrics; var lines = [];
     var ratio = item.maxScore > 0 ? item.score / item.maxScore : 0;
     var scoreStr = item.score.toFixed(1) + '/' + item.maxScore.toFixed(0) + ' 分（' + (ratio * 100).toFixed(0) + '%）';
-    if (ratio >= 0.85) lines.push(item.label + ' 综合 ' + scoreStr + '，进入高分观察组。');
-    else if (ratio >= 0.65) lines.push(item.label + ' 综合 ' + scoreStr + '，多个研究维度对齐。');
-    else if (ratio >= 0.40) lines.push(item.label + ' 综合 ' + scoreStr + '，仍缺关键确认。');
+    var tierFocus = (ctx.tiers && ctx.tiers.focus) || defaultTiers.focus;
+    var tierWait = (ctx.tiers && ctx.tiers.wait) || defaultTiers.wait;
+    if (ratio >= tierFocus + 0.1) lines.push(item.label + ' 综合 ' + scoreStr + '，进入高分观察组。');
+    else if (ratio >= tierFocus) lines.push(item.label + ' 综合 ' + scoreStr + '，多个研究维度对齐。');
+    else if (ratio >= tierWait) lines.push(item.label + ' 综合 ' + scoreStr + '，仍缺关键确认。');
     else lines.push(item.label + ' 综合 ' + scoreStr + '，当前不进入观察池。');
 
     if (isFinite(m.lpValuePercentile)) {
@@ -675,7 +677,7 @@ function browserScript() {
   }
 
   function recomputeAndRender(cfg) {
-    var ctx = { allowCatchKnife: cfg.allowCatchKnife, dimensions: cfg.dimensions };
+    var ctx = { allowCatchKnife: cfg.allowCatchKnife, dimensions: cfg.dimensions, tiers: cfg.tiers || defaultTiers };
     var scored = candidates.map(function (c) {
       var r = scoreOne(c.metrics, cfg.dimensions, ctx);
       return {

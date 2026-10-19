@@ -50,7 +50,7 @@ function buildPayload(source, history) {
   const indexPanel = buildIndexPanel(source.indices)
   const breadthGroup = buildBreadthGroup(source.breadth, history)
   const volumeGroup = buildVolumeGroup(source.indices)
-  const fundingGroup = buildFundingGroup(source.margin, source.hsgt, source.generatedAt)
+  const fundingGroup = buildFundingGroup(source.margin)
 
   const groups = [
     { id: 'momentum', label: '动量', weight: WEIGHTS.momentum, ...buildMomentumGroup(indexPanel) },
@@ -91,9 +91,6 @@ function buildPayload(source, history) {
     breadthHistory: history.summary,
     fundingDetail: {
       marginLatestDate: latestDate((source.margin ?? []).map((row) => row.date)),
-      hsgtLatestDate: latestDate((source.hsgt ?? []).filter((row) => Number.isFinite(row.netBuy)).map((row) => row.date)),
-      hsgtNote:
-        '北向资金当日成交净买额自 2024-08 起停止披露，因此该指标不参与资金组计分，仅作历史披露。',
     },
     disclosures: buildDisclosures(source, history),
     failures: source.failures ?? [],
@@ -102,7 +99,6 @@ function buildPayload(source, history) {
       indexEndpoints: ['stock_zh_index_daily_tx', 'stock_zh_index_daily'],
       breadthEndpoint: 'stock_market_activity_legu',
       marginEndpoint: 'stock_margin_account_info',
-      hsgtEndpoint: 'stock_hsgt_hist_em',
       costModel: 'src/domain/market-data/cost.js#buildMarketStatePath',
       tradingDaysPerYear: TDPY,
       lookbackSessions: LOOKBACK_SESSIONS,
@@ -216,7 +212,7 @@ function buildVolumeGroup(indices) {
   }
 }
 
-function buildFundingGroup(margin, hsgt, generatedAt) {
+function buildFundingGroup(margin) {
   const rows = (margin ?? []).filter((row) => Number.isFinite(row.financing))
   const balances = rows.map((row) => row.financing)
   const latest = balances.at(-1) ?? null
@@ -228,25 +224,11 @@ function buildFundingGroup(margin, hsgt, generatedAt) {
   }
   const balancePercentile = percentileOf(balances.slice(-LOOKBACK_SESSIONS), latest)
   const changePercentile = percentileOf(changeSeries.slice(-LOOKBACK_SESSIONS), change20)
-  const usable = (hsgt ?? []).filter((row) => Number.isFinite(row.netBuy))
-  const hsgtLastDate = usable.at(-1)?.date ?? null
-  const hsgtStaleDays = hsgtLastDate ? Math.round((Date.parse(generatedAt) - Date.parse(hsgtLastDate)) / 86400000) : null
-  const hsgtStale = !Number.isFinite(hsgtStaleDays) || hsgtStaleDays > 30
-  const hsgtPercentile = !hsgtStale && usable.length > 60
-    ? percentileOf(usable.slice(-LOOKBACK_SESSIONS).map((row) => row.netBuy), usable.at(-1)?.netBuy)
-    : null
   return {
     score: mean([balancePercentile, changePercentile].filter(Number.isFinite)),
     metrics: [
       metric('marginBalancePercentile5y', '两融余额 5 年分位', balancePercentile, Number.isFinite(latest) ? `${round0(latest)} 亿` : '—', '融资余额在最近 5 年中的百分位。杠杆水位越高，市场对回撤越敏感。'),
       metric('marginChange20dPercentile', '两融余额 20 日变化分位', changePercentile, Number.isFinite(change20) ? `${round2(change20 * 100)}%` : '—', '融资余额 20 个交易日的变动率，及其历史分位。'),
-      metric(
-        'northboundPercentile5y',
-        '北向净买额 5 年分位（已停更，不计分）',
-        hsgtPercentile,
-        hsgtStale ? `已停更，最后披露 ${hsgtLastDate ?? '—'}` : `${round2(usable.at(-1)?.netBuy)} 亿`,
-        '北向当日净买额自 2024-08 停更，超过 30 天即判定为停更并停止计分，保留该行是为了标明缺口。',
-      ),
     ],
   }
 }
@@ -255,7 +237,6 @@ function buildDisclosures(source, history) {
   const list = [
     '换手率：全市场换手率需要流通市值，而提供该字段的东财接口（stock_zh_a_spot_em / index_zh_a_hist 等 push2 系）在当前 AkShare 版本下不可用，因此本页用成交额分位替代，并明确标注它不是换手率。',
     '大盘资金流与板块资金流：stock_market_fund_flow 与 stock_sector_fund_flow_rank 同属东财 push2 系，本轮实测均失败，未纳入。',
-    '北向资金：当日成交净买额自 2024-08 起停止披露，资金组由两融承担。',
     `宽度历史：上游只给当日快照，本地已累积 ${history.summary?.samples ?? 0} 个交易日；样本越多，宽度分位越可靠。`,
     '总分口径：各组指标先归一到 0-1，再按权重加权。它不是预测，也不构成交易建议。',
   ]

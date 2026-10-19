@@ -1,0 +1,2 @@
+# 客户端导出的是 GBK 制表符文本，保留原始字节，避免换行归一化破坏编码。
+data/northbound/*.xls -text

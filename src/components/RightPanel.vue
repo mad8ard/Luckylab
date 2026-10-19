@@ -10,7 +10,23 @@ const props = defineProps({
   samples: { type: Array, required: true },
   currentSource: { type: Object, default: null },
   loadingSampleId: { type: String, default: '' },
+  northbound: { type: Object, default: null },
 })
+
+const northboundDate = computed(() => props.northbound?.dataThrough || '')
+
+function northboundDirection(s) {
+  return props.northbound?.symbols?.[s.symbol]?.direction ?? null
+}
+
+function northboundTitle(s) {
+  const mark = props.northbound?.symbols?.[s.symbol]
+  if (!mark) return ''
+  const amount = mark.netAmount === null || mark.netAmount === undefined ? Number.NaN : Number(mark.netAmount)
+  const sign = amount > 0 ? '净买入 +' : amount < 0 ? '净卖出 ' : '净额 '
+  const amountText = Number.isFinite(amount) ? new Intl.NumberFormat('zh-CN').format(amount) : '—'
+  return `北向${sign}${amountText} 元（客户端导出 ${northboundDate.value}）`
+}
 
 const emit = defineEmits(['toggle', 'select-sample'])
 
@@ -108,6 +124,10 @@ function onGroupToggle(groupId, event) {
             <span class="rp-g-label">{{ g.icon }} {{ g.label }}</span>
             <em class="rp-g-count">{{ g.items.length }}</em>
           </summary>
+          <p v-if="g.id === 'cn' && northboundDate" class="rp-nb-note">
+            <span class="nb-star">*</span> 北向净买入
+            <span class="nb-out">†</span> 北向净卖出 · 客户端导出 {{ northboundDate }}
+          </p>
           <ul>
             <li v-for="s in g.items" :key="s.id">
               <button
@@ -122,6 +142,8 @@ function onGroupToggle(groupId, event) {
                 @click="onSelect(s)"
               >
                 <span class="sym">{{ s.symbol }}</span>
+                <sup v-if="northboundDirection(s) === 'in'" class="nb-star" :title="northboundTitle(s)">*</sup>
+                <sup v-else-if="northboundDirection(s) === 'out'" class="nb-out" :title="northboundTitle(s)">†</sup>
                 <span v-if="s.label !== s.symbol" class="lbl">{{ s.label }}</span>
                 <span v-if="loadingSampleId === s.id" class="loader">载入中…</span>
               </button>
@@ -196,6 +218,24 @@ function onGroupToggle(groupId, event) {
 .rp-filter:focus {
   outline: none;
   border-color: var(--green);
+}
+.rp-nb-note {
+  margin: 0;
+  padding: 4px 10px 5px;
+  font-size: 0.66rem;
+  line-height: 1.4;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+.nb-star {
+  color: #d97706;
+  font-weight: 900;
+  margin-left: 2px;
+}
+.nb-out {
+  color: var(--warn, #b3261e);
+  font-weight: 900;
+  margin-left: 2px;
 }
 .rp-collapse {
   width: 24px;

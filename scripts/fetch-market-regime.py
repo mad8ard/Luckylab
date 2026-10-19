@@ -74,13 +74,6 @@ def main() -> int:
     print("[margin] rows=%d" % len(margin))
     time.sleep(max(0.0, args.sleep))
 
-    hsgt = []
-    try:
-        frame = ak.stock_hsgt_hist_em(symbol="北向资金")
-        hsgt = [{"date": cell(row["日期"]), "netBuy": cell(row["当日成交净买额"])} for _, row in frame.iterrows()]
-    except Exception as exc:  # noqa: BLE001
-        failures.append({"id": "hsgt", "endpoint": "stock_hsgt_hist_em", "error": "%s: %s" % (type(exc).__name__, str(exc)[:160])})
-    print("[hsgt] rows=%d" % len(hsgt))
 
     payload = {
         "schemaVersion": SCHEMA_VERSION,
@@ -89,7 +82,6 @@ def main() -> int:
         "indices": indices,
         "breadth": breadth,
         "margin": margin,
-        "hsgt": hsgt,
         "breadthHistoryAppended": append_breadth_history(breadth),
         "failures": failures,
     }

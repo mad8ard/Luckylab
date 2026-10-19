@@ -81,6 +81,7 @@ function renderPage({ payload, rows, rowKey, columns }) {
   const walkForward = payload.walkForward ?? null
   const sensitivity = payload.sensitivity ?? null
   const audit = payload.executionAudit ?? null
+  const slippageVariant = payload.slippageVariant ?? null
   const decay = Array.isArray(payload.signalDecay) ? payload.signalDecay : null
   const config = payload.config ?? {}
   const undocumented = collectUndocumented(rows, columns)
@@ -170,6 +171,7 @@ function renderPage({ payload, rows, rowKey, columns }) {
     <span>表格可以横向滚动；左侧 symbol / name 两列固定。</span>
   </div>
   <div class="scroll-x" id="trade-scroll">${renderTradeTable(rows, columns)}</div>
+  ${renderSlippageVariant(slippageVariant, summary, columns)}
   ${renderGlossary({ columns, undocumented, sectionNotes: SECTION_NOTES })}
 </div>
 <script>
@@ -346,6 +348,26 @@ function sortTradesByReason(rows) {
       return a.ordinal - b.ordinal
     })
     .map((item) => item.row)
+}
+
+function renderSlippageVariant(variant, baseSummary, columns) {
+  if (!variant) return ''
+  const slip = variant.summary ?? {}
+  const base = baseSummary ?? {}
+  const trades = Array.isArray(variant.trades) ? variant.trades : []
+  const warnings = Array.isArray(variant.warnings) ? variant.warnings : []
+  return `<h2>10bps 滑点变体</h2>
+  <p class="hint">同一组阈值与样本，买卖两端各加 10bps 滑点；结构目标与费用假设保持不变。</p>
+  <div class="cards">
+    <div class="card"><b>成交笔数（基准 → 滑点）</b><span>${esc(String(base.trades ?? '—'))} → ${esc(String(slip.trades ?? '—'))}</span></div>
+    <div class="card"><b>平均净收益（基准 → 滑点）</b><span>${esc(pctText(base.avgNetPct, true))} → ${esc(pctText(slip.avgNetPct, true))}</span></div>
+    <div class="card"><b>胜率（基准 → 滑点）</b><span>${esc(pctText(base.winRatePct, true))} → ${esc(pctText(slip.winRatePct, true))}</span></div>
+    <div class="card"><b>止损率（基准 → 滑点）</b><span>${esc(pctText(base.stopPct, true))} → ${esc(pctText(slip.stopPct, true))}</span></div>
+    <div class="card"><b>目标命中率（基准 → 滑点）</b><span>${esc(pctText(base.targetHitPct, true))} → ${esc(pctText(slip.targetHitPct, true))}</span></div>
+  </div>
+  ${warnings.length ? `<h3>warnings</h3><ul>${warnings.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>` : ''}
+  <h3>滑点成交明细（trades = ${trades.length}）</h3>
+  <div class="scroll-x">${renderTradeTable(trades, columns)}</div>`
 }
 
 function renderGlossary({ columns, undocumented, sectionNotes }) {
