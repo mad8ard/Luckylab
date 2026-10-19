@@ -5,10 +5,11 @@
 
 import { inverseLinear, forwardLinear, zoneScore, clamp01 } from './scoring-utils.js'
 
-// tiers 用「当前启用维度满分」的百分比表达：focus = 满分 × 65%
+// tiers 用「当前启用维度满分」的百分比表达：focus = 满分 × 75%
+// 2026-10 起收紧：65%/40% 会把大半个池子放进等待档，失去筛选意义。
 export const DEFAULT_TIER_THRESHOLDS = Object.freeze({
-  focus: 0.65,
-  wait: 0.4,
+  focus: 0.75,
+  wait: 0.55,
 })
 
 export const DEFAULT_OPTIONS = Object.freeze({
