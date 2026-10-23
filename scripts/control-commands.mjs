@@ -19,11 +19,25 @@ export const REPORT_PAGES = [
     description: '原始推荐池页面，可以在网页上调维度权重重新排序。',
   },
   {
+    id: 'analog-audit',
+    label: '第二段回放（50→30）',
+    url: '/analog-audit/',
+    dir: 'analog-audit',
+    description: '50 只候选按同股价量路径分取前 30，不读取资金流。',
+  },
+  {
+    id: 'final-funnel',
+    label: '最终 15（30→15 + 135）',
+    url: '/final-funnel/',
+    dir: 'final-funnel',
+    description: '样本外折 + 10bps 取前 15，最后只对 15 只拉 135 资金流并评分。',
+  },
+  {
     id: 'replay',
-    label: 'Replay 报告',
+    label: '策略历史回放',
     url: '/replay/',
     dir: 'replay',
-    description: '历史回放：成交明细、样本外折、基准与执行现实审计。',
+    description: '旧版全池历史回放：成交明细、样本外折、基准与执行现实审计。',
   },
   {
     id: 'market-regime',
@@ -44,7 +58,7 @@ export const REPORT_PAGES = [
 const SCREEN = '.agents/skills/china-stock-selection/scripts/screen-cn-stocks.mjs'
 const REPLAY = '.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs'
 
-// 四个功能卡。primary / secondary 指向 COMMANDS 里的 id。
+// 选股全通道卡 + 独立模块。primary / secondary 指向 COMMANDS 里的 id。
 export const FUNCTIONS = [
   {
     id: 'refresh',
@@ -57,27 +71,54 @@ export const FUNCTIONS = [
   {
     id: 'recommend',
     title: '推荐（SCREEN + POOL 合并）',
-    description: '默认 5 只观察档 + 5 只等待档：推荐池 7 维排序，筛选门禁与筛选分 ≥50 负责过滤。',
+    description: '默认 25 只观察档 + 25 只等待档；本阶段只做原价量逻辑，不读取资金流。',
     primary: 'recommendation',
     secondary: ['pool-advanced'],
     resultUrl: '/recommendation/',
   },
   {
     id: 'replay',
-    title: 'Replay 回测验证',
-    description: '默认收紧到约 17 笔；一次生成基准、样本外折和 10bps 滑点三块结果（约 90 秒）。',
-    primary: 'replay-report',
+    title: '第二段回放（50→30）',
+    description: '只做价量路径：50 只候选按同股目标/MAE/10日路径分取前 30，不读取资金流。',
+    primary: 'analog-audit',
     secondary: [],
-    resultUrl: '/replay/',
+    resultUrl: '/analog-audit/',
   },
   {
+    id: 'final',
+    title: '最终 15（30→15 + 135）',
+    description: '对 30 只做 80% 样本外 + 10bps 取前 15；最后只对 15 只拉 135 资金流并做最终评分。',
+    primary: 'final-funnel',
+    secondary: ['fund-flow-fetch', 'replay-report'],
+    resultUrl: '/final-funnel/',
+  },
+]
+
+export const INDEPENDENT_MODULES = [
+  {
     id: 'regime',
-    title: '大盘信息',
-    description: '指数成本锚 + 全市场宽度 + 量能 + 两融，四组加权总分与状态标签。',
+    title: '大盘温度（独立）',
+    description: '指数成本锚 + 全市场宽度 + 量能 + 两融；独立判断当日总体温度，不参与选股评分。',
     primary: 'market-regime',
     secondary: ['regime-page'],
     resultUrl: '/market-regime/',
   },
+  {
+    id: 'stock-news',
+    title: '个股信息查询（独立）',
+    description: '按 6 位代码抓取个股消息面、研报、公告、北向、两融；独立查询，不参与选股评分。',
+    primary: 'news-fetch',
+    secondary: ['news-page'],
+    resultUrl: '/stock-news/',
+    acceptsArgs: true,
+  },
+]
+
+export const PIPELINE = [
+  { id: 'refresh', label: '刷新行情仓库', command: 'refresh-market-data', report: null, note: '长任务，先更新价量数据' },
+  { id: 'recommend', label: '50 只候选', command: 'recommendation', report: 'recommendation', note: '先筛 25+25，本阶段不读资金流' },
+  { id: 'audit', label: '第二段回放 50→30', command: 'analog-audit', report: 'analog-audit', note: '只用同股价量路径，不读资金流' },
+  { id: 'final', label: '最终 15（30→15 + 135）', command: 'final-funnel', report: 'final-funnel', note: '样本外+10bps 取15，再拉135资金流' },
 ]
 
 export const COMMANDS = [
@@ -94,10 +135,23 @@ export const COMMANDS = [
 
   // ── ② 推荐（SCREEN + POOL） ────────────────────────────────
   {
+    id: 'fund-flow-fetch',
+    section: 'final',
+    label: '刷新 135 资金流',
+    description: '只对最终 15 只拉同花顺全单净额（今日 / 3日 / 5日）；找不到最终名单会提示先跑 final-funnel，不会静默回退全池。约 55 秒。',
+    display: 'pnpm fund-flow',
+    run: {
+      kind: 'python',
+      script: 'scripts/fetch-fund-flow.py',
+      then: [{ kind: 'node', script: 'scripts/generate-final-funnel.mjs' }],
+    },
+    resultUrl: '/final-funnel/',
+  },
+  {
     id: 'recommendation',
     section: 'recommend',
     label: '生成集合推荐',
-    description: '跑推荐池 + 筛选，输出 10 只（5 观察档 / 5 等待档）并渲染页面。约 20 秒。',
+    description: '跑推荐池 + 筛选，输出 50 只（25 观察档 / 25 等待档）并渲染页面。约 20 秒。',
     display: 'pnpm recommend',
     run: { kind: 'node', script: 'scripts/generate-recommendation.mjs' },
     resultUrl: '/recommendation/',
@@ -112,11 +166,29 @@ export const COMMANDS = [
     resultUrl: '/recommended-pool/',
   },
 
-  // ── ③ Replay 回测验证 ──────────────────────────────────────
+  // ── ③ 候选审核 + 旧版策略回放 ─────────────────────────────
+  {
+    id: 'analog-audit',
+    section: 'replay',
+    label: '生成候选审核',
+    description: '对 50 只候选找同股历史相似节点，统计后续收益、MAE、目标先于止损和样本外验证。约 5 秒。',
+    display: 'pnpm analog-audit',
+    run: { kind: 'node', script: 'scripts/generate-analog-audit.mjs' },
+    resultUrl: '/analog-audit/',
+  },
+  {
+    id: 'final-funnel',
+    section: 'replay',
+    label: '生成最终 15',
+    description: '30 只 → 80% 样本外 + 10bps → 15 只；再读取 135 资金流并生成最终页。',
+    display: 'pnpm final-funnel',
+    run: { kind: 'node', script: 'scripts/generate-final-funnel.mjs' },
+    resultUrl: '/final-funnel/',
+  },
   {
     id: 'replay-report',
     section: 'replay',
-    label: '重跑回测并出报告',
+    label: '策略历史回放（旧）',
     description: '全池回放 + 样本外折 + 10bps 滑点，渲染报告页。约 90 秒。',
     display: 'pnpm replay',
     run: { kind: 'node', script: 'scripts/generate-replay-report.mjs', then: [{ kind: 'node', script: 'scripts/render-replay-page.mjs' }] },

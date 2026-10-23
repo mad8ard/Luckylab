@@ -39,6 +39,7 @@ const LEADING_COLUMNS = [
 
 const raw = await readFile(SRC_JSON, 'utf8')
 const payload = JSON.parse(raw)
+
 const trades = Array.isArray(payload.trades) ? payload.trades : []
 const signals = Array.isArray(payload.signals) ? payload.signals : []
 const rows = trades.length ? trades : signals
@@ -133,6 +134,15 @@ function renderPage({ payload, rows, rowKey, columns }) {
   .glossary td.k { width: 240px; font-family: Consolas, monospace; font-size: .72rem; }
   .ok { color: var(--accent); }
   .bad { color: var(--warn); }
+  .tier-focus { background: #e6f4ee; color: var(--accent); border-radius: 4px; padding: 1px 6px; font-weight: 700; }
+  .tier-wait { background: #fff4e5; color: #9a6200; border-radius: 4px; padding: 1px 6px; font-weight: 700; }
+  .flow-score { font-weight: 800; font-variant-numeric: tabular-nums; }
+  .flow-score.strong { color: var(--accent); }
+  .flow-score.positive { color: #2f7d5c; }
+  .flow-score.neutral { color: var(--muted); }
+  .flow-score.weak { color: var(--warn); }
+  .flow-pos { color: var(--accent); }
+  .flow-neg { color: var(--warn); }
   .toolbar { display: flex; align-items: center; gap: 12px; margin: 10px 0 0; font-size: .76rem; color: var(--muted); }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #16171a; --surface: #1d1f23; --ink: #e9e9e6; --muted: #9a9a95; --line: #2e3136; --chip: #24262b; }

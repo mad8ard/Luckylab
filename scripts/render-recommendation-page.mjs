@@ -42,7 +42,7 @@ function render(data, list, stats, gate) {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>集合推荐 ${esc(dateOf(data))}</title>
+<title>候选 50 ${esc(dateOf(data))}</title>
 <style>
   :root { --bg:#fbfbfa; --surface:#fff; --ink:#1b1b1b; --muted:#6b6b6b; --line:#e2e2df; --accent:#0e7558; --warn:#b3261e; --chip:#f2f2ef; }
   * { box-sizing:border-box; }
@@ -75,6 +75,8 @@ function render(data, list, stats, gate) {
   .tier-focus { background:#e6f4ee; color:var(--accent); border-radius:4px; padding:2px 8px; font-weight:700; }
   .tier-wait { background:#fff4e5; color:#9a6200; border-radius:4px; padding:2px 8px; font-weight:700; }
   .hint { color:var(--muted); font-size:.74rem; margin:8px 20px; }
+  .banner.warn { border-left-color:var(--warn); color:var(--warn); }
+  .nb-ref { color:#b45309; font-weight:900; letter-spacing:.02em; }
   .glossary td.k { width:180px; font-family:Consolas,monospace; font-size:.72rem; }
   table.plain { border-collapse:collapse; margin:0 20px; font-size:.76rem; }
   table.plain th, table.plain td { border:1px solid var(--line); padding:5px 8px; text-align:left; background:var(--surface); vertical-align:top; }
@@ -91,20 +93,22 @@ function render(data, list, stats, gate) {
 </head>
 <body>
 <header class="page">
-  <h1>集合推荐 · ${observe} 观察 + ${wait} 等待</h1>
+  <h1>候选 50（仅价量） · ${observe} 观察 + ${wait} 等待</h1>
   <div class="meta">
     <span>生成 ${esc(data.generatedAt ?? '—')}</span>
     <span>推荐池快照 ${esc(data.sourcePoolGeneratedAt ?? '—')}</span>
     <span>候选 ${esc(String(stats.total ?? '—'))} 只</span>
     <span>通过门禁 ${esc(String(stats.eligible ?? '—'))} 只</span>
+    <span>北向参考 ${esc(data.northboundReference?.dataThrough ?? '—')}</span>
   </div>
 </header>
 <div class="banner">
   <b>入选规则：</b>推荐分占满分 ≥${focusPct}% 为观察档，${waitPct}%~${focusPct}% 为等待档；
   同时筛选状态必须是「观察」或「等待」，且筛选分 ≥ ${minScore}。
-  默认只保留 ${gate.perTier ?? 5} 只观察档 + ${gate.perTier ?? 5} 只等待档。
+  默认只保留 ${gate.perTier ?? 25} 只观察档 + ${gate.perTier ?? 25} 只等待档。
   推荐分可在 <a href="/recommended-pool/" target="_blank" rel="noreferrer">推荐池页</a> 调权重。
 </div>
+<div class="banner"><b>本阶段只做价量与筛选：</b>135 资金流只在最后 15 只样本上执行；北向仅作参考。</div>
 <div class="cards">
   <div class="card"><b>观察档</b><span class="s-观察">${observe}</span></div>
   <div class="card"><b>等待档</b><span class="s-等待">${wait}</span></div>
@@ -115,17 +119,19 @@ function render(data, list, stats, gate) {
 <div class="scroll-x">
 <table class="grid"><thead><tr>
   <th>#</th><th class="freeze f-sym">symbol</th><th class="freeze f-name">name</th><th>market</th>
-  <th>入选档</th><th>推荐分 / 满分</th><th>筛选分</th><th>命中维度</th>
+  <th>入选档</th><th>推荐分 / 满分</th><th>筛选分</th><th>北向</th><th>命中维度</th>
 </tr></thead><tbody>
 ${list.map((row, index) => renderRow(row, index)).join('\n')}
 </tbody></table>
 </div>
 <h2>字段解释</h2>
 <table class="plain glossary"><tbody>
-  <tr><td class="k">入选档</td><td><b>观察档</b>=推荐分占满分 ≥${focusPct}%；<b>等待档</b>=${waitPct}%~${focusPct}%。两档各取前 ${gate.perTier ?? 5} 只。</td></tr>
+  <tr><td class="k">入选档</td><td><b>观察档</b>=推荐分占满分 ≥${focusPct}%；<b>等待档</b>=${waitPct}%~${focusPct}%。两档各取前 ${gate.perTier ?? 25} 只。</td></tr>
   <tr><td class="k">推荐分</td><td>7 个维度的加权和（合成几何百分位 / z / CK 区间位置 / 成本锚斜率 / 3 年几何比等）。可在推荐池页调权重。</td></tr>
   <tr><td class="k">筛选分</td><td>成本锚 30 + 合成 CK 几何 35 + 偏离 25 + 数据完整 10，满分 100；本页只接受 ≥${minScore}。</td></tr>
   <tr><td class="k">筛选门禁</td><td>只接受筛选状态为「观察」或「等待」、且筛选分 ≥${minScore} 的标的；「剔除」和「需刷新数据」不会进入本页。</td></tr>
+  <tr><td class="k">北向参考</td><td><b>+</b> = 股东名单含香港中央结算（有北向持仓）；<b>*</b> = 当期净买入。只作参考，不参与本阶段选股。</td></tr>
+  <tr><td class="k">135 资金流</td><td>本阶段不读取资金流；只对最后 15 只样本执行今日/3日/5日净流入评分。</td></tr>
   <tr><td class="k">命中维度</td><td>该维度得分达到满分的 80% 以上时列出，用于快速看「为什么排前面」。</td></tr>
   <tr><td class="k">边界</td><td>本页只做研究排序与门禁展示，不产生可执行订单，也不预测收益。</td></tr>
 </tbody></table>
@@ -146,8 +152,17 @@ function renderRow(row, index) {
     <td><span class="${tierClass}">${tierLabel}</span></td>
     <td>${esc(num(row.poolScore))} / ${esc(num(row.poolMaxScore))}</td>
     <td>${esc(num(row.screenScore))}</td>
+    <td>${northboundCell(row.northbound)}</td>
     <td title="${esc(hits)}">${esc(hits.length > 64 ? `${hits.slice(0, 61)}…` : hits)}</td>
   </tr>`
+}
+
+function northboundCell(northbound) {
+  if (!northbound?.present) return '<span class="muted">—</span>'
+  const title = northbound.direction === 'in'
+    ? `北向有持仓且净买入：${northbound.netAmount ?? '—'} 元`
+    : '北向有持仓（非净买入）'
+  return `<span class="nb-ref" title="${esc(title)}">${esc(northbound.mark || '+')}</span>`
 }
 
 function dateOf(data) {
