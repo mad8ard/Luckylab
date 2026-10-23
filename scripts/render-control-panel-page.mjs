@@ -8,7 +8,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { COMMANDS, FUNCTIONS, REPORT_PAGES } from './control-commands.mjs'
+import { COMMANDS, FUNCTIONS, INDEPENDENT_MODULES, PIPELINE, REPORT_PAGES } from './control-commands.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
@@ -17,7 +17,7 @@ const PUBLIC_DIR = join(ROOT, 'public', 'control')
 const html = renderPage()
 await mkdir(PUBLIC_DIR, { recursive: true })
 await writeFile(join(PUBLIC_DIR, 'index.html'), html, 'utf8')
-console.log(`生成控制台页面：${join(PUBLIC_DIR, 'index.html')}（功能 ${FUNCTIONS.length} / 命令 ${COMMANDS.length}）`)
+console.log(`生成控制台页面：${join(PUBLIC_DIR, 'index.html')}（选股卡 ${FUNCTIONS.length} / 独立模块 ${INDEPENDENT_MODULES.length} / 命令 ${COMMANDS.length}）`)
 
 function renderPage() {
   return `<!doctype html>
@@ -66,8 +66,26 @@ function renderPage() {
   #log pre { background:#1c1f23; color:#e6e6e3; padding:12px 14px; border-radius:8px; max-height:420px; overflow:auto; font-size:.72rem; line-height:1.5; white-space:pre-wrap; word-break:break-all; }
   .hidden { display:none; }
   .hint { color:var(--muted); font-size:.74rem; margin:8px 22px; }
+  .section-title { margin:20px 22px 0; font-size:.9rem; }
+  .section-title span { color:var(--muted); font-size:.72rem; font-weight:400; margin-left:8px; }
+  .func.independent { padding-left:16px; border-left:3px solid #9a6200; }
+  .func.independent .num { background:#9a6200; }
+  .module-input { font:inherit; font-size:.78rem; padding:5px 8px; border:1px solid var(--line); border-radius:5px; background:var(--bg); color:var(--ink); width:100%; max-width:260px; }
+  .module-note { color:var(--muted); font-size:.7rem; }
   .banner { margin:10px 22px 0; padding:9px 12px; border-left:3px solid var(--accent); background:var(--chip); font-size:.78rem; border-radius:0 6px 6px 0; }
   .banner.bad { border-left-color:var(--warn); }
+  .pipeline { margin:16px 22px 0; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  .pipe-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .pipe-head b { font-size:.86rem; }
+  .pipe-head span { color:var(--muted); font-size:.72rem; }
+  .pipe-steps { display:flex; align-items:stretch; gap:6px; margin-top:9px; overflow-x:auto; padding-bottom:2px; }
+  .pipe-step { flex:1 0 150px; min-width:150px; display:grid; gap:3px; background:var(--bg); border:1px solid var(--line); border-radius:7px; padding:7px 9px; }
+  .pipe-step .n { color:var(--accent); font-size:.64rem; font-weight:800; }
+  .pipe-step strong { font-size:.78rem; }
+  .pipe-step small { color:var(--muted); font-size:.66rem; line-height:1.35; }
+  .pipe-step .pipe-actions { display:flex; gap:5px; flex-wrap:wrap; margin-top:2px; }
+  .pipe-step .pipe-when { color:var(--muted); font-size:.64rem; }
+  .pipe-arrow { align-self:center; color:var(--muted); font-size:.9rem; }
   @media (prefers-color-scheme: dark) {
     :root { --bg:#16171a; --surface:#1d1f23; --ink:#e9e9e6; --muted:#9a9a95; --line:#2e3136; --chip:#24262b; }
     .pill.live { background:#17332a; } .pill.static { background:#3a1f1e; }
@@ -80,12 +98,18 @@ function renderPage() {
   <h1>Market Lab 控制台</h1>
   <div class="meta">
     <span id="api-status" class="pill">检测运行环境中…</span>
-    <span>四个功能：更新仓库 / 推荐 / 回测验证 / 大盘信息</span>
+    <span>选股全通道：刷新行情 → 50 候选 → 历史审核 → 策略回放；大盘和个股信息是独立模块</span>
+    <span title="北向只作参考，不进入资金流评分">北向参考：+ 有持仓 · * 净买入（不参与评分）</span>
   </div>
 </header>
 <div id="banner" class="banner hidden"></div>
+${renderPipeline()}
 <section class="functions">
 ${FUNCTIONS.map((fn, index) => renderFunction(fn, index)).join('\n')}
+</section>
+<h2 class="section-title">独立模块 <span>单独操作，不进入选股评分</span></h2>
+<section class="functions">
+${INDEPENDENT_MODULES.map((module, index) => renderIndependentModule(module, index)).join('\n')}
 </section>
 ${renderMaintenance()}
 <div id="log" class="hidden">
@@ -119,11 +143,13 @@ ${renderMaintenance()}
       const data = await res.json()
       state.live = Boolean(data.ok)
       for (const report of data.reports ?? []) {
-        const el = document.getElementById('when-' + report.id)
-        if (!el) continue
-        el.textContent = report.exists
+        const text = report.exists
           ? formatWhen(report.updatedAt) + ' · ' + formatSize(report.sizeBytes)
           : '尚未生成'
+        for (const id of ['when-' + report.id, 'pipe-when-' + report.id]) {
+          const el = document.getElementById(id)
+          if (el) el.textContent = text
+        }
       }
     } catch {
       state.live = false
@@ -150,6 +176,9 @@ ${renderMaintenance()}
     for (const item of COMMANDS) {
       const button = document.getElementById('run-' + item.id)
       if (button) button.disabled = !state.live || Boolean(state.jobId)
+    }
+    for (const button of document.querySelectorAll('[data-run-command]')) {
+      button.disabled = !state.live || Boolean(state.jobId)
     }
   }
 
@@ -229,6 +258,28 @@ ${renderMaintenance()}
 `
 }
 
+function renderPipeline() {
+  const steps = PIPELINE.map((step, index) => {
+    const command = COMMANDS.find((item) => item.id === step.command)
+    const report = step.report ? REPORT_PAGES.find((page) => page.id === step.report) : null
+    return `<article class="pipe-step">
+      <span class="n">STEP ${index + 1}</span>
+      <strong>${esc(step.label)}</strong>
+      <small>${esc(step.note)}</small>
+      <div class="pipe-actions">
+        <button class="small" type="button" data-run-command="${esc(step.command)}" onclick="runCommand('${esc(step.command)}')">运行</button>
+        ${report ? `<a class="small btn" href="${esc(report.url)}" target="_blank" rel="noreferrer">打开结果</a>` : ''}
+        ${command ? `<button class="small" type="button" onclick="copyCommand('${esc(command.id)}')">复制</button>` : ''}
+      </div>
+      ${step.report ? `<span class="pipe-when" id="pipe-when-${esc(step.report)}">—</span>` : '<span class="pipe-when">长任务</span>'}
+    </article>`
+  }).join('<span class="pipe-arrow">→</span>')
+  return `<section class="pipeline">
+    <div class="pipe-head"><b>全通道</b><span>按顺序执行；每一步也能单独重跑，结果会在新标签页打开。</span></div>
+    <div class="pipe-steps">${steps}</div>
+  </section>`
+}
+
 function renderFunction(fn, index) {
   const primary = COMMANDS.find((item) => item.id === fn.primary)
   const report = REPORT_PAGES.find((page) => page.url === fn.resultUrl)
@@ -244,6 +295,28 @@ function renderFunction(fn, index) {
     </div>
     ${secondary.length ? `<div class="secondary">${secondary.map((item) => `<button class="small" id="run-${item.id}" onclick="runCommand('${item.id}')">${esc(item.label)}</button>`).join('')}</div>` : ''}
     ${primary ? `<div class="secondary"><button class="small" onclick="copyCommand('${primary.id}')">复制命令</button><code class="hint" style="margin:0">${esc(primary.display)}</code></div>` : ''}
+  </article>`
+}
+
+function renderIndependentModule(module, index) {
+  const primary = COMMANDS.find((item) => item.id === module.primary)
+  const report = REPORT_PAGES.find((page) => page.url === module.resultUrl)
+  const secondary = (module.secondary ?? []).map((id) => COMMANDS.find((item) => item.id === id)).filter(Boolean)
+  const isNews = module.id === 'stock-news'
+  return `  <article class="func independent">
+    <div class="num">独${index + 1}</div>
+    <h2>${esc(module.title)}</h2>
+    <p>${esc(module.description)}</p>
+    ${isNews ? `<input class="module-input" id="args-news-fetch" placeholder="6 位代码，空格分隔，例如 600519 000425" aria-label="个股代码" />` : ''}
+    <div class="actions">
+      ${primary ? `<button class="primary" id="run-${primary.id}" onclick="runCommand('${primary.id}')">运行</button>` : ''}
+      ${module.resultUrl ? `<a class="btn" href="${esc(module.resultUrl)}" target="_blank" rel="noreferrer">打开结果</a>` : ''}
+      ${report ? `<span class="when" id="when-${report.id}">—</span>` : ''}
+    </div>
+    <div class="secondary">
+      ${secondary.map((item) => `<button class="small" id="run-${item.id}" onclick="runCommand('${item.id}')">${esc(item.label)}</button>`).join('')}
+      ${isNews ? `<span class="module-note">最多 12 只，单只约 15 秒</span>` : '<span class="module-note">独立观察，不影响选股</span>'}
+    </div>
   </article>`
 }
 

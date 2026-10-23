@@ -12,6 +12,9 @@
   "scripts": {
     "refresh": "pnpm run refresh:market-data",
     "recommend": "pnpm run generate:recommendation",
+    "fund-flow": "python3 scripts/fetch-fund-flow.py",
+    "analog-audit": "node scripts/generate-analog-audit.mjs",
+    "final-funnel": "node scripts/generate-final-funnel.mjs",
     "replay": "pnpm run generate:replay-report",
     "market": "pnpm run fetch:market-regime",
     "dev": "pnpm run generate:data && pnpm run generate:recommended-pool && pnpm run generate:recommendation && pnpm run control:page && vite",

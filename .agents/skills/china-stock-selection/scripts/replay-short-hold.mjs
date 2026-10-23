@@ -95,7 +95,7 @@ const REPLAY_CLAIM_CLASSES = Object.freeze({
 })
 const SUPPORTED_FLAGS = new Set([
   'profile', 'mode', 'market', 'fee', 'min-rows', 'format',
-  'index', 'data-dir', 'name-map', 'target', 'stop', 'min-z',
+  'index', 'data-dir', 'name-map', 'symbols', 'target', 'stop', 'min-z',
   'ck-geometry-max', 'lp-max', 'max-hl', 'min-slope', 'max-slope',
   'min-distance', 'max-distance', 'max-entry-gap', 'min-entry-gap',
   'max-hold', 'target-mode',
@@ -141,6 +141,7 @@ const SWING_DEFAULTS = {
 const profileMode = String(args.profile ?? 'strict')
 const profiles = buildProfiles(profileMode)
 const marketValues = parseMarkets(args.market ?? 'A股')
+const requestedSymbols = new Set(String(args.symbols ?? '').split(',').map((item) => item.trim()).filter(Boolean))
 const mode = enumArg(args.mode ?? 'replay', SUPPORTED_MODES, 'mode')
 const format = enumArg(args.format ?? 'markdown', SUPPORTED_FORMATS, 'format')
 if (args.fee === undefined) fail('--fee is required; pass --fee 0 explicitly when no fee drag is intended')
@@ -771,6 +772,7 @@ let considered = 0
 
 for (const entry of index) {
   if (!config.markets.includes(entry.market)) continue
+  if (requestedSymbols.size && !requestedSymbols.has(entry.symbol)) continue
   considered += 1
   const file = join(dataDir, String(entry.url ?? '').split('/').at(-1))
   if (!existsSync(file)) {
@@ -828,6 +830,7 @@ for (const entry of index) {
 const summary = config.mode === 'latest' ? summarizeSignals(rowsOut) : summarize(rowsOut)
 const filters = {
   markets: config.markets,
+  symbols: requestedSymbols.size ? [...requestedSymbols] : null,
 }
 const provenance = {
   runtime: '.agents/skills/china-stock-selection/scripts/replay-short-hold.mjs',

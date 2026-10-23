@@ -22,9 +22,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
 const POOL_PATH = join(ROOT, 'src', 'data', 'recommended-pool-latest.json')
 const OUT_PATH = join(ROOT, 'src', 'data', 'recommendation-latest.json')
+const NORTHBOUND_PATH = join(ROOT, 'src', 'data', 'northbound-marks.json')
 const SCREEN_CLI = join(ROOT, '.agents', 'skills', 'china-stock-selection', 'scripts', 'screen-cn-stocks.mjs')
 
-const PER_TIER = 5
+const PER_TIER = 25
 const SCREEN_MIN_SCORE = 50
 const SCREEN_ALLOWED = new Set(['观察', '等待'])
 const TIER_RANK = { focus: 0, wait: 1, skip: 2 }
@@ -50,6 +51,12 @@ try {
 const pool = JSON.parse(await readFile(POOL_PATH, 'utf8'))
 const screenBySymbol = new Map((screen.ranked ?? []).map((row) => [row.symbol, row]))
 const dimensions = buildScoreConfig()
+let northboundPayload = null
+try {
+  northboundPayload = JSON.parse(await readFile(NORTHBOUND_PATH, 'utf8'))
+} catch (error) {
+  if (error?.code !== 'ENOENT') console.warn(`北向参考读取失败：${error.message}`)
+}
 
 const merged = (pool.candidatesAll ?? []).map((candidate) => {
   const result = computeBuyScore(candidate.metrics ?? {}, { dimensions })
@@ -65,6 +72,7 @@ const merged = (pool.candidatesAll ?? []).map((candidate) => {
   if (verdict && !SCREEN_ALLOWED.has(verdict.candidateStatus)) rejectReasons.push(`screen-${verdict.candidateStatus}`)
   if (verdict && !(Number(verdict.score) >= SCREEN_MIN_SCORE)) rejectReasons.push(`screen-score-below-${SCREEN_MIN_SCORE}`)
   if (tier === 'skip') rejectReasons.push('pool-tier-below-wait')
+  const northbound = attachNorthbound(candidate.symbol)
   return {
     symbol: candidate.symbol,
     label: candidate.label,
@@ -78,6 +86,8 @@ const merged = (pool.candidatesAll ?? []).map((candidate) => {
     screenStatus: verdict?.candidateStatus ?? null,
     screenScoreStatus: verdict?.scoreStatus ?? null,
     screenReasons: verdict?.statusReasons ?? null,
+    northbound,
+    northboundMark: northbound.mark,
     eligible: rejectReasons.length === 0,
     rejectReasons,
   }
@@ -144,7 +154,14 @@ const payload = {
     `默认输出 ${PER_TIER} 只观察档 + ${PER_TIER} 只等待档。` +
     `推荐档按 7 维加权：≥${Math.round(DEFAULT_TIER_THRESHOLDS.focus * 100)}% 为观察档，` +
     `${Math.round(DEFAULT_TIER_THRESHOLDS.wait * 100)}%~${Math.round(DEFAULT_TIER_THRESHOLDS.focus * 100)}% 为等待档；` +
-    `筛选状态必须为观察/等待，且筛选分 ≥ ${SCREEN_MIN_SCORE}。`,
+    `筛选状态必须为观察/等待，且筛选分 ≥ ${SCREEN_MIN_SCORE}。` +
+    '本阶段只做价量与筛选，不读取资金流；135 资金流只对最后 15 只执行。',
+  northboundReference: {
+    available: Boolean(northboundPayload),
+    dataThrough: northboundPayload?.dataThrough ?? null,
+    source: northboundPayload?.source ?? null,
+    legend: '+ = 股东名单含香港中央结算（有北向持仓）；* = 当期净买入；只作参考，不参与选股评分。',
+  },
   dimensions: pool.dimensions,
   rows: selected,
 }
@@ -172,6 +189,18 @@ function run([command, args], label, options = {}) {
     process.exit(result.status ?? 1)
   }
   return options.capture ? result.stdout : ''
+}
+
+function attachNorthbound(symbol) {
+  const mark = northboundPayload?.symbols?.[symbol]
+  if (!mark) return { present: false, mark: '', direction: null, netAmount: null }
+  return {
+    present: true,
+    mark: mark.direction === 'in' ? '+*' : '+',
+    direction: mark.direction,
+    netAmount: mark.netAmount ?? null,
+    label: mark.label ?? null,
+  }
 }
 
 function countBy(rows, keyOf) {

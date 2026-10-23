@@ -23,7 +23,7 @@ const DATA_DIR = join(ROOT, 'public', 'data')
 const OUT_DIR = join(ROOT, 'src', 'data', 'recommended-pools')
 const LATEST_PATH = join(ROOT, 'src', 'data', 'recommended-pool-latest.json')
 
-const TOP_N = numberArg('--top', 5)
+const TOP_N = numberArg('--top', 25)
 const RANGE_WIDTH = numberArg('--range-width', 0.1)
 const LIQUIDITY = numberArg('--liquidity', 1)
 const HISTORY_SESSIONS_OVERRIDE = optionalNumberArg('--history-sessions')

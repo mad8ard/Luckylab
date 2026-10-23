@@ -96,3 +96,9 @@ package-lock.json
 .claude/skills/*
 !.claude/skills/china-stock-selection/
 !.claude/skills/china-stock-selection/**
+src/data/analog-audit-latest.json
+src/data/analog-audits/
+public/analog-audit/
+src/data/final-funnel-latest.json
+src/data/final-funnels/
+public/final-funnel/

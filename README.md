@@ -120,18 +120,42 @@ pnpm run refresh:market-data
 
 `refresh:market-data` 链路在 `generate:data` 之后会自动运行 `generate:recommended-pool`，按当日 J / RSI / 成本与 LP 关键区域计算 `buyScore`，写出 `src/data/recommended-pools/stock-pool-YYYY-MM-DD.json` 与 `src/data/recommended-pool-latest.json`。手动重新生成可单独运行 `pnpm run generate:recommended-pool`。
 
-## 四个日常入口
+## 选股全通道
 
-日常只需要这四个功能；打开 `pnpm dev` 后访问 <http://localhost:5173/control/>，页面上就是对应的四个按钮。
+打开 `pnpm dev` 后访问 <http://localhost:5173/control/>，选股按四步漏斗执行：
 
-| 功能 | 命令 | 结果位置 |
+| 步骤 | 命令 | 结果 |
 | --- | --- | --- |
-| 更新实时股票仓库 | `pnpm refresh` | `public/data/*.csv` + `src/data/stock-index.json` |
-| 推荐（SCREEN + POOL 合并） | `pnpm recommend` | `public/recommendation/` |
-| Replay 回测验证 | `pnpm replay` | `public/replay/` |
-| 大盘信息 | `pnpm market` | `public/market-regime/` |
+| 1. 更新实时股票仓库 | `pnpm refresh` | `public/data/*.csv` + `src/data/stock-index.json` |
+| 2. 50 只候选 | `pnpm recommend` | `public/recommendation/` |
+| 3. 第二段回放 50→30 | `pnpm analog-audit` | `public/analog-audit/` |
+| 4. 最终 30→15 + 135 资金流 | `pnpm final-funnel` / `pnpm fund-flow` | `public/final-funnel/` |
 
-`pnpm recommend` 先用 7 维加权给全池排序，再要求筛选状态为「观察/等待」且筛选分 ≥50，最后只保留 5 只观察档 + 5 只等待档。推荐档门槛为满分的 75%（观察）与 55%（等待）。
+独立模块（不进入选股评分）：
+
+- 大盘温度：`pnpm market` → `public/market-regime/`
+- 个股信息：`pnpm fetch:stock-news -- 600519 000425` → `public/stock-news/`
+
+### 分层逻辑
+
+- **第一段 50 只**：完全沿用原价量/推荐池/筛选逻辑，不读取资金流。
+- **第二段 50→30**：只做同股历史路径分（目标先于止损 10 / MAE 40 / 10日 10），不读取资金流。
+- **第三段 30→15**：对 30 只计算 80% 样本外路径 + 10bps 单边成本，按 60% OOS + 40% 10bps 取前 15。
+- **最后 15 只**：才拉同花顺全单资金净额（5日 40% / 3日 35% / 今日 25%）；最终分 = 70% 第三段路径 + 30% 135 资金流。
+
+因此数据获取只有两个时点：刷新股票行情，以及最终 15 只的 135 资金流。北向只作参考，不参与任何评分：
+
+- `+` = 股东名单含香港中央结算（有北向持仓）
+- `*` = 当期净买入
+- `+*` = 有持仓且净买入
+
+需要说明：同花顺资金流接口本身返回全市场排行，底层无法按 50/15 个代码单独请求；项目现在只保存、只评分最终候选。要真正减少网络请求，需要换支持单股查询的数据源。
+
+### 当前路径验证
+
+同股路径分的设计/验证路径秩相关为 +0.267 / +0.206；目标单项在 80% 验证中为 -0.021，正信号主要来自 MAE。页面明确标注为“风险优先的路径研究，不是目标命中率或胜率承诺”。
+
+旧版策略历史回放仍在 `pnpm replay` → `public/replay/`，它是独立诊断，不参与上面的 50→30→15 漏斗。
 
 `pnpm replay` 默认使用 `--min-z 2.13 --target 0.032`，成交约 17 笔；报告页同时包含 walk-forward 样本外折和 10bps 滑点变体。其他 `generate:*` / `fetch:*` 脚本保留为维护用途，不需要日常记忆。
 
