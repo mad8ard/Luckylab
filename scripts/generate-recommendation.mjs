@@ -102,14 +102,14 @@ const eligible = merged.filter((row) => row.eligible)
 let focus = eligible.filter((row) => row.tier === 'focus').sort(byScore).slice(0, PER_TIER)
 let wait = eligible.filter((row) => row.tier === 'wait').sort(byScore).slice(0, PER_TIER)
 
-// 某一档不足 5 只时，用另一档按分数补位，保证清单尽量满 10 只。
+// 某一档不足时，用另一档按分数补位，保证总清单尽量满 50 只。
 if (focus.length < PER_TIER) {
   const used = new Set(focus.map((row) => row.symbol))
   const fill = [...eligible]
     .filter((row) => row.tier === 'wait' && !used.has(row.symbol))
     .sort(byScore)
     .slice(0, PER_TIER - focus.length)
-  wait = [...wait, ...fill].slice(0, PER_TIER)
+  wait = [...wait, ...fill]
 }
 if (wait.length < PER_TIER) {
   const used = new Set(wait.map((row) => row.symbol))
@@ -117,7 +117,7 @@ if (wait.length < PER_TIER) {
     .filter((row) => row.tier === 'focus' && !used.has(row.symbol))
     .sort(byScore)
     .slice(0, PER_TIER - wait.length)
-  focus = [...focus, ...fill].slice(0, PER_TIER)
+  focus = [...focus, ...fill]
 }
 
 const selected = [

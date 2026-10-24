@@ -128,8 +128,8 @@ function render(data, list, stats, validation, variantValidation, primaryVariant
 </header>
 <div class="banner">
   <b>第二段只做价量路径：</b>同股路径 90（目标先于止损 10 · MAE 40 · 10 日收益 10，
-  归一化到 100）+ 样本置信 10。按路径分从 50 取前 30；本段不读取 135 资金流，
-  135 资金流只对第三段最终 15 只执行。80% 截止点只做独立验证。
+  归一化到 100）+ 样本置信 10。按路径分从 50 取前 30 **A 股**；港股保留在第一段展示，
+  但不进入 A 股 135 漏斗。本段不读取 135 资金流，135 由第三段后的独立模块手工执行。80% 截止点只做独立验证。
 </div>
 <div class="banner ${primaryTest?.status === 'ok' ? '' : 'warn'}">
   <b>样本外验证：</b>${renderValidationText(primaryTest, primaryVariant)}
