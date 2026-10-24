@@ -163,10 +163,17 @@ audited.sort((left, right) => {
   const rightScore = Number.isFinite(right.audit.auditScore) ? right.audit.auditScore : -1
   return rightScore - leftScore || (right.poolScore ?? 0) - (left.poolScore ?? 0)
 })
+let stage2Count = 0
 audited.forEach((item, index) => {
   item.auditRank = index + 1
-  item.stage2Rank = index + 1
-  item.stage2Selected = index < 30
+  if (item.market === 'A股' && stage2Count < 30) {
+    stage2Count += 1
+    item.stage2Rank = stage2Count
+    item.stage2Selected = true
+  } else {
+    item.stage2Rank = null
+    item.stage2Selected = false
+  }
 })
 
 const generatedAt = new Date().toISOString()
@@ -184,7 +191,7 @@ const payload = {
     candidates: candidates.length,
     audited: audited.length,
     scored: audited.filter((item) => item.audit.status === 'ok').length,
-    stage2Selected: Math.min(30, audited.length),
+    stage2Selected: stage2Count,
     insufficient: audited.filter((item) => item.audit.status !== 'ok').length,
     failures: failures.length,
     regimeDays: regimeByDate.size,

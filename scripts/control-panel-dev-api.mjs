@@ -199,9 +199,22 @@ function resolveStep(spec, tokens, accepts) {
     return { command: resolvePython(), argv: [script, ...base], display: `python ${script} ${base.join(' ')}`.trim() }
   }
   if (spec.kind === 'pnpm') {
-    return { command: 'pnpm', argv: ['run', script, ...base], display: `pnpm run ${script} ${base.join(' ')}`.trim(), shell: true }
+    const display = `pnpm run ${script} ${base.join(' ')}`.trim()
+    if (process.platform === 'win32') {
+      // 不要用 spawn(..., {shell:true, args})：Node 会报 DEP0190，且参数拼接不安全。
+      // 显式走 cmd.exe，但把整条命令作为单个参数传入，并做转义。
+      const commandLine = ['pnpm', 'run', script, ...base].map(quoteCmdArg).join(' ')
+      return { command: process.env.ComSpec || 'cmd.exe', argv: ['/d', '/s', '/c', commandLine], display }
+    }
+    return { command: 'pnpm', argv: ['run', script, ...base], display }
   }
   throw new Error(`unknown run kind: ${spec.kind}`)
+}
+
+function quoteCmdArg(value) {
+  const text = String(value)
+  if (/^[A-Za-z0-9_./:=@+,-]+$/.test(text)) return text
+  return `"${text.replaceAll('"', '""')}"`
 }
 
 function reportStatus(root) {

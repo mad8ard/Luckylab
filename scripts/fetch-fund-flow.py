@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INDEX_PATH = ROOT / "src" / "data" / "stock-index.json"
 OUT_PATH = ROOT / "src" / "data" / "fund-flow-latest.json"
-DEFAULT_CANDIDATES = ROOT / "src" / "data" / "final-funnel-latest.json"
+DEFAULT_CANDIDATES = ""
 
 WEIGHTS = {"today": 0.25, "d3": 0.35, "d5": 0.40}
 PERIODS = [
@@ -37,33 +37,25 @@ def main() -> int:
     ak = import_ak()
     index = json.loads(INDEX_PATH.read_text(encoding="utf-8"))
     a_shares = [item for item in index if item.get("market") == "A股"]
-    candidates_path = Path(args.candidates)
+    candidates_path = Path(args.candidates) if args.candidates else None
     candidate_symbols = set()
     candidate_source = None
-    if candidates_path.exists():
+    if candidates_path and candidates_path.exists():
         try:
-            recommendation = json.loads(candidates_path.read_text(encoding="utf-8"))
+            snapshot = json.loads(candidates_path.read_text(encoding="utf-8"))
             candidate_symbols = {
                 str(row.get("symbol") or "").strip()
-                for row in recommendation.get("rows", [])
+                for row in snapshot.get("rows", [])
                 if row.get("symbol")
             }
             candidate_source = str(candidates_path)
         except Exception as exc:  # noqa: BLE001
-            print(f"  [warn] 推荐快照读取失败，回退全池：{exc}", file=sys.stderr)
-    if not candidate_symbols and not args.allow_full_pool:
-        print(
-            f"未找到最终漏斗候选：{candidates_path}\n"
-            "请先运行 pnpm final-funnel 生成 30→15 名单；"
-            "如确实要刷新全池，显式加 --allow-full-pool。",
-            file=sys.stderr,
-        )
-        return 2
+            print(f"  [warn] 候选快照读取失败，回退全池：{exc}", file=sys.stderr)
     pool = [item for item in a_shares if str(item.get("symbol") or "").strip() in candidate_symbols] if candidate_symbols else a_shares
     if candidate_symbols:
-        print(f"只处理最终漏斗候选：{len(pool)} 只（来自 {candidates_path.name}）", flush=True)
+        print(f"只处理指定候选：{len(pool)} 只（来自 {candidates_path.name}）", flush=True)
     else:
-        print("显式全池模式：本次会保存全部 A 股资金流。", flush=True)
+        print(f"全局 A 股池模式：{len(pool)} 只；135模块独立手工执行。", flush=True)
 
     period_maps = {}
     period_meta = {}
@@ -254,8 +246,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="拉取同花顺个股全单资金净额，生成当前确认快照")
     parser.add_argument("--retries", type=int, default=3, help="每个周期失败后的重试次数")
     parser.add_argument("--as-of", default="", help="覆盖数据截止日期，默认今天")
-    parser.add_argument("--candidates", default=str(DEFAULT_CANDIDATES), help="最终漏斗快照；存在时只保留其中的股票")
-    parser.add_argument("--allow-full-pool", action="store_true", help="找不到最终漏斗时允许回退全池")
+    parser.add_argument("--candidates", default=DEFAULT_CANDIDATES, help="可选：只保留该 JSON 中的股票；留空则全局 A 股池")
     return parser.parse_args()
 
 

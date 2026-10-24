@@ -27,10 +27,10 @@ export const REPORT_PAGES = [
   },
   {
     id: 'final-funnel',
-    label: '最终 15（30→15 + 135）',
+    label: '最终 15（30→15）',
     url: '/final-funnel/',
     dir: 'final-funnel',
-    description: '样本外折 + 10bps 取前 15，最后只对 15 只拉 135 资金流并评分。',
+    description: '样本外折 + 10bps 取前 15；135 资金流由独立模块手工执行。',
   },
   {
     id: 'replay',
@@ -86,15 +86,23 @@ export const FUNCTIONS = [
   },
   {
     id: 'final',
-    title: '最终 15（30→15 + 135）',
-    description: '对 30 只做 80% 样本外 + 10bps 取前 15；最后只对 15 只拉 135 资金流并做最终评分。',
+    title: '最终 15（30→15）',
+    description: '对 30 只做 80% 样本外 + 10bps 取前 15；本步不读取 135 资金流。',
     primary: 'final-funnel',
-    secondary: ['fund-flow-fetch', 'replay-report'],
+    secondary: ['replay-report'],
     resultUrl: '/final-funnel/',
   },
 ]
 
 export const INDEPENDENT_MODULES = [
+  {
+    id: 'fund-flow',
+    title: '135资金流（独立）',
+    description: '手工拉同花顺全局 A 股 1/3/5 日净额；完成后只更新最终 15 的确认分，不参与前四步。',
+    primary: 'fund-flow-fetch',
+    secondary: [],
+    resultUrl: '/final-funnel/',
+  },
   {
     id: 'regime',
     title: '大盘温度（独立）',
@@ -118,7 +126,7 @@ export const PIPELINE = [
   { id: 'refresh', label: '刷新行情仓库', command: 'refresh-market-data', report: null, note: '长任务，先更新价量数据' },
   { id: 'recommend', label: '50 只候选', command: 'recommendation', report: 'recommendation', note: '先筛 25+25，本阶段不读资金流' },
   { id: 'audit', label: '第二段回放 50→30', command: 'analog-audit', report: 'analog-audit', note: '只用同股价量路径，不读资金流' },
-  { id: 'final', label: '最终 15（30→15 + 135）', command: 'final-funnel', report: 'final-funnel', note: '样本外+10bps 取15，再拉135资金流' },
+  { id: 'final', label: '最终 15（30→15）', command: 'final-funnel', report: 'final-funnel', note: '样本外+10bps 取15；135由独立模块手工执行' },
 ]
 
 export const COMMANDS = [
@@ -136,9 +144,9 @@ export const COMMANDS = [
   // ── ② 推荐（SCREEN + POOL） ────────────────────────────────
   {
     id: 'fund-flow-fetch',
-    section: 'final',
-    label: '刷新 135 资金流',
-    description: '只对最终 15 只拉同花顺全单净额（今日 / 3日 / 5日）；找不到最终名单会提示先跑 final-funnel，不会静默回退全池。约 55 秒。',
+    section: 'independent',
+    label: '刷新 135 资金流（全局）',
+    description: '手工拉同花顺全局 A 股全单净额（今日 / 3日 / 5日），完成后只更新最终 15 的确认分。约 55 秒。',
     display: 'pnpm fund-flow',
     run: {
       kind: 'python',

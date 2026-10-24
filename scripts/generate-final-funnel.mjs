@@ -32,7 +32,7 @@ const analog = JSON.parse(await readFile(ANALOG_PATH, 'utf8'))
 const index = JSON.parse(await readFile(INDEX_PATH, 'utf8'))
 const bySymbol = new Map(index.map((entry) => [entry.symbol, entry]))
 const stage2Rows = (analog.rows ?? [])
-  .filter((row) => row.stage2Selected)
+  .filter((row) => row.stage2Selected && row.market === 'A股')
   .sort((left, right) => left.stage2Rank - right.stage2Rank)
   .slice(0, STAGE2_N)
 

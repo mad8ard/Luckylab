@@ -34,7 +34,7 @@ function render(data, list, flow) {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>最终 15 ${esc(dateOf(data))}</title>
+<title>最终 15（135独立确认）${esc(dateOf(data))}</title>
 <style>
   :root { --bg:#fbfbfa; --surface:#fff; --ink:#1b1b1b; --muted:#6b6b6b; --line:#e2e2df; --accent:#0e7558; --warn:#b3261e; --orange:#9a6200; --chip:#f2f2ef; }
   * { box-sizing:border-box; }
@@ -101,7 +101,7 @@ function render(data, list, flow) {
 </head>
 <body>
 <header class="page">
-  <h1>最终 15 · 样本外折 + 10bps + 135 资金流</h1>
+  <h1>最终 15 · 样本外折 + 10bps（135 独立确认）</h1>
   <div class="meta">
     <span>生成 ${esc(data.generatedAt ?? '—')}</span>
     <span>第二段快照 ${esc(data.sourceAnalogGeneratedAt ?? '—')}</span>
@@ -110,17 +110,17 @@ function render(data, list, flow) {
   </div>
 </header>
 <div class="banner">
-  <b>第三段漏斗：</b>50 只价量候选 → 第二段同股路径前 30 → 80% 样本外路径 + 10bps 成本前 15 →
-  最后只对 15 只做 135 净流入评分。最终分 = 70% 第三段路径分 + 30% 135 资金流。
+  <b>第三段漏斗：</b>50 只价量候选 → 第二段同股路径前 30（仅 A 股）→ 80% 样本外路径 + 10bps 成本前 15。
+  135 资金流是独立模块，手工执行后只更新这 15 只的确认分；不参与前四步。最终分 = 70% 第三段路径 + 30% 135 资金流。
 </div>
 <div class="banner ${flowScored === list.length ? '' : 'warn'}">
-  <b>135 资金流：</b>${flowScored}/${list.length} 只有效。${flowScored === list.length ? '最终排名已应用资金流。' : '资金流未覆盖全部 15 只，缺失股票只按第三段路径分展示；请运行 135 资金流后重算。'}
+  <b>135 资金流（独立模块）：</b>${flowScored}/${list.length} 只有效。${flowScored === list.length ? '最终排名已应用资金流。' : '资金流未覆盖全部 15 只，缺失股票只按第三段路径分展示；请在控制台独立模块手工运行 135 后重算。'}
 </div>
 <div class="funnel">
   <div class="funnel-step"><b>第一步</b><span>50</span></div><span class="funnel-arrow">→</span>
   <div class="funnel-step"><b>第二段回放</b><span>30</span></div><span class="funnel-arrow">→</span>
   <div class="funnel-step"><b>样本外+10bps</b><span>15</span></div><span class="funnel-arrow">→</span>
-  <div class="funnel-step"><b>135资金流评分</b><span>${list.length}</span></div>
+  <div class="funnel-step"><b>135独立确认</b><span>${flowScored}/${list.length}</span></div>
 </div>
 <div class="cards">
   <div class="card"><b>最终样本</b><span>${list.length}</span></div>
@@ -139,9 +139,9 @@ ${list.map((row, index) => renderRows(row, index)).join('\n')}
 </div>
 <h2>方法与边界</h2>
 <table class="plain"><tbody>
-  <tr><th>第二段</th><td>50 只只用价量；同股路径分（目标先于止损 10 / MAE 40 / 10日 10）取前 30，不读取资金流。</td></tr>
+  <tr><th>第二段</th><td>50 只只用价量；同股路径分（目标先于止损 10 / MAE 40 / 10日 10）取前 30 只 A 股；港股不进入 A 股 135 漏斗。不读取资金流。</td></tr>
   <tr><th>第三段</th><td>对 30 只计算 80% 截止点之前的相似节点路径分（样本外折），以及当前相似节点在 10bps 单边成本下的路径分；按 60% OOS + 40% 10bps 取前 15。</td></tr>
-  <tr><th>135 资金流</th><td>只对最终 15 只拉同花顺全单净额（5日 40% / 3日 35% / 今日 25%），最终分 = 70% 第三段路径 + 30% 资金流。北向仅作参考，不参与评分。</td></tr>
+  <tr><th>135 资金流</th><td>独立模块手工拉全局 A 股同花顺全单净额（5日 40% / 3日 35% / 今日 25%）；只把最终 15 的确认分并入最终分。北向仅作参考，不参与评分。</td></tr>
   <tr><th>边界</th><td>这是历史样本研究，不是胜率承诺，也不产生可执行订单；当前池存在幸存者偏差。</td></tr>
 </tbody></table>
 <p class="hint">返回 <a href="/recommendation/">第一步 50 候选</a> · <a href="/analog-audit/">第二段 50→30</a> · <a href="/replay/">策略历史回放</a></p>
