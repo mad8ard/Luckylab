@@ -192,6 +192,7 @@ const payload = {
     audited: audited.length,
     scored: audited.filter((item) => item.audit.status === 'ok').length,
     stage2Selected: stage2Count,
+    needsRefresh: candidatesPayload.counts?.needsRefresh ?? 0,
     insufficient: audited.filter((item) => item.audit.status !== 'ok').length,
     failures: failures.length,
     regimeDays: regimeByDate.size,

@@ -104,7 +104,7 @@ Source files should stay under 500 lines when possible. `pnpm run build` runs si
 
 ## Data and Formula Status
 
-The static data directory currently contains 385 indexed CSV samples (365 A-shares + 20 Hong Kong stocks). Datasets are exposed through `src/data/stock-index.json` and `src/domain/market-data/ohlcv.js`; the build checks that index entries and files stay consistent.
+The static data directory currently contains 338 indexed CSV samples (303 A-shares + 35 Hong Kong stocks). Datasets are exposed through `src/data/stock-index.json` and `src/domain/market-data/ohlcv.js`; the build checks that index entries and files stay consistent.
 
 Market data refresh is intentionally offline-first:
 
@@ -118,11 +118,11 @@ pnpm run refresh:market-data
 
 中文辅助：不要把 CSV 当成线上运行时接口。刷新数据后必须重新跑 `generate:data`，让 Amplify 发布 JS 化的数据资产。
 
-`refresh:market-data` 链路在 `generate:data` 之后会自动运行 `generate:recommended-pool`，按当日 J / RSI / 成本与 LP 关键区域计算 `buyScore`，写出 `src/data/recommended-pools/stock-pool-YYYY-MM-DD.json` 与 `src/data/recommended-pool-latest.json`。手动重新生成可单独运行 `pnpm run generate:recommended-pool`。
+`refresh:market-data` 链路在 `generate:data` 之后会自动运行 A 股推荐池和港股独立推荐。A 股推荐池写入 `src/data/recommended-pools/stock-pool-YYYY-MM-DD.json` 与 `src/data/recommended-pool-latest.json`；手动重新生成可运行 `pnpm run generate:recommended-pool`。
 
 ## 选股全通道
 
-打开 `pnpm dev` 后访问 <http://localhost:5173/control/>，选股按四步漏斗执行：
+打开 `pnpm dev` 后访问 <http://localhost:5173/control/>，A 股选股按四步漏斗执行：
 
 | 步骤 | 命令 | 结果 |
 | --- | --- | --- |
@@ -131,18 +131,26 @@ pnpm run refresh:market-data
 | 3. 第二段回放 50→30 | `pnpm analog-audit` | `public/analog-audit/` |
 | 4. 最终 30→15 | `pnpm final-funnel` | `public/final-funnel/` |
 
+第四步完成后会自动生成一份与最终排序解耦的历史路径旁注：
+
+- `pnpm annotate:final-path` → `public/final-path-annotations/`
+- 仅追加整段历史成本锚下侧比例、整段年化对数斜率和历史最大回撤
+- 不回写 `final-funnel-latest.json`，不改变最终排名、分数或资金流权重
+
 独立模块（手工执行，不进入选股评分）：
 
 - 135 资金流：`pnpm fund-flow`，完成后更新最终 15 的确认分
 - 大盘温度：`pnpm market` → `public/market-regime/`
 - 个股信息：`pnpm fetch:stock-news -- 600519 000425` → `public/stock-news/`
+- 港股独立推荐：`pnpm run generate:hk-recommendation` → `public/hong-kong-recommendation/`，只展示前三名
 
 ### 分层逻辑
 
-- **第一段 50 只**：完全沿用原价量/推荐池/筛选逻辑，不读取资金流。
-- **第二段 50→30 A 股**：只做同股历史路径分（目标先于止损 10 / MAE 40 / 10日 10），不读取资金流；港股保留在第一段展示，但不进入 A 股 135 漏斗。
+- **第一段 A 股 50 只**：只处理 A 股价量/推荐池/筛选逻辑，不读取资金流。
+- **第二段 A 股 50→30**：只做同股历史路径分（目标先于止损 10 / MAE 40 / 10日 10），不读取资金流。
 - **第三段 30→15**：对 30 只计算 80% 样本外路径 + 10bps 单边成本，按 60% OOS + 40% 10bps 取前 15。
 - **135 独立模块**：手工拉全局 A 股同花顺全单净额（5日 40% / 3日 35% / 今日 25%）；只把最终 15 的确认分并入最终分，最终分 = 70% 第三段路径 + 30% 135 资金流。
+- **港股独立模块**：只使用复权日线 OHLCV，按低位程度、成本锚偏离、回撤修复、趋势、20 日动量、量能与数据质量评分，固定展示前三名；不进入 A 股四步漏斗。
 
 因此前四步完全不依赖 135；数据获取只有两个时点：刷新股票行情，以及手工执行 135 模块。北向只作参考，不参与任何评分：
 

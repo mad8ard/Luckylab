@@ -27,6 +27,7 @@ const TOP_N = numberArg('--top', 25)
 const RANGE_WIDTH = numberArg('--range-width', 0.1)
 const LIQUIDITY = numberArg('--liquidity', 1)
 const HISTORY_SESSIONS_OVERRIDE = optionalNumberArg('--history-sessions')
+const MARKET_FILTER = new Set(parseMarkets(argValue('--market') ?? 'A股'))
 
 main().catch((err) => {
   console.error(err)
@@ -37,13 +38,14 @@ async function main() {
   const indexRaw = await readFile(INDEX_PATH, 'utf8')
   const index = JSON.parse(indexRaw)
   if (!Array.isArray(index)) throw new Error('stock-index.json 不是数组')
+  const filteredIndex = index.filter((entry) => MARKET_FILTER.has(entry.market))
 
   const csvSet = new Set((await readdir(DATA_DIR)).filter((f) => f.endsWith('.csv')))
 
   const candidates = []
   let okCount = 0
   let skipCount = 0
-  for (const entry of index) {
+  for (const entry of filteredIndex) {
     const file = String(entry.url ?? '').replace(/^\/(?:data|datasets)\//, '')
     if (!file || !csvSet.has(file)) {
       skipCount += 1
@@ -92,7 +94,9 @@ async function main() {
       historySessionsOverride: HISTORY_SESSIONS_OVERRIDE,
     },
     counts: {
-      indexEntries: index.length,
+      indexEntries: filteredIndex.length,
+      allIndexEntries: index.length,
+      markets: [...MARKET_FILTER],
       processed: okCount,
       skipped: skipCount,
     },
@@ -242,4 +246,17 @@ function optionalNumberArg(name) {
   if (idx < 0) return null
   const value = Number(process.argv[idx + 1])
   return Number.isFinite(value) && value > 0 ? Math.round(value) : null
+}
+
+function argValue(name) {
+  const index = process.argv.indexOf(name)
+  return index >= 0 ? process.argv[index + 1] ?? null : null
+}
+
+function parseMarkets(value) {
+  const markets = String(value ?? '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item === 'A股' || item === '港股')
+  return markets.length ? markets : ['A股']
 }

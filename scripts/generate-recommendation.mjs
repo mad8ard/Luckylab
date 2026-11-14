@@ -35,7 +35,7 @@ run([process.execPath, [join(ROOT, 'scripts', 'generate-recommended-pool.mjs')]]
 
 // 2) 再跑筛选，拿全池的门禁状态与筛选分
 const screenOutput = run(
-  [process.execPath, [SCREEN_CLI, '--market', 'A股,港股', '--top', '400', '--format', 'json']],
+  [process.execPath, [SCREEN_CLI, '--market', 'A股', '--top', '400', '--format', 'json']],
   '筛选',
   { capture: true },
 )
@@ -99,31 +99,24 @@ function byScore(left, right) {
 }
 
 const eligible = merged.filter((row) => row.eligible)
-let focus = eligible.filter((row) => row.tier === 'focus').sort(byScore).slice(0, PER_TIER)
-let wait = eligible.filter((row) => row.tier === 'wait').sort(byScore).slice(0, PER_TIER)
+const focus = eligible.filter((row) => row.tier === 'focus').sort(byScore).slice(0, PER_TIER)
+const wait = eligible.filter((row) => row.tier === 'wait').sort(byScore).slice(0, PER_TIER)
+const selected = [...focus, ...wait]
 
-// 某一档不足时，用另一档按分数补位，保证总清单尽量满 50 只。
-if (focus.length < PER_TIER) {
-  const used = new Set(focus.map((row) => row.symbol))
+// 某一档不足时，从尚未入选的合格标的中按分数补位；每个 symbol 只出现一次。
+const targetTotal = PER_TIER * 2
+if (selected.length < targetTotal) {
+  const used = new Set(selected.map((row) => row.symbol))
   const fill = [...eligible]
-    .filter((row) => row.tier === 'wait' && !used.has(row.symbol))
+    .filter((row) => !used.has(row.symbol))
     .sort(byScore)
-    .slice(0, PER_TIER - focus.length)
-  wait = [...wait, ...fill]
+    .slice(0, targetTotal - selected.length)
+  selected.push(...fill)
 }
-if (wait.length < PER_TIER) {
-  const used = new Set(wait.map((row) => row.symbol))
-  const fill = [...eligible]
-    .filter((row) => row.tier === 'focus' && !used.has(row.symbol))
-    .sort(byScore)
-    .slice(0, PER_TIER - wait.length)
-  focus = [...focus, ...fill]
-}
-
-const selected = [
-  ...focus.sort((a, b) => TIER_RANK[a.tier] - TIER_RANK[b.tier] || byScore(a, b)),
-  ...wait.sort((a, b) => TIER_RANK[a.tier] - TIER_RANK[b.tier] || byScore(a, b)),
-]
+selected.sort((left, right) => {
+  const tierDiff = (TIER_RANK[left.tier] ?? 9) - (TIER_RANK[right.tier] ?? 9)
+  return tierDiff || byScore(left, right)
+})
 
 const byStatusAll = countBy(merged, (row) => row.screenStatus ?? '缺失')
 const byTierAll = countBy(merged, (row) => row.tier)
@@ -136,6 +129,8 @@ const payload = {
     screenRanked: (screen.ranked ?? []).length,
     eligible: eligible.length,
     selected: selected.length,
+    needsRefresh: byStatusAll['需刷新数据'] ?? 0,
+    shortfall: Math.max(0, PER_TIER * 2 - selected.length),
     byTierSelected: {
       observe: selected.filter((row) => row.tier === 'focus').length,
       wait: selected.filter((row) => row.tier === 'wait').length,
@@ -155,6 +150,7 @@ const payload = {
     `推荐档按 7 维加权：≥${Math.round(DEFAULT_TIER_THRESHOLDS.focus * 100)}% 为观察档，` +
     `${Math.round(DEFAULT_TIER_THRESHOLDS.wait * 100)}%~${Math.round(DEFAULT_TIER_THRESHOLDS.focus * 100)}% 为等待档；` +
     `筛选状态必须为观察/等待，且筛选分 ≥ ${SCREEN_MIN_SCORE}。` +
+    '每个 symbol 只出现一次；某档不足时从尚未入选的合格标的补位。' +
     '本阶段只做价量与筛选，不读取资金流；135 资金流只对最后 15 只执行。',
   northboundReference: {
     available: Boolean(northboundPayload),
@@ -170,7 +166,7 @@ await mkdir(dirname(OUT_PATH), { recursive: true })
 await writeFile(OUT_PATH, `${JSON.stringify(payload, null, 2)}\n`, 'utf8')
 console.log(
   `集合推荐生成完毕：selected=${selected.length}（观察档 ${payload.counts.byTierSelected.observe} / 等待档 ${payload.counts.byTierSelected.wait}）/ ` +
-    `eligible=${eligible.length} / total=${merged.length} / screen=${(screen.ranked ?? []).length}`,
+    `eligible=${eligible.length} / total=${merged.length} / screen=${(screen.ranked ?? []).length} / needsRefresh=${payload.counts.needsRefresh}`,
 )
 
 // 4) 渲染页面

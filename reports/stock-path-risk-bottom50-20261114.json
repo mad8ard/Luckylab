@@ -1,0 +1,1195 @@
+{
+  "sourceAudit": "reports\\stock-pool-quality-20261114.json",
+  "population": 336,
+  "topN": 50,
+  "method": {
+    "description": "equal-weight average of empirical risk percentiles",
+    "metrics": [
+      "成本锚下侧比例",
+      "年化对数价格斜率",
+      "收盘口径最大回撤"
+    ],
+    "worst20SessionReturn": "displayed only; not scored",
+    "percentileDirection": "higher means less healthy"
+  },
+  "industryGroups": [
+    {
+      "industry": "证券Ⅱ",
+      "count": 4,
+      "items": [
+        {
+          "riskRank": 10,
+          "symbol": "601995",
+          "name": "中金公司",
+          "pathRiskScore": 87.96019900497511
+        },
+        {
+          "riskRank": 16,
+          "symbol": "601236",
+          "name": "红塔证券",
+          "pathRiskScore": 85.97014925373134
+        },
+        {
+          "riskRank": 27,
+          "symbol": "601456",
+          "name": "国联民生",
+          "pathRiskScore": 83.5820895522388
+        },
+        {
+          "riskRank": 49,
+          "symbol": "601066",
+          "name": "中信建投",
+          "pathRiskScore": 77.51243781094527
+        }
+      ]
+    },
+    {
+      "industry": "专业工程",
+      "count": 3,
+      "items": [
+        {
+          "riskRank": 8,
+          "symbol": "600477",
+          "name": "杭萧钢构",
+          "pathRiskScore": 89.1044776119403
+        },
+        {
+          "riskRank": 20,
+          "symbol": "002135",
+          "name": "东南网架",
+          "pathRiskScore": 84.77611940298507
+        },
+        {
+          "riskRank": 25,
+          "symbol": "002541",
+          "name": "鸿路钢构",
+          "pathRiskScore": 83.6318407960199
+        }
+      ]
+    },
+    {
+      "industry": "电池",
+      "count": 3,
+      "items": [
+        {
+          "riskRank": 2,
+          "symbol": "300014",
+          "name": "亿纬锂能",
+          "pathRiskScore": 92.9353233830846
+        },
+        {
+          "riskRank": 9,
+          "symbol": "002709",
+          "name": "天赐材料",
+          "pathRiskScore": 88.90547263681593
+        },
+        {
+          "riskRank": 11,
+          "symbol": "002074",
+          "name": "国轩高科",
+          "pathRiskScore": 87.86069651741293
+        }
+      ]
+    },
+    {
+      "industry": "白酒Ⅱ",
+      "count": 3,
+      "items": [
+        {
+          "riskRank": 6,
+          "symbol": "000568",
+          "name": "泸州老窖",
+          "pathRiskScore": 89.35323383084578
+        },
+        {
+          "riskRank": 18,
+          "symbol": "000596",
+          "name": "古井贡酒",
+          "pathRiskScore": 85.4726368159204
+        },
+        {
+          "riskRank": 24,
+          "symbol": "600809",
+          "name": "山西汾酒",
+          "pathRiskScore": 83.93034825870647
+        }
+      ]
+    },
+    {
+      "industry": "能源金属",
+      "count": 3,
+      "items": [
+        {
+          "riskRank": 1,
+          "symbol": "002460",
+          "name": "赣锋锂业",
+          "pathRiskScore": 94.62686567164178
+        },
+        {
+          "riskRank": 4,
+          "symbol": "002466",
+          "name": "天齐锂业",
+          "pathRiskScore": 91.94029850746269
+        },
+        {
+          "riskRank": 7,
+          "symbol": "603799",
+          "name": "华友钴业",
+          "pathRiskScore": 89.20398009950249
+        }
+      ]
+    },
+    {
+      "industry": "航空机场",
+      "count": 3,
+      "items": [
+        {
+          "riskRank": 3,
+          "symbol": "600009",
+          "name": "上海机场",
+          "pathRiskScore": 92.53731343283583
+        },
+        {
+          "riskRank": 5,
+          "symbol": "600515",
+          "name": "海南机场",
+          "pathRiskScore": 91.14427860696519
+        },
+        {
+          "riskRank": 50,
+          "symbol": "600004",
+          "name": "白云机场",
+          "pathRiskScore": 77.36318407960198
+        }
+      ]
+    },
+    {
+      "industry": "IT服务Ⅱ",
+      "count": 2,
+      "items": [
+        {
+          "riskRank": 28,
+          "symbol": "301236",
+          "name": "软通动力",
+          "pathRiskScore": 83.48258706467662
+        },
+        {
+          "riskRank": 48,
+          "symbol": "600845",
+          "name": "宝信软件",
+          "pathRiskScore": 77.56218905472637
+        }
+      ]
+    },
+    {
+      "industry": "光伏设备",
+      "count": 2,
+      "items": [
+        {
+          "riskRank": 35,
+          "symbol": "688472",
+          "name": "阿特斯",
+          "pathRiskScore": 82.18905472636816
+        },
+        {
+          "riskRank": 36,
+          "symbol": "300316",
+          "name": "晶盛机电",
+          "pathRiskScore": 81.14427860696517
+        }
+      ]
+    },
+    {
+      "industry": "半导体",
+      "count": 2,
+      "items": [
+        {
+          "riskRank": 17,
+          "symbol": "600460",
+          "name": "士兰微",
+          "pathRiskScore": 85.92039800995025
+        },
+        {
+          "riskRank": 29,
+          "symbol": "603501",
+          "name": "豪威集团",
+          "pathRiskScore": 82.7860696517413
+        }
+      ]
+    },
+    {
+      "industry": "消费电子",
+      "count": 2,
+      "items": [
+        {
+          "riskRank": 32,
+          "symbol": "688036",
+          "name": "传音控股",
+          "pathRiskScore": 82.28855721393035
+        },
+        {
+          "riskRank": 41,
+          "symbol": "002241",
+          "name": "歌尔股份",
+          "pathRiskScore": 79.50248756218906
+        }
+      ]
+    },
+    {
+      "industry": "炼化及贸易",
+      "count": 2,
+      "items": [
+        {
+          "riskRank": 31,
+          "symbol": "002493",
+          "name": "荣盛石化",
+          "pathRiskScore": 82.53731343283582
+        },
+        {
+          "riskRank": 37,
+          "symbol": "000301",
+          "name": "东方盛虹",
+          "pathRiskScore": 80.49751243781094
+        }
+      ]
+    },
+    {
+      "industry": "物流",
+      "count": 2,
+      "items": [
+        {
+          "riskRank": 14,
+          "symbol": "001391",
+          "name": "国货航",
+          "pathRiskScore": 86.56716417910447
+        },
+        {
+          "riskRank": 19,
+          "symbol": "002352",
+          "name": "顺丰控股",
+          "pathRiskScore": 85.3731343283582
+        }
+      ]
+    },
+    {
+      "industry": "软件开发",
+      "count": 2,
+      "items": [
+        {
+          "riskRank": 23,
+          "symbol": "601360",
+          "name": "三六零",
+          "pathRiskScore": 84.22885572139303
+        },
+        {
+          "riskRank": 39,
+          "symbol": "688111",
+          "name": "金山办公",
+          "pathRiskScore": 79.80099502487563
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "symbol": "002460",
+      "name": "赣锋锂业",
+      "industry": "能源金属",
+      "belowAnchorRatio": 0.604225352112676,
+      "annualizedLogSlope": -0.15069742459572338,
+      "maxCloseDrawdown": -0.8311582716070952,
+      "worst20SessionReturn": -0.3581963242785797,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 86.86567164179104,
+        "annualizedLogSlope": 97.31343283582089,
+        "maxCloseDrawdown": 99.70149253731343
+      },
+      "pathRiskScore": 94.62686567164178,
+      "riskRank": 1
+    },
+    {
+      "symbol": "300014",
+      "name": "亿纬锂能",
+      "industry": "电池",
+      "belowAnchorRatio": 0.600711743772242,
+      "annualizedLogSlope": -0.13376009589715782,
+      "maxCloseDrawdown": -0.7856538620046418,
+      "worst20SessionReturn": -0.33631418499282095,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 84.77611940298507,
+        "annualizedLogSlope": 96.11940298507463,
+        "maxCloseDrawdown": 97.91044776119404
+      },
+      "pathRiskScore": 92.9353233830846,
+      "riskRank": 2
+    },
+    {
+      "symbol": "600009",
+      "name": "上海机场",
+      "industry": "航空机场",
+      "belowAnchorRatio": 0.6175213675213675,
+      "annualizedLogSlope": -0.1494528164405104,
+      "maxCloseDrawdown": -0.7082006701725516,
+      "worst20SessionReturn": -0.2501615490360345,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 91.64179104477613,
+        "annualizedLogSlope": 96.71641791044776,
+        "maxCloseDrawdown": 89.25373134328358
+      },
+      "pathRiskScore": 92.53731343283583,
+      "riskRank": 3
+    },
+    {
+      "symbol": "002466",
+      "name": "天齐锂业",
+      "industry": "能源金属",
+      "belowAnchorRatio": 0.5928825622775801,
+      "annualizedLogSlope": -0.12607519469813946,
+      "maxCloseDrawdown": -0.8172654466771337,
+      "worst20SessionReturn": -0.38588552636079765,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 81.7910447761194,
+        "annualizedLogSlope": 94.92537313432837,
+        "maxCloseDrawdown": 99.1044776119403
+      },
+      "pathRiskScore": 91.94029850746269,
+      "riskRank": 4
+    },
+    {
+      "symbol": "600515",
+      "name": "海南机场",
+      "industry": "航空机场",
+      "belowAnchorRatio": 0.6198288159771754,
+      "annualizedLogSlope": -0.09588624350239447,
+      "maxCloseDrawdown": -0.7057414630808184,
+      "worst20SessionReturn": -0.33493959997359557,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 92.23880597014926,
+        "annualizedLogSlope": 92.23880597014926,
+        "maxCloseDrawdown": 88.95522388059702
+      },
+      "pathRiskScore": 91.14427860696519,
+      "riskRank": 5
+    },
+    {
+      "symbol": "000568",
+      "name": "泸州老窖",
+      "industry": "白酒Ⅱ",
+      "belowAnchorRatio": 0.5802816901408451,
+      "annualizedLogSlope": -0.1611756721099647,
+      "maxCloseDrawdown": -0.7342689151684774,
+      "worst20SessionReturn": -0.33102980955678407,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 77.31343283582089,
+        "annualizedLogSlope": 97.61194029850746,
+        "maxCloseDrawdown": 93.13432835820895
+      },
+      "pathRiskScore": 89.35323383084578,
+      "riskRank": 6
+    },
+    {
+      "symbol": "603799",
+      "name": "华友钴业",
+      "industry": "能源金属",
+      "belowAnchorRatio": 0.5750889679715302,
+      "annualizedLogSlope": -0.12166110034603625,
+      "maxCloseDrawdown": -0.8075976097993752,
+      "worst20SessionReturn": -0.37889641869538093,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 74.4776119402985,
+        "annualizedLogSlope": 94.6268656716418,
+        "maxCloseDrawdown": 98.50746268656717
+      },
+      "pathRiskScore": 89.20398009950249,
+      "riskRank": 7
+    },
+    {
+      "symbol": "600477",
+      "name": "杭萧钢构",
+      "industry": "专业工程",
+      "belowAnchorRatio": 0.6362989323843417,
+      "annualizedLogSlope": -0.08727799595761147,
+      "maxCloseDrawdown": -0.6499312478514954,
+      "worst20SessionReturn": -0.2826455422933505,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 96.56716417910448,
+        "annualizedLogSlope": 90.14925373134328,
+        "maxCloseDrawdown": 80.59701492537313
+      },
+      "pathRiskScore": 89.1044776119403,
+      "riskRank": 8
+    },
+    {
+      "symbol": "002709",
+      "name": "天赐材料",
+      "industry": "电池",
+      "belowAnchorRatio": 0.5758007117437722,
+      "annualizedLogSlope": -0.09365117966526178,
+      "maxCloseDrawdown": -0.8374482216780696,
+      "worst20SessionReturn": -0.4025388467222405,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 75.07462686567165,
+        "annualizedLogSlope": 91.64179104477613,
+        "maxCloseDrawdown": 100.0
+      },
+      "pathRiskScore": 88.90547263681593,
+      "riskRank": 9
+    },
+    {
+      "symbol": "601995",
+      "name": "中金公司",
+      "industry": "证券Ⅱ",
+      "belowAnchorRatio": 0.6229151559100797,
+      "annualizedLogSlope": -0.0877083602898311,
+      "maxCloseDrawdown": -0.6380442485715552,
+      "worst20SessionReturn": -0.25380143259515064,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 93.73134328358209,
+        "annualizedLogSlope": 90.44776119402985,
+        "maxCloseDrawdown": 79.70149253731343
+      },
+      "pathRiskScore": 87.96019900497511,
+      "riskRank": 10
+    },
+    {
+      "symbol": "002074",
+      "name": "国轩高科",
+      "industry": "电池",
+      "belowAnchorRatio": 0.5908450704225352,
+      "annualizedLogSlope": -0.07773677545379337,
+      "maxCloseDrawdown": -0.747935913428839,
+      "worst20SessionReturn": -0.353154940772488,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 80.8955223880597,
+        "annualizedLogSlope": 87.46268656716418,
+        "maxCloseDrawdown": 95.22388059701493
+      },
+      "pathRiskScore": 87.86069651741293,
+      "riskRank": 11
+    },
+    {
+      "symbol": "300760",
+      "name": "迈瑞医疗",
+      "industry": "医疗器械",
+      "belowAnchorRatio": 0.5822064056939502,
+      "annualizedLogSlope": -0.14019309579888178,
+      "maxCloseDrawdown": -0.7015137991159495,
+      "worst20SessionReturn": -0.36071261052929116,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 77.91044776119404,
+        "annualizedLogSlope": 96.41791044776119,
+        "maxCloseDrawdown": 88.35820895522389
+      },
+      "pathRiskScore": 87.56218905472637,
+      "riskRank": 12
+    },
+    {
+      "symbol": "600038",
+      "name": "中直股份",
+      "industry": "航空装备Ⅱ",
+      "belowAnchorRatio": 0.5870967741935483,
+      "annualizedLogSlope": -0.1100144802180027,
+      "maxCloseDrawdown": -0.6886580402162688,
+      "worst20SessionReturn": -0.3239968713929895,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 79.70149253731343,
+        "annualizedLogSlope": 93.43283582089552,
+        "maxCloseDrawdown": 87.46268656716418
+      },
+      "pathRiskScore": 86.86567164179104,
+      "riskRank": 13
+    },
+    {
+      "symbol": "001391",
+      "name": "国货航",
+      "industry": "物流",
+      "belowAnchorRatio": 0.7064017660044151,
+      "annualizedLogSlope": -0.3635071411217327,
+      "maxCloseDrawdown": -0.5799157614719574,
+      "worst20SessionReturn": -0.2397805364664155,
+      "dataFrom": "2024-12-30",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 100.0,
+        "annualizedLogSlope": 99.40298507462687,
+        "maxCloseDrawdown": 60.298507462686565
+      },
+      "pathRiskScore": 86.56716417910447,
+      "riskRank": 14
+    },
+    {
+      "symbol": "600585",
+      "name": "海螺水泥",
+      "industry": "水泥",
+      "belowAnchorRatio": 0.6227758007117438,
+      "annualizedLogSlope": -0.1094773991032259,
+      "maxCloseDrawdown": -0.619131900349991,
+      "worst20SessionReturn": -0.20151094790141633,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 93.43283582089552,
+        "annualizedLogSlope": 93.13432835820895,
+        "maxCloseDrawdown": 72.53731343283583
+      },
+      "pathRiskScore": 86.3681592039801,
+      "riskRank": 15
+    },
+    {
+      "symbol": "601236",
+      "name": "红塔证券",
+      "industry": "证券Ⅱ",
+      "belowAnchorRatio": 0.6725978647686833,
+      "annualizedLogSlope": -0.07225475135862787,
+      "maxCloseDrawdown": -0.6164674992426028,
+      "worst20SessionReturn": -0.28141998282278846,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 99.70149253731343,
+        "annualizedLogSlope": 86.56716417910447,
+        "maxCloseDrawdown": 71.64179104477611
+      },
+      "pathRiskScore": 85.97014925373134,
+      "riskRank": 16
+    },
+    {
+      "symbol": "600460",
+      "name": "士兰微",
+      "industry": "半导体",
+      "belowAnchorRatio": 0.5679715302491103,
+      "annualizedLogSlope": -0.10073474633733029,
+      "maxCloseDrawdown": -0.7650212480170447,
+      "worst20SessionReturn": -0.448770601628082,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 69.1044776119403,
+        "annualizedLogSlope": 92.53731343283582,
+        "maxCloseDrawdown": 96.11940298507463
+      },
+      "pathRiskScore": 85.92039800995025,
+      "riskRank": 17
+    },
+    {
+      "symbol": "000596",
+      "name": "古井贡酒",
+      "industry": "白酒Ⅱ",
+      "belowAnchorRatio": 0.5661971830985916,
+      "annualizedLogSlope": -0.1335328223711255,
+      "maxCloseDrawdown": -0.7277056857183273,
+      "worst20SessionReturn": -0.2676263601478188,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 67.76119402985074,
+        "annualizedLogSlope": 95.82089552238806,
+        "maxCloseDrawdown": 92.83582089552239
+      },
+      "pathRiskScore": 85.4726368159204,
+      "riskRank": 18
+    },
+    {
+      "symbol": "002352",
+      "name": "顺丰控股",
+      "industry": "物流",
+      "belowAnchorRatio": 0.5732394366197183,
+      "annualizedLogSlope": -0.11764395342297741,
+      "maxCloseDrawdown": -0.7118646487041997,
+      "worst20SessionReturn": -0.31236001708266115,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 71.64179104477611,
+        "annualizedLogSlope": 94.32835820895522,
+        "maxCloseDrawdown": 90.14925373134328
+      },
+      "pathRiskScore": 85.3731343283582,
+      "riskRank": 19
+    },
+    {
+      "symbol": "002135",
+      "name": "东南网架",
+      "industry": "专业工程",
+      "belowAnchorRatio": 0.571830985915493,
+      "annualizedLogSlope": -0.09572372533901699,
+      "maxCloseDrawdown": -0.7191916221470698,
+      "worst20SessionReturn": -0.3420104412835051,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 71.04477611940298,
+        "annualizedLogSlope": 91.94029850746269,
+        "maxCloseDrawdown": 91.34328358208955
+      },
+      "pathRiskScore": 84.77611940298507,
+      "riskRank": 20
+    },
+    {
+      "symbol": "300979",
+      "name": "华利集团",
+      "industry": "纺织制造",
+      "belowAnchorRatio": 0.6123711340206186,
+      "annualizedLogSlope": -0.3782516107303692,
+      "maxCloseDrawdown": -0.5890330793151761,
+      "worst20SessionReturn": -0.28689806337792867,
+      "dataFrom": "2024-10-24",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 90.14925373134328,
+        "annualizedLogSlope": 99.70149253731343,
+        "maxCloseDrawdown": 63.28358208955224
+      },
+      "pathRiskScore": 84.37810945273633,
+      "riskRank": 21
+    },
+    {
+      "symbol": "600161",
+      "name": "天坛生物",
+      "industry": "生物制品",
+      "belowAnchorRatio": 0.6192170818505338,
+      "annualizedLogSlope": -0.05896701163699032,
+      "maxCloseDrawdown": -0.6343208779231395,
+      "worst20SessionReturn": -0.2600230093431878,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 91.94029850746269,
+        "annualizedLogSlope": 82.98507462686567,
+        "maxCloseDrawdown": 78.2089552238806
+      },
+      "pathRiskScore": 84.37810945273633,
+      "riskRank": 22
+    },
+    {
+      "symbol": "601360",
+      "name": "三六零",
+      "industry": "软件开发",
+      "belowAnchorRatio": 0.6362989323843417,
+      "annualizedLogSlope": -0.01708213460492794,
+      "maxCloseDrawdown": -0.6817719126989513,
+      "worst20SessionReturn": -0.2999254585834058,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 96.56716417910448,
+        "annualizedLogSlope": 70.74626865671641,
+        "maxCloseDrawdown": 85.37313432835822
+      },
+      "pathRiskScore": 84.22885572139303,
+      "riskRank": 23
+    },
+    {
+      "symbol": "600809",
+      "name": "山西汾酒",
+      "industry": "白酒Ⅱ",
+      "belowAnchorRatio": 0.5672597864768684,
+      "annualizedLogSlope": -0.12994214492165265,
+      "maxCloseDrawdown": -0.6961466128292302,
+      "worst20SessionReturn": -0.3600498440595252,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 68.2089552238806,
+        "annualizedLogSlope": 95.52238805970148,
+        "maxCloseDrawdown": 88.05970149253731
+      },
+      "pathRiskScore": 83.93034825870647,
+      "riskRank": 24
+    },
+    {
+      "symbol": "002541",
+      "name": "鸿路钢构",
+      "industry": "专业工程",
+      "belowAnchorRatio": 0.5516014234875445,
+      "annualizedLogSlope": -0.16661082040096642,
+      "maxCloseDrawdown": -0.7695846275843033,
+      "worst20SessionReturn": -0.27536634597740317,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 56.56716417910448,
+        "annualizedLogSlope": 97.91044776119404,
+        "maxCloseDrawdown": 96.41791044776119
+      },
+      "pathRiskScore": 83.6318407960199,
+      "riskRank": 25
+    },
+    {
+      "symbol": "000625",
+      "name": "长安汽车",
+      "industry": "乘用车",
+      "belowAnchorRatio": 0.6359154929577465,
+      "annualizedLogSlope": -0.02077313324071022,
+      "maxCloseDrawdown": -0.6641287135615334,
+      "worst20SessionReturn": -0.24577289456592333,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 96.11940298507463,
+        "annualizedLogSlope": 72.23880597014926,
+        "maxCloseDrawdown": 82.38805970149254
+      },
+      "pathRiskScore": 83.58208955223881,
+      "riskRank": 26
+    },
+    {
+      "symbol": "601456",
+      "name": "国联民生",
+      "industry": "证券Ⅱ",
+      "belowAnchorRatio": 0.6609318996415771,
+      "annualizedLogSlope": -0.06648555588291129,
+      "maxCloseDrawdown": -0.5974223374756584,
+      "worst20SessionReturn": -0.3125492420661182,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 99.1044776119403,
+        "annualizedLogSlope": 84.4776119402985,
+        "maxCloseDrawdown": 67.16417910447761
+      },
+      "pathRiskScore": 83.5820895522388,
+      "riskRank": 27
+    },
+    {
+      "symbol": "301236",
+      "name": "软通动力",
+      "industry": "IT服务Ⅱ",
+      "belowAnchorRatio": 0.6309278350515464,
+      "annualizedLogSlope": -0.3191284681604508,
+      "maxCloseDrawdown": -0.564387699066447,
+      "worst20SessionReturn": -0.2894153391971178,
+      "dataFrom": "2024-10-24",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 95.22388059701493,
+        "annualizedLogSlope": 99.1044776119403,
+        "maxCloseDrawdown": 56.11940298507463
+      },
+      "pathRiskScore": 83.48258706467662,
+      "riskRank": 28
+    },
+    {
+      "symbol": "603501",
+      "name": "豪威集团",
+      "industry": "半导体",
+      "belowAnchorRatio": 0.5629893238434164,
+      "annualizedLogSlope": -0.10438649666463201,
+      "maxCloseDrawdown": -0.7155565516917854,
+      "worst20SessionReturn": -0.3492321729682326,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 64.77611940298507,
+        "annualizedLogSlope": 92.83582089552239,
+        "maxCloseDrawdown": 90.74626865671642
+      },
+      "pathRiskScore": 82.7860696517413,
+      "riskRank": 29
+    },
+    {
+      "symbol": "300347",
+      "name": "泰格医药",
+      "industry": "医疗服务",
+      "belowAnchorRatio": 0.5444839857651246,
+      "annualizedLogSlope": -0.22565542869465396,
+      "maxCloseDrawdown": -0.8173746800168498,
+      "worst20SessionReturn": -0.33844326464300223,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 50.74626865671642,
+        "annualizedLogSlope": 98.2089552238806,
+        "maxCloseDrawdown": 99.40298507462687
+      },
+      "pathRiskScore": 82.7860696517413,
+      "riskRank": 30
+    },
+    {
+      "symbol": "002493",
+      "name": "荣盛石化",
+      "industry": "炼化及贸易",
+      "belowAnchorRatio": 0.5572953736654804,
+      "annualizedLogSlope": -0.11207593622367518,
+      "maxCloseDrawdown": -0.7275121803775377,
+      "worst20SessionReturn": -0.33325731991153495,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 61.34328358208955,
+        "annualizedLogSlope": 93.73134328358209,
+        "maxCloseDrawdown": 92.53731343283582
+      },
+      "pathRiskScore": 82.53731343283582,
+      "riskRank": 31
+    },
+    {
+      "symbol": "688036",
+      "name": "传音控股",
+      "industry": "消费电子",
+      "belowAnchorRatio": 0.5686832740213523,
+      "annualizedLogSlope": -0.04853424836598726,
+      "maxCloseDrawdown": -0.7744798286067032,
+      "worst20SessionReturn": -0.29285740121273784,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 69.55223880597015,
+        "annualizedLogSlope": 80.0,
+        "maxCloseDrawdown": 97.31343283582089
+      },
+      "pathRiskScore": 82.28855721393035,
+      "riskRank": 32
+    },
+    {
+      "symbol": "601877",
+      "name": "正泰电器",
+      "industry": "电网设备",
+      "belowAnchorRatio": 0.5672597864768684,
+      "annualizedLogSlope": -0.07931131268971962,
+      "maxCloseDrawdown": -0.713880321658428,
+      "worst20SessionReturn": -0.3160347433192867,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 68.2089552238806,
+        "annualizedLogSlope": 88.05970149253731,
+        "maxCloseDrawdown": 90.44776119402985
+      },
+      "pathRiskScore": 82.23880597014926,
+      "riskRank": 33
+    },
+    {
+      "symbol": "600056",
+      "name": "中国医药",
+      "industry": "医药商业",
+      "belowAnchorRatio": 0.6405693950177936,
+      "annualizedLogSlope": 0.005438437723337002,
+      "maxCloseDrawdown": -0.6823281128512718,
+      "worst20SessionReturn": -0.4744048280202895,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 97.01492537313433,
+        "annualizedLogSlope": 63.582089552238806,
+        "maxCloseDrawdown": 85.97014925373134
+      },
+      "pathRiskScore": 82.18905472636816,
+      "riskRank": 34
+    },
+    {
+      "symbol": "688472",
+      "name": "阿特斯",
+      "industry": "光伏设备",
+      "belowAnchorRatio": 0.6412371134020619,
+      "annualizedLogSlope": 0.00014491979965002371,
+      "maxCloseDrawdown": -0.6748446877961461,
+      "worst20SessionReturn": -0.3225018426871644,
+      "dataFrom": "2024-10-24",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 97.31343283582089,
+        "annualizedLogSlope": 65.07462686567163,
+        "maxCloseDrawdown": 84.17910447761194
+      },
+      "pathRiskScore": 82.18905472636816,
+      "riskRank": 35
+    },
+    {
+      "symbol": "300316",
+      "name": "晶盛机电",
+      "industry": "光伏设备",
+      "belowAnchorRatio": 0.5544483985765124,
+      "annualizedLogSlope": -0.09108284696625701,
+      "maxCloseDrawdown": -0.738056163156989,
+      "worst20SessionReturn": -0.3649215538216294,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 58.05970149253732,
+        "annualizedLogSlope": 91.04477611940298,
+        "maxCloseDrawdown": 94.32835820895522
+      },
+      "pathRiskScore": 81.14427860696517,
+      "riskRank": 36
+    },
+    {
+      "symbol": "000301",
+      "name": "东方盛虹",
+      "industry": "炼化及贸易",
+      "belowAnchorRatio": 0.5384073291050036,
+      "annualizedLogSlope": -0.12893908859416123,
+      "maxCloseDrawdown": -0.8150206414734836,
+      "worst20SessionReturn": -0.3735942290916878,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 47.462686567164184,
+        "annualizedLogSlope": 95.22388059701493,
+        "maxCloseDrawdown": 98.80597014925372
+      },
+      "pathRiskScore": 80.49751243781094,
+      "riskRank": 37
+    },
+    {
+      "symbol": "600085",
+      "name": "同仁堂",
+      "industry": "中药Ⅱ",
+      "belowAnchorRatio": 0.6078291814946619,
+      "annualizedLogSlope": -0.03450901367665179,
+      "maxCloseDrawdown": -0.6262659350858515,
+      "worst20SessionReturn": -0.24055429898008518,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 88.95522388059702,
+        "annualizedLogSlope": 75.82089552238806,
+        "maxCloseDrawdown": 75.22388059701493
+      },
+      "pathRiskScore": 80.0,
+      "riskRank": 38
+    },
+    {
+      "symbol": "688111",
+      "name": "金山办公",
+      "industry": "软件开发",
+      "belowAnchorRatio": 0.602846975088968,
+      "annualizedLogSlope": -0.012108219774228516,
+      "maxCloseDrawdown": -0.6782275196939607,
+      "worst20SessionReturn": -0.3175050399093552,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 85.67164179104478,
+        "annualizedLogSlope": 68.95522388059702,
+        "maxCloseDrawdown": 84.77611940298507
+      },
+      "pathRiskScore": 79.80099502487563,
+      "riskRank": 39
+    },
+    {
+      "symbol": "605499",
+      "name": "东鹏饮料",
+      "industry": "饮料乳品",
+      "belowAnchorRatio": 0.5793814432989691,
+      "annualizedLogSlope": -0.23601211374090894,
+      "maxCloseDrawdown": -0.5919710937971904,
+      "worst20SessionReturn": -0.21353133727652118,
+      "dataFrom": "2024-10-24",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 76.71641791044776,
+        "annualizedLogSlope": 98.50746268656717,
+        "maxCloseDrawdown": 63.88059701492538
+      },
+      "pathRiskScore": 79.70149253731343,
+      "riskRank": 40
+    },
+    {
+      "symbol": "002241",
+      "name": "歌尔股份",
+      "industry": "消费电子",
+      "belowAnchorRatio": 0.55,
+      "annualizedLogSlope": -0.0814224368194017,
+      "maxCloseDrawdown": -0.7460045860562661,
+      "worst20SessionReturn": -0.3469243692176641,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 54.62686567164179,
+        "annualizedLogSlope": 88.95522388059702,
+        "maxCloseDrawdown": 94.92537313432837
+      },
+      "pathRiskScore": 79.50248756218906,
+      "riskRank": 41
+    },
+    {
+      "symbol": "000519",
+      "name": "中兵红箭",
+      "industry": "地面兵装Ⅱ",
+      "belowAnchorRatio": 0.5859154929577465,
+      "annualizedLogSlope": -0.000670814579178314,
+      "maxCloseDrawdown": -0.7255426308454416,
+      "worst20SessionReturn": -0.404903061840863,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 79.1044776119403,
+        "annualizedLogSlope": 65.97014925373135,
+        "maxCloseDrawdown": 91.94029850746269
+      },
+      "pathRiskScore": 79.0049751243781,
+      "riskRank": 42
+    },
+    {
+      "symbol": "600930",
+      "name": "华电新能",
+      "industry": "电力",
+      "belowAnchorRatio": 0.672077922077922,
+      "annualizedLogSlope": -0.4437568220186355,
+      "maxCloseDrawdown": -0.501543775184468,
+      "worst20SessionReturn": -0.255851189074641,
+      "dataFrom": "2025-07-16",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 99.40298507462687,
+        "annualizedLogSlope": 100.0,
+        "maxCloseDrawdown": 37.61194029850746
+      },
+      "pathRiskScore": 79.0049751243781,
+      "riskRank": 43
+    },
+    {
+      "symbol": "600010",
+      "name": "包钢股份",
+      "industry": "普钢",
+      "belowAnchorRatio": 0.6334519572953736,
+      "annualizedLogSlope": 0.02074876070369456,
+      "maxCloseDrawdown": -0.6487119437939111,
+      "worst20SessionReturn": -0.26133706083169805,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 95.82089552238806,
+        "annualizedLogSlope": 60.0,
+        "maxCloseDrawdown": 80.0
+      },
+      "pathRiskScore": 78.60696517412936,
+      "riskRank": 44
+    },
+    {
+      "symbol": "000786",
+      "name": "北新建材",
+      "industry": "装修建材",
+      "belowAnchorRatio": 0.5626760563380282,
+      "annualizedLogSlope": -0.07083800212970681,
+      "maxCloseDrawdown": -0.6711497200272123,
+      "worst20SessionReturn": -0.2332438945191666,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 64.17910447761194,
+        "annualizedLogSlope": 86.26865671641791,
+        "maxCloseDrawdown": 83.88059701492537
+      },
+      "pathRiskScore": 78.1094527363184,
+      "riskRank": 45
+    },
+    {
+      "symbol": "600111",
+      "name": "北方稀土",
+      "industry": "小金属",
+      "belowAnchorRatio": 0.6128113879003558,
+      "annualizedLogSlope": 0.05525219283366219,
+      "maxCloseDrawdown": -0.735781699086538,
+      "worst20SessionReturn": -0.31151691459179853,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 90.74626865671642,
+        "annualizedLogSlope": 49.55223880597015,
+        "maxCloseDrawdown": 93.73134328358209
+      },
+      "pathRiskScore": 78.00995024875623,
+      "riskRank": 46
+    },
+    {
+      "symbol": "000066",
+      "name": "中国长城",
+      "industry": "计算机设备",
+      "belowAnchorRatio": 0.6556338028169014,
+      "annualizedLogSlope": 0.03188031750074713,
+      "maxCloseDrawdown": -0.6323565359381265,
+      "worst20SessionReturn": -0.361198738170347,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-11-13",
+      "percentiles": {
+        "belowAnchorRatio": 98.80597014925372,
+        "annualizedLogSlope": 56.4179104477612,
+        "maxCloseDrawdown": 77.61194029850746
+      },
+      "pathRiskScore": 77.61194029850746,
+      "riskRank": 47
+    },
+    {
+      "symbol": "600845",
+      "name": "宝信软件",
+      "industry": "IT服务Ⅱ",
+      "belowAnchorRatio": 0.5914590747330961,
+      "annualizedLogSlope": -0.046130726631460985,
+      "maxCloseDrawdown": -0.6186035668492832,
+      "worst20SessionReturn": -0.25888749477206197,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 81.34328358208955,
+        "annualizedLogSlope": 79.40298507462687,
+        "maxCloseDrawdown": 71.94029850746269
+      },
+      "pathRiskScore": 77.56218905472637,
+      "riskRank": 48
+    },
+    {
+      "symbol": "601066",
+      "name": "中信建投",
+      "industry": "证券Ⅱ",
+      "belowAnchorRatio": 0.6327402135231317,
+      "annualizedLogSlope": -0.03003286948494515,
+      "maxCloseDrawdown": -0.5857531673927758,
+      "worst20SessionReturn": -0.192934025766602,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 95.52238805970148,
+        "annualizedLogSlope": 75.5223880597015,
+        "maxCloseDrawdown": 61.49253731343284
+      },
+      "pathRiskScore": 77.51243781094527,
+      "riskRank": 49
+    },
+    {
+      "symbol": "600004",
+      "name": "白云机场",
+      "industry": "航空机场",
+      "belowAnchorRatio": 0.6092526690391459,
+      "annualizedLogSlope": -0.08203559411946983,
+      "maxCloseDrawdown": -0.5543495549603314,
+      "worst20SessionReturn": -0.21008823039786917,
+      "dataFrom": "2021-01-04",
+      "dataThrough": "2026-10-23",
+      "percentiles": {
+        "belowAnchorRatio": 89.40298507462686,
+        "annualizedLogSlope": 89.25373134328358,
+        "maxCloseDrawdown": 53.43283582089552
+      },
+      "pathRiskScore": 77.36318407960198,
+      "riskRank": 50
+    }
+  ]
+}

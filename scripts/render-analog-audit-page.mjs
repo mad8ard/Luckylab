@@ -128,12 +128,13 @@ function render(data, list, stats, validation, variantValidation, primaryVariant
 </header>
 <div class="banner">
   <b>第二段只做价量路径：</b>同股路径 90（目标先于止损 10 · MAE 40 · 10 日收益 10，
-  归一化到 100）+ 样本置信 10。按路径分从 50 取前 30 **A 股**；港股保留在第一段展示，
+  归一化到 100）+ 样本置信 10。按路径分从 50 取前 30 **A 股**；港股由独立推荐模块处理，
   但不进入 A 股 135 漏斗。本段不读取 135 资金流，135 由第三段后的独立模块手工执行。80% 截止点只做独立验证。
 </div>
 <div class="banner ${primaryTest?.status === 'ok' ? '' : 'warn'}">
   <b>样本外验证：</b>${renderValidationText(primaryTest, primaryVariant)}
 </div>
+${(stats.stage2Selected ?? 0) < 30 ? `<div class="banner warn"><b>第二段候选不足 30：</b>本次只有 ${stats.candidates ?? list.length} 只进入第二段处理、${stats.stage2Selected ?? 0} 只入选；${stats.needsRefresh ?? 0} 只行情超过 10 天未刷新。先运行刷新行情，再重跑 50→30。</div>` : ''}
 ${weakTargetSignal ? `<div class="banner warn"><b>80% 验证：</b>同股路径分的设计/验证路径秩相关为 ${fmt(primaryDesign?.pathRankCorrelation, 3)} / ${fmt(primaryTest?.pathRankCorrelation, 3)}，具备路径区分度。目标先于止损 ${fmt(primaryTest?.targetRankCorrelation, 3)} 单独仍不稳定，贡献主要来自 MAE ${fmt(primaryTest?.maeRankCorrelation, 3)}；这是风险优先的路径分。本页按该分取前 30 进入第三段。</div>` : ''}
 <div class="cards">
   <div class="card"><b>候选</b><span>${stats.candidates ?? list.length}</span></div>

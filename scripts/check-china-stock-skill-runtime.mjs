@@ -760,7 +760,9 @@ for (const row of structureReplayPayload.trades) {
   assert.ok(Number.isFinite(row.entryDeviationZ))
   const recoveryFromTargetPosition =
     (row.horizonCostLowerPrice - row.horizonCycleStartPrice) / (row.horizonAnchorPrice - row.horizonCycleStartPrice)
-  assert.ok(Math.abs(recoveryFromTargetPosition - row.targetRecoveryFraction) < 0.00001)
+  // Prices are serialized at display precision, so low-priced HK stocks can
+  // accumulate a small rounding delta when the fraction is reconstructed.
+  assert.ok(Math.abs(recoveryFromTargetPosition - row.targetRecoveryFraction) < 0.00005)
   assert.equal(row.executionAuthority, 'none')
   assert.ok(['stop', 'target', 'modelHorizon'].includes(row.reason))
   assert.equal(row.dataThrough, row.signalDate)

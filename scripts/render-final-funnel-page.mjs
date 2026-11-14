@@ -116,6 +116,7 @@ function render(data, list, flow) {
 <div class="banner ${flowScored === list.length ? '' : 'warn'}">
   <b>135 资金流（独立模块）：</b>${flowScored}/${list.length} 只有效。${flowScored === list.length ? '最终排名已应用资金流。' : '资金流未覆盖全部 15 只，缺失股票只按第三段路径分展示；请在控制台独立模块手工运行 135 后重算。'}
 </div>
+${list.length < 15 ? `<div class="banner warn"><b>最终样本不足 15：</b>本次只生成 ${list.length} 只；第二段只有 ${data.funnel?.stage2 ?? '—'} 只。通常是过旧行情导致第一段候选不足，请先刷新行情，再重跑 50→30→15。</div>` : ''}
 <div class="funnel">
   <div class="funnel-step"><b>第一步</b><span>50</span></div><span class="funnel-arrow">→</span>
   <div class="funnel-step"><b>第二段回放</b><span>30</span></div><span class="funnel-arrow">→</span>
@@ -144,7 +145,7 @@ ${list.map((row, index) => renderRows(row, index)).join('\n')}
   <tr><th>135 资金流</th><td>独立模块手工拉全局 A 股同花顺全单净额（5日 40% / 3日 35% / 今日 25%）；只把最终 15 的确认分并入最终分。北向仅作参考，不参与评分。</td></tr>
   <tr><th>边界</th><td>这是历史样本研究，不是胜率承诺，也不产生可执行订单；当前池存在幸存者偏差。</td></tr>
 </tbody></table>
-<p class="hint">返回 <a href="/recommendation/">第一步 50 候选</a> · <a href="/analog-audit/">第二段 50→30</a> · <a href="/replay/">策略历史回放</a></p>
+<p class="hint">返回 <a href="/recommendation/">第一步 50 候选</a> · <a href="/analog-audit/">第二段 50→30</a> · <a href="/replay/">策略历史回放</a> · <a href="/final-path-annotations/">第四步历史路径旁注</a></p>
 <script>
   function toggleDetail(id) {
     const row = document.getElementById(id)

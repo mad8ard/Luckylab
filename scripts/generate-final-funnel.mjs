@@ -164,6 +164,12 @@ console.log(`  ${LATEST_PATH}`)
 
 const render = spawnSync(process.execPath, [join(ROOT, 'scripts', 'render-final-funnel-page.mjs')], { cwd: ROOT, encoding: 'utf8', stdio: 'inherit' })
 if (render.status !== 0) process.exit(render.status ?? 1)
+const annotate = spawnSync(process.execPath, [join(ROOT, 'scripts', 'generate-final-path-annotations.mjs')], {
+  cwd: ROOT,
+  encoding: 'utf8',
+  stdio: 'inherit',
+})
+if (annotate.status !== 0) process.exit(annotate.status ?? 1)
 
 function adjustForBps(stats, bpsPct) {
   return {

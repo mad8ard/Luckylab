@@ -51,6 +51,9 @@ src/data/recommended-pools/
 public/recommended-pool/
 src/data/recommendation-latest.json
 public/recommendation/
+src/data/hong-kong-recommendation-latest.json
+src/data/hong-kong-recommendations/
+public/hong-kong-recommendation/
 src/data/replay-latest.json
 src/data/replay-reports/
 public/replay/
@@ -102,3 +105,6 @@ public/analog-audit/
 src/data/final-funnel-latest.json
 src/data/final-funnels/
 public/final-funnel/
+src/data/final-path-annotations-latest.json
+src/data/final-path-annotations/
+public/final-path-annotations/

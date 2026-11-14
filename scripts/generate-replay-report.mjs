@@ -25,6 +25,7 @@ const LATEST_PATH = join(ROOT, 'src', 'data', 'replay-latest.json')
 
 const DEFAULT_ARGS = [
   ['--mode', 'replay'],
+  ['--market', 'A股'],
   ['--profile', 'strict'],
   ['--fee', '0.0011'],
   ['--min-z', '2.13'],

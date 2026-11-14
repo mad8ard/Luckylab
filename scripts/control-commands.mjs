@@ -33,6 +33,13 @@ export const REPORT_PAGES = [
     description: '样本外折 + 10bps 取前 15；135 资金流由独立模块手工执行。',
   },
   {
+    id: 'final-path-annotations',
+    label: '第四步历史路径旁注',
+    url: '/final-path-annotations/',
+    dir: 'final-path-annotations',
+    description: '只对第四步最终结论追加三项历史路径标注，不改排名和分数。',
+  },
+  {
     id: 'replay',
     label: '策略历史回放',
     url: '/replay/',
@@ -45,6 +52,13 @@ export const REPORT_PAGES = [
     url: '/market-regime/',
     dir: 'market-regime',
     description: '指数成本锚 + 全市场宽度 + 量能 + 两融，四组加权总分。',
+  },
+  {
+    id: 'hk-recommendation',
+    label: '港股独立推荐',
+    url: '/hong-kong-recommendation/',
+    dir: 'hong-kong-recommendation',
+    description: '只使用港股日线价量，独立评分并展示前三名。',
   },
   {
     id: 'stock-news',
@@ -63,33 +77,33 @@ export const FUNCTIONS = [
   {
     id: 'refresh',
     title: '更新实时股票仓库',
-    description: '从 BaoStock / AkShare 拉全池行情 → 转 CSV → 重建索引。385 只，可能十几分钟。',
+    description: '从 BaoStock / AkShare 拉当前全池行情 → 转 CSV → 重建索引，可能十几分钟。',
     primary: 'refresh-market-data',
     secondary: [],
     resultUrl: null,
   },
   {
     id: 'recommend',
-    title: '推荐（SCREEN + POOL 合并）',
-    description: '默认 25 只观察档 + 25 只等待档；本阶段只做原价量逻辑，不读取资金流。',
+    title: 'A股推荐（SCREEN + POOL 合并）',
+    description: 'A 股专属：默认 25 只观察档 + 25 只等待档；港股不再混入本通道。',
     primary: 'recommendation',
     secondary: ['pool-advanced'],
     resultUrl: '/recommendation/',
   },
   {
     id: 'replay',
-    title: '第二段回放（50→30）',
-    description: '只做价量路径：50 只候选按同股目标/MAE/10日路径分取前 30，不读取资金流。',
+    title: 'A股第二段回放（50→30）',
+    description: '只处理 A 股价量路径：50 只候选按同股目标/MAE/10日路径分取前 30。',
     primary: 'analog-audit',
     secondary: [],
     resultUrl: '/analog-audit/',
   },
   {
     id: 'final',
-    title: '最终 15（30→15）',
-    description: '对 30 只做 80% 样本外 + 10bps 取前 15；本步不读取 135 资金流。',
+    title: 'A股最终 15（30→15）',
+    description: 'A 股专属：对 30 只做 80% 样本外 + 10bps 取前 15；本步不读取 135 资金流。',
     primary: 'final-funnel',
-    secondary: ['replay-report'],
+    secondary: ['replay-report', 'final-path-annotations'],
     resultUrl: '/final-funnel/',
   },
 ]
@@ -120,13 +134,21 @@ export const INDEPENDENT_MODULES = [
     resultUrl: '/stock-news/',
     acceptsArgs: true,
   },
+  {
+    id: 'hk-module',
+    title: '港股独立研究推荐',
+    description: '只使用港股复权日线 OHLCV，按独立价量模型排序，固定只展示前三名；不进入 A 股四段漏斗。',
+    primary: 'hk-recommend',
+    secondary: ['hk-page'],
+    resultUrl: '/hong-kong-recommendation/',
+  },
 ]
 
 export const PIPELINE = [
   { id: 'refresh', label: '刷新行情仓库', command: 'refresh-market-data', report: null, note: '长任务，先更新价量数据' },
-  { id: 'recommend', label: '50 只候选', command: 'recommendation', report: 'recommendation', note: '先筛 25+25，本阶段不读资金流' },
-  { id: 'audit', label: '第二段回放 50→30', command: 'analog-audit', report: 'analog-audit', note: '只用同股价量路径，不读资金流' },
-  { id: 'final', label: '最终 15（30→15）', command: 'final-funnel', report: 'final-funnel', note: '样本外+10bps 取15；135由独立模块手工执行' },
+  { id: 'recommend', label: 'A股 50 只候选', command: 'recommendation', report: 'recommendation', note: 'A 股先筛 25+25，本阶段不读资金流' },
+  { id: 'audit', label: 'A股回放 50→30', command: 'analog-audit', report: 'analog-audit', note: '只处理 A 股同股价量路径' },
+  { id: 'final', label: 'A股最终 15', command: 'final-funnel', report: 'final-funnel', note: 'A 股样本外+10bps取15；135由独立模块执行' },
 ]
 
 export const COMMANDS = [
@@ -173,6 +195,28 @@ export const COMMANDS = [
     run: { kind: 'pnpm', script: 'generate:recommended-pool' },
     resultUrl: '/recommended-pool/',
   },
+  {
+    id: 'hk-recommend',
+    section: 'independent',
+    label: '生成港股前三',
+    description: '只用港股日线 OHLCV 独立评分，生成并渲染前三名。',
+    display: 'pnpm run generate:hk-recommendation',
+    run: {
+      kind: 'node',
+      script: 'scripts/generate-hk-recommendation.mjs',
+      then: [{ kind: 'node', script: 'scripts/render-hk-recommendation-page.mjs' }],
+    },
+    resultUrl: '/hong-kong-recommendation/',
+  },
+  {
+    id: 'hk-page',
+    section: 'independent',
+    label: '只重渲染港股页',
+    description: '用已有港股推荐快照重新生成页面。',
+    display: 'pnpm run hk:page',
+    run: { kind: 'node', script: 'scripts/render-hk-recommendation-page.mjs' },
+    resultUrl: '/hong-kong-recommendation/',
+  },
 
   // ── ③ 候选审核 + 旧版策略回放 ─────────────────────────────
   {
@@ -194,6 +238,15 @@ export const COMMANDS = [
     resultUrl: '/final-funnel/',
   },
   {
+    id: 'final-path-annotations',
+    section: 'replay',
+    label: '重算历史路径旁注',
+    description: '读取第四步最终结论，追加锚下比例、年化斜率和历史最大回撤；不修改最终结果。',
+    display: 'pnpm annotate:final-path',
+    run: { kind: 'node', script: 'scripts/generate-final-path-annotations.mjs' },
+    resultUrl: '/final-path-annotations/',
+  },
+  {
     id: 'replay-report',
     section: 'replay',
     label: '策略历史回放（旧）',
@@ -207,16 +260,16 @@ export const COMMANDS = [
     section: 'maintenance',
     label: '样本外折验证',
     description: '把时间轴切成训练/测试折，只看控制台输出。',
-    display: `node ${REPLAY} --profile strict --fee 0.0011 --min-z 2.13 --target 0.032 --validate walk-forward`,
-    run: { kind: 'node', script: REPLAY, args: ['--mode', 'replay', '--profile', 'strict', '--fee', '0.0011', '--min-z', '2.13', '--target', '0.032', '--validate', 'walk-forward'] },
+    display: `node ${REPLAY} --mode replay --market A股 --profile strict --fee 0.0011 --min-z 2.13 --target 0.032 --validate walk-forward`,
+    run: { kind: 'node', script: REPLAY, args: ['--mode', 'replay', '--market', 'A股', '--profile', 'strict', '--fee', '0.0011', '--min-z', '2.13', '--target', '0.032', '--validate', 'walk-forward'] },
   },
   {
     id: 'replay-slippage',
     section: 'maintenance',
     label: '加 10bps 滑点',
     description: '在成交价上再加 10 个基点，看结论会不会翻面。',
-    display: `node ${REPLAY} --profile strict --fee 0.0011 --min-z 2.13 --target 0.032 --slippage-bps 10`,
-    run: { kind: 'node', script: REPLAY, args: ['--mode', 'replay', '--profile', 'strict', '--fee', '0.0011', '--min-z', '2.13', '--target', '0.032', '--slippage-bps', '10'] },
+    display: `node ${REPLAY} --mode replay --market A股 --profile strict --fee 0.0011 --min-z 2.13 --target 0.032 --slippage-bps 10`,
+    run: { kind: 'node', script: REPLAY, args: ['--mode', 'replay', '--market', 'A股', '--profile', 'strict', '--fee', '0.0011', '--min-z', '2.13', '--target', '0.032', '--slippage-bps', '10'] },
   },
 
   // ── ④ 大盘信息 ──────────────────────────────────────────────

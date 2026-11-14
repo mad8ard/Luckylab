@@ -37,6 +37,9 @@ function render(data, list, stats, gate) {
   const focusPct = Math.round((gate.focusThreshold ?? 0.75) * 100)
   const waitPct = Math.round((gate.waitThreshold ?? 0.55) * 100)
   const minScore = gate.screenMinScore ?? 50
+  const selected = stats.selected ?? list.length
+  const needsRefresh = stats.needsRefresh ?? 0
+  const shortfall = stats.shortfall ?? Math.max(0, (gate.perTier ?? 25) * 2 - selected)
   return `<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -108,6 +111,7 @@ function render(data, list, stats, gate) {
   默认只保留 ${gate.perTier ?? 25} 只观察档 + ${gate.perTier ?? 25} 只等待档。
   推荐分可在 <a href="/recommended-pool/" target="_blank" rel="noreferrer">推荐池页</a> 调权重。
 </div>
+${shortfall > 0 ? `<div class="banner warn"><b>候选不足 ${(gate.perTier ?? 25) * 2} 只：</b>本次只选出 ${selected} 只唯一候选；${needsRefresh} 只行情超过 10 天未刷新。先运行刷新行情，再重跑推荐。</div>` : ''}
 <div class="banner"><b>本阶段只做价量与筛选：</b>135 资金流只在最后 15 只样本上执行；北向仅作参考。</div>
 <div class="cards">
   <div class="card"><b>观察档</b><span class="s-观察">${observe}</span></div>
@@ -115,6 +119,7 @@ function render(data, list, stats, gate) {
   <div class="card"><b>候选总数</b><span>${stats.total ?? '—'}</span></div>
   <div class="card"><b>通过门禁</b><span>${stats.eligible ?? '—'}</span></div>
   <div class="card"><b>筛选分下限</b><span>${minScore}</span></div>
+  <div class="card"><b>需刷新数据</b><span>${needsRefresh}</span></div>
 </div>
 <div class="scroll-x">
 <table class="grid"><thead><tr>
