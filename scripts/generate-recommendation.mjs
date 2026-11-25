@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// 生成「集合推荐」：把推荐池（7 维排序）与筛选（门禁分）合并成一张 10 只的清单。
+// 生成「集合推荐」：把推荐池（7 维排序）与筛选（门禁分）合并成一张 35 只的清单。
 //
 // 口径：
 //   - 推荐档：推荐分 / 当前满分 ≥ 75% 为 focus（观察档），55%~75% 为 wait（等待档）
 //   - 筛选门禁：状态必须是「观察」或「等待」，且筛选分 ≥ 50
-//   - 最终只保留 5 只观察档 + 5 只等待档；不足时由另一档补位
+//   - 默认保留 18 只观察档 + 17 只等待档；不足时由另一档补位
 // 这个脚本不重写任何评分公式，只做合并、过滤和截断。
 
 import { spawnSync } from 'node:child_process'
@@ -17,15 +17,17 @@ import {
   buildScoreConfig,
   computeBuyScore,
 } from '../src/domain/strategy-planning/recommendedStockPool.js'
+import { A_SHARE_FUNNEL } from '../src/domain/strategy-planning/funnelConfig.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
 const POOL_PATH = join(ROOT, 'src', 'data', 'recommended-pool-latest.json')
 const OUT_PATH = join(ROOT, 'src', 'data', 'recommendation-latest.json')
-const NORTHBOUND_PATH = join(ROOT, 'src', 'data', 'northbound-marks.json')
 const SCREEN_CLI = join(ROOT, '.agents', 'skills', 'china-stock-selection', 'scripts', 'screen-cn-stocks.mjs')
 
-const PER_TIER = 25
+const FOCUS_LIMIT = A_SHARE_FUNNEL.firstStage.focus
+const WAIT_LIMIT = A_SHARE_FUNNEL.firstStage.wait
+const TARGET_TOTAL = A_SHARE_FUNNEL.firstStage.total
 const SCREEN_MIN_SCORE = 50
 const SCREEN_ALLOWED = new Set(['观察', '等待'])
 const TIER_RANK = { focus: 0, wait: 1, skip: 2 }
@@ -51,12 +53,6 @@ try {
 const pool = JSON.parse(await readFile(POOL_PATH, 'utf8'))
 const screenBySymbol = new Map((screen.ranked ?? []).map((row) => [row.symbol, row]))
 const dimensions = buildScoreConfig()
-let northboundPayload = null
-try {
-  northboundPayload = JSON.parse(await readFile(NORTHBOUND_PATH, 'utf8'))
-} catch (error) {
-  if (error?.code !== 'ENOENT') console.warn(`北向参考读取失败：${error.message}`)
-}
 
 const merged = (pool.candidatesAll ?? []).map((candidate) => {
   const result = computeBuyScore(candidate.metrics ?? {}, { dimensions })
@@ -72,7 +68,6 @@ const merged = (pool.candidatesAll ?? []).map((candidate) => {
   if (verdict && !SCREEN_ALLOWED.has(verdict.candidateStatus)) rejectReasons.push(`screen-${verdict.candidateStatus}`)
   if (verdict && !(Number(verdict.score) >= SCREEN_MIN_SCORE)) rejectReasons.push(`screen-score-below-${SCREEN_MIN_SCORE}`)
   if (tier === 'skip') rejectReasons.push('pool-tier-below-wait')
-  const northbound = attachNorthbound(candidate.symbol)
   return {
     symbol: candidate.symbol,
     label: candidate.label,
@@ -86,8 +81,6 @@ const merged = (pool.candidatesAll ?? []).map((candidate) => {
     screenStatus: verdict?.candidateStatus ?? null,
     screenScoreStatus: verdict?.scoreStatus ?? null,
     screenReasons: verdict?.statusReasons ?? null,
-    northbound,
-    northboundMark: northbound.mark,
     eligible: rejectReasons.length === 0,
     rejectReasons,
   }
@@ -99,18 +92,17 @@ function byScore(left, right) {
 }
 
 const eligible = merged.filter((row) => row.eligible)
-const focus = eligible.filter((row) => row.tier === 'focus').sort(byScore).slice(0, PER_TIER)
-const wait = eligible.filter((row) => row.tier === 'wait').sort(byScore).slice(0, PER_TIER)
+const focus = eligible.filter((row) => row.tier === 'focus').sort(byScore).slice(0, FOCUS_LIMIT)
+const wait = eligible.filter((row) => row.tier === 'wait').sort(byScore).slice(0, WAIT_LIMIT)
 const selected = [...focus, ...wait]
 
 // 某一档不足时，从尚未入选的合格标的中按分数补位；每个 symbol 只出现一次。
-const targetTotal = PER_TIER * 2
-if (selected.length < targetTotal) {
+if (selected.length < TARGET_TOTAL) {
   const used = new Set(selected.map((row) => row.symbol))
   const fill = [...eligible]
     .filter((row) => !used.has(row.symbol))
     .sort(byScore)
-    .slice(0, targetTotal - selected.length)
+    .slice(0, TARGET_TOTAL - selected.length)
   selected.push(...fill)
 }
 selected.sort((left, right) => {
@@ -130,7 +122,7 @@ const payload = {
     eligible: eligible.length,
     selected: selected.length,
     needsRefresh: byStatusAll['需刷新数据'] ?? 0,
-    shortfall: Math.max(0, PER_TIER * 2 - selected.length),
+    shortfall: Math.max(0, TARGET_TOTAL - selected.length),
     byTierSelected: {
       observe: selected.filter((row) => row.tier === 'focus').length,
       wait: selected.filter((row) => row.tier === 'wait').length,
@@ -139,25 +131,21 @@ const payload = {
     byTierAll,
   },
   gate: {
-    perTier: PER_TIER,
+    focusLimit: FOCUS_LIMIT,
+    waitLimit: WAIT_LIMIT,
+    targetTotal: TARGET_TOTAL,
     screenMinScore: SCREEN_MIN_SCORE,
     allowedScreenStatus: [...SCREEN_ALLOWED],
     focusThreshold: DEFAULT_TIER_THRESHOLDS.focus,
     waitThreshold: DEFAULT_TIER_THRESHOLDS.wait,
   },
   logic:
-    `默认输出 ${PER_TIER} 只观察档 + ${PER_TIER} 只等待档。` +
+    `默认输出 ${FOCUS_LIMIT} 只观察档 + ${WAIT_LIMIT} 只等待档（合计 ${TARGET_TOTAL} 只）。` +
     `推荐档按 7 维加权：≥${Math.round(DEFAULT_TIER_THRESHOLDS.focus * 100)}% 为观察档，` +
     `${Math.round(DEFAULT_TIER_THRESHOLDS.wait * 100)}%~${Math.round(DEFAULT_TIER_THRESHOLDS.focus * 100)}% 为等待档；` +
     `筛选状态必须为观察/等待，且筛选分 ≥ ${SCREEN_MIN_SCORE}。` +
     '每个 symbol 只出现一次；某档不足时从尚未入选的合格标的补位。' +
-    '本阶段只做价量与筛选，不读取资金流；135 资金流只对最后 15 只执行。',
-  northboundReference: {
-    available: Boolean(northboundPayload),
-    dataThrough: northboundPayload?.dataThrough ?? null,
-    source: northboundPayload?.source ?? null,
-    legend: '+ = 股东名单含香港中央结算（有北向持仓）；* = 当期净买入；只作参考，不参与选股评分。',
-  },
+    `本阶段只做价量与筛选，不读取资金流；135 资金流只对最后 ${A_SHARE_FUNNEL.finalStage} 只执行。`,
   dimensions: pool.dimensions,
   rows: selected,
 }
@@ -185,18 +173,6 @@ function run([command, args], label, options = {}) {
     process.exit(result.status ?? 1)
   }
   return options.capture ? result.stdout : ''
-}
-
-function attachNorthbound(symbol) {
-  const mark = northboundPayload?.symbols?.[symbol]
-  if (!mark) return { present: false, mark: '', direction: null, netAmount: null }
-  return {
-    present: true,
-    mark: mark.direction === 'in' ? '+*' : '+',
-    direction: mark.direction,
-    netAmount: mark.netAmount ?? null,
-    label: mark.label ?? null,
-  }
 }
 
 function countBy(rows, keyOf) {

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 对 50 只推荐候选做历史相似节点审核。
+// 对 35 只推荐候选做历史相似节点审核。
 //
 // 变体：
 //   sameStock        同股历史
@@ -30,6 +30,7 @@ import {
   createVariantMatchers,
   validateVariants,
 } from '../src/domain/strategy-planning/analogVariants.js'
+import { A_SHARE_FUNNEL } from '../src/domain/strategy-planning/funnelConfig.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
@@ -98,7 +99,10 @@ const variantValidation = validateVariants(stocks, {
 })
 const variantDesignChoice = choosePrimaryVariant(variantValidation)
 const primaryVariant = 'sameStock'
-console.log(`第二段回放 50→30：sameStock 路径（目标10/MAE40/10日10），不读取资金流；设计集原本会选 ${variantDesignChoice}`)
+console.log(
+  `第二段回放 ${A_SHARE_FUNNEL.firstStage.total}→${A_SHARE_FUNNEL.secondStage}：` +
+    `sameStock 路径（目标10/MAE40/10日10），不读取资金流；设计集原本会选 ${variantDesignChoice}`,
+)
 
 const audited = []
 for (const stock of stocks) {
@@ -140,8 +144,6 @@ for (const stock of stocks) {
     poolScore: stock.poolScore,
     poolMaxScore: stock.poolMaxScore,
     screenScore: stock.screenScore,
-    northbound: stock.northbound ?? null,
-    northboundMark: stock.northbound?.mark ?? '',
     currentDate: stock.rows.at(-1).date,
     currentFeatures: stock.series.at(-1),
     primaryVariant,
@@ -166,7 +168,7 @@ audited.sort((left, right) => {
 let stage2Count = 0
 audited.forEach((item, index) => {
   item.auditRank = index + 1
-  if (item.market === 'A股' && stage2Count < 30) {
+  if (item.market === 'A股' && stage2Count < A_SHARE_FUNNEL.secondStage) {
     stage2Count += 1
     item.stage2Rank = stage2Count
     item.stage2Selected = true
@@ -197,7 +199,7 @@ const payload = {
     failures: failures.length,
     regimeDays: regimeByDate.size,
   },
-  stage: 'replay-30',
+  stage: `replay-${A_SHARE_FUNNEL.secondStage}`,
   primaryVariant,
   variantValidation,
   validation: primaryValidation?.test ?? null,

@@ -134,7 +134,6 @@ function renderCards(derived) {
   push('公告总数', derived.notice?.total, derived.notice?.latestDate ? `最新 ${derived.notice.latestDate}` : '')
   push('股东户数', fmtNumber(derived.gdhs?.latestHolders), derived.gdhs?.latestDate ?? '')
   push('户数环比', derived.gdhs?.changePct === undefined ? undefined : `${fmtNumber(derived.gdhs.changePct)}%`, '正=分散 · 负=集中')
-  push('北向持股占比', derived.hsgt?.latestHoldPct === undefined ? undefined : `${fmtNumber(derived.hsgt.latestHoldPct)}%`, derived.hsgt?.latestDate ?? '')
   push('机构参与度', fmtNumber(derived.institution?.latest), `5 日均 ${fmtNumber(derived.institution?.mean5)}`)
   push('用户关注指数', fmtNumber(derived.focus?.latest), `5 日均 ${fmtNumber(derived.focus?.mean5)}`)
   push('综合评分', fmtNumber(derived.score?.latest), `5 日均 ${fmtNumber(derived.score?.mean5)}`)

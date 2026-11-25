@@ -3,6 +3,14 @@
 // 结构刻意简单：四个功能卡 + 一个折叠的维护区。
 // 页面渲染和 dev 接口都读这里，新增命令只改这个文件。
 
+import { A_SHARE_FUNNEL } from '../src/domain/strategy-planning/funnelConfig.js'
+
+const STAGE1 = A_SHARE_FUNNEL.firstStage.total
+const STAGE2 = A_SHARE_FUNNEL.secondStage
+const FINAL = A_SHARE_FUNNEL.finalStage
+const FOCUS = A_SHARE_FUNNEL.firstStage.focus
+const WAIT = A_SHARE_FUNNEL.firstStage.wait
+
 export const REPORT_PAGES = [
   {
     id: 'recommendation',
@@ -20,17 +28,17 @@ export const REPORT_PAGES = [
   },
   {
     id: 'analog-audit',
-    label: '第二段回放（50→30）',
+    label: `第二段回放（${STAGE1}→${STAGE2}）`,
     url: '/analog-audit/',
     dir: 'analog-audit',
-    description: '50 只候选按同股价量路径分取前 30，不读取资金流。',
+    description: `${STAGE1} 只候选按同股价量路径分取前 ${STAGE2}，不读取资金流。`,
   },
   {
     id: 'final-funnel',
-    label: '最终 15（30→15）',
+    label: `最终 ${FINAL}（${STAGE2}→${FINAL}）`,
     url: '/final-funnel/',
     dir: 'final-funnel',
-    description: '样本外折 + 10bps 取前 15；135 资金流由独立模块手工执行。',
+    description: `样本外折 + 10bps 取前 ${FINAL}；135 资金流由独立模块手工执行。`,
   },
   {
     id: 'final-path-annotations',
@@ -85,23 +93,23 @@ export const FUNCTIONS = [
   {
     id: 'recommend',
     title: 'A股推荐（SCREEN + POOL 合并）',
-    description: 'A 股专属：默认 25 只观察档 + 25 只等待档；港股不再混入本通道。',
+    description: `A 股专属：默认 ${FOCUS} 只观察档 + ${WAIT} 只等待档；港股不再混入本通道。`,
     primary: 'recommendation',
     secondary: ['pool-advanced'],
     resultUrl: '/recommendation/',
   },
   {
     id: 'replay',
-    title: 'A股第二段回放（50→30）',
-    description: '只处理 A 股价量路径：50 只候选按同股目标/MAE/10日路径分取前 30。',
+    title: `A股第二段回放（${STAGE1}→${STAGE2}）`,
+    description: `只处理 A 股价量路径：${STAGE1} 只候选按同股目标/MAE/10日路径分取前 ${STAGE2}。`,
     primary: 'analog-audit',
     secondary: [],
     resultUrl: '/analog-audit/',
   },
   {
     id: 'final',
-    title: 'A股最终 15（30→15）',
-    description: 'A 股专属：对 30 只做 80% 样本外 + 10bps 取前 15；本步不读取 135 资金流。',
+    title: `A股最终 ${FINAL}（${STAGE2}→${FINAL}）`,
+    description: `A 股专属：对 ${STAGE2} 只做 80% 样本外 + 10bps 取前 ${FINAL}；本步不读取 135 资金流。`,
     primary: 'final-funnel',
     secondary: ['replay-report', 'final-path-annotations'],
     resultUrl: '/final-funnel/',
@@ -112,7 +120,7 @@ export const INDEPENDENT_MODULES = [
   {
     id: 'fund-flow',
     title: '135资金流（独立）',
-    description: '手工拉同花顺全局 A 股 1/3/5 日净额；完成后只更新最终 15 的确认分，不参与前四步。',
+    description: `手工拉同花顺全局 A 股 1/3/5 日净额；完成后只更新最终 ${FINAL} 的确认分，不参与前四步。`,
     primary: 'fund-flow-fetch',
     secondary: [],
     resultUrl: '/final-funnel/',
@@ -128,7 +136,7 @@ export const INDEPENDENT_MODULES = [
   {
     id: 'stock-news',
     title: '个股信息查询（独立）',
-    description: '按 6 位代码抓取个股消息面、研报、公告、北向、两融；独立查询，不参与选股评分。',
+    description: '按 6 位代码抓取个股消息面、研报、公告、两融；独立查询，不参与选股评分。',
     primary: 'news-fetch',
     secondary: ['news-page'],
     resultUrl: '/stock-news/',
@@ -146,9 +154,9 @@ export const INDEPENDENT_MODULES = [
 
 export const PIPELINE = [
   { id: 'refresh', label: '刷新行情仓库', command: 'refresh-market-data', report: null, note: '长任务，先更新价量数据' },
-  { id: 'recommend', label: 'A股 50 只候选', command: 'recommendation', report: 'recommendation', note: 'A 股先筛 25+25，本阶段不读资金流' },
-  { id: 'audit', label: 'A股回放 50→30', command: 'analog-audit', report: 'analog-audit', note: '只处理 A 股同股价量路径' },
-  { id: 'final', label: 'A股最终 15', command: 'final-funnel', report: 'final-funnel', note: 'A 股样本外+10bps取15；135由独立模块执行' },
+  { id: 'recommend', label: `A股 ${STAGE1} 只候选`, command: 'recommendation', report: 'recommendation', note: `A 股先筛 ${FOCUS}+${WAIT}，本阶段不读资金流` },
+  { id: 'audit', label: `A股回放 ${STAGE1}→${STAGE2}`, command: 'analog-audit', report: 'analog-audit', note: '只处理 A 股同股价量路径' },
+  { id: 'final', label: `A股最终 ${FINAL}`, command: 'final-funnel', report: 'final-funnel', note: `A 股样本外+10bps取${FINAL}；135由独立模块执行` },
 ]
 
 export const COMMANDS = [
@@ -168,7 +176,7 @@ export const COMMANDS = [
     id: 'fund-flow-fetch',
     section: 'independent',
     label: '刷新 135 资金流（全局）',
-    description: '手工拉同花顺全局 A 股全单净额（今日 / 3日 / 5日），完成后只更新最终 15 的确认分。约 55 秒。',
+    description: `手工拉同花顺全局 A 股全单净额（今日 / 3日 / 5日），完成后只更新最终 ${FINAL} 的确认分。约 55 秒。`,
     display: 'pnpm fund-flow',
     run: {
       kind: 'python',
@@ -181,7 +189,7 @@ export const COMMANDS = [
     id: 'recommendation',
     section: 'recommend',
     label: '生成集合推荐',
-    description: '跑推荐池 + 筛选，输出 50 只（25 观察档 / 25 等待档）并渲染页面。约 20 秒。',
+    description: `跑推荐池 + 筛选，输出 ${STAGE1} 只（${FOCUS} 观察档 / ${WAIT} 等待档）并渲染页面。约 20 秒。`,
     display: 'pnpm recommend',
     run: { kind: 'node', script: 'scripts/generate-recommendation.mjs' },
     resultUrl: '/recommendation/',
@@ -223,7 +231,7 @@ export const COMMANDS = [
     id: 'analog-audit',
     section: 'replay',
     label: '生成候选审核',
-    description: '对 50 只候选找同股历史相似节点，统计后续收益、MAE、目标先于止损和样本外验证。约 5 秒。',
+    description: `对 ${STAGE1} 只候选找同股历史相似节点，统计后续收益、MAE、目标先于止损和样本外验证。约 5 秒。`,
     display: 'pnpm analog-audit',
     run: { kind: 'node', script: 'scripts/generate-analog-audit.mjs' },
     resultUrl: '/analog-audit/',
@@ -231,8 +239,8 @@ export const COMMANDS = [
   {
     id: 'final-funnel',
     section: 'replay',
-    label: '生成最终 15',
-    description: '30 只 → 80% 样本外 + 10bps → 15 只；再读取 135 资金流并生成最终页。',
+    label: `生成最终 ${FINAL}`,
+    description: `${STAGE2} 只 → 80% 样本外 + 10bps → ${FINAL} 只；再读取 135 资金流并生成最终页。`,
     display: 'pnpm final-funnel',
     run: { kind: 'node', script: 'scripts/generate-final-funnel.mjs' },
     resultUrl: '/final-funnel/',

@@ -9,6 +9,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { COMMANDS, FUNCTIONS, INDEPENDENT_MODULES, PIPELINE, REPORT_PAGES } from './control-commands.mjs'
+import { A_SHARE_FUNNEL } from '../src/domain/strategy-planning/funnelConfig.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
@@ -98,8 +99,7 @@ function renderPage() {
   <h1>Market Lab 控制台</h1>
   <div class="meta">
     <span id="api-status" class="pill">检测运行环境中…</span>
-    <span>A 股全通道：刷新行情 → 50 候选 → 历史审核 → 策略回放；港股单独评分，只展示前三</span>
-    <span title="北向只作参考，不进入资金流评分">北向参考：+ 有持仓 · * 净买入（不参与评分）</span>
+    <span>A 股全通道：刷新行情 → ${A_SHARE_FUNNEL.firstStage.total} 候选 → 历史审核 → 策略回放；港股单独评分，只展示前三</span>
   </div>
 </header>
 <div id="banner" class="banner hidden"></div>

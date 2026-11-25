@@ -4,7 +4,7 @@
   "dataThrough": "2026-11-14",
   "priceDataThrough": "2026-11-13",
   "source": "同花顺 stock_fund_flow_individual（即时 / 3日排行 / 5日排行）",
-  "semantics": "全单资金净额（流入-流出），不是北向 JINGE，也不是主力净流入；只做当前确认分，不进入历史回测。",
+  "semantics": "全单资金净额（流入-流出），不是主力净流入；只做当前确认分，不进入历史回测。",
   "weights": {
     "today": 0.25,
     "d3": 0.35,
@@ -30,15 +30,105 @@
       "withValue": 5216
     }
   },
-  "totalA": 365,
-  "targeted": 365,
+  "totalA": 224,
+  "targeted": 224,
   "candidateSource": null,
-  "matched": 365,
-  "scored": 364,
+  "matched": 213,
+  "scored": 212,
   "missing": [
     {
-      "symbol": "601059",
-      "label": "信达证券",
+      "symbol": "300604",
+      "label": "长川科技",
+      "windows": [
+        "today",
+        "d3",
+        "d5"
+      ]
+    },
+    {
+      "symbol": "300857",
+      "label": "协创数据",
+      "windows": [
+        "today",
+        "d3",
+        "d5"
+      ]
+    },
+    {
+      "symbol": "301200",
+      "label": "大族数控",
+      "windows": [
+        "today",
+        "d3",
+        "d5"
+      ]
+    },
+    {
+      "symbol": "301377",
+      "label": "鼎泰高科",
+      "windows": [
+        "today",
+        "d3",
+        "d5"
+      ]
+    },
+    {
+      "symbol": "688235",
+      "label": "百济神州",
+      "windows": [
+        "today",
+        "d3",
+        "d5"
+      ]
+    },
+    {
+      "symbol": "688347",
+      "label": "华虹宏力",
+      "windows": [
+        "today",
+        "d3",
+        "d5"
+      ]
+    },
+    {
+      "symbol": "688498",
+      "label": "源杰科技",
+      "windows": [
+        "today",
+        "d3",
+        "d5"
+      ]
+    },
+    {
+      "symbol": "688702",
+      "label": "盛科通信-U",
+      "windows": [
+        "today",
+        "d3",
+        "d5"
+      ]
+    },
+    {
+      "symbol": "688795",
+      "label": "摩尔线程-U",
+      "windows": [
+        "today",
+        "d3",
+        "d5"
+      ]
+    },
+    {
+      "symbol": "688802",
+      "label": "沐曦股份-U",
+      "windows": [
+        "today",
+        "d3",
+        "d5"
+      ]
+    },
+    {
+      "symbol": "688808",
+      "label": "联讯仪器",
       "windows": [
         "today",
         "d3",
@@ -79,70 +169,6 @@
       ],
       "missingWindows": []
     },
-    "000039": {
-      "label": "中集集团",
-      "today": -14719900.0,
-      "todayPct": 37.83,
-      "todayDetail": {
-        "netAmount": -14719900.0,
-        "amount": 141000000.0,
-        "turnoverPct": 0.68,
-        "changePct": 0.45
-      },
-      "d3": -69602300.0,
-      "d3Pct": 21.34,
-      "d3Detail": {
-        "netAmount": -69602300.0,
-        "phaseChangePct": -3.02,
-        "continuousTurnoverPct": 2.67
-      },
-      "d5": -145000000.0,
-      "d5Pct": 13.0,
-      "d5Detail": {
-        "netAmount": -145000000.0,
-        "phaseChangePct": -5.96,
-        "continuousTurnoverPct": 5.06
-      },
-      "score": 22.13,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000060": {
-      "label": "中金岭南",
-      "today": -62246000.0,
-      "todayPct": 10.64,
-      "todayDetail": {
-        "netAmount": -62246000.0,
-        "amount": 251000000.0,
-        "turnoverPct": 1.15,
-        "changePct": -2.4
-      },
-      "d3": -167000000.0,
-      "d3Pct": 7.76,
-      "d3Detail": {
-        "netAmount": -167000000.0,
-        "phaseChangePct": -5.07,
-        "continuousTurnoverPct": 3.57
-      },
-      "d5": -249000000.0,
-      "d5Pct": 6.54,
-      "d5Detail": {
-        "netAmount": -249000000.0,
-        "phaseChangePct": -5.44,
-        "continuousTurnoverPct": 5.38
-      },
-      "score": 7.99,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "000063": {
       "label": "中兴通讯",
       "today": -104000000.0,
@@ -168,102 +194,6 @@
         "continuousTurnoverPct": 5.99
       },
       "score": 3.86,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000066": {
-      "label": "中国长城",
-      "today": 91652000.0,
-      "todayPct": 98.24,
-      "todayDetail": {
-        "netAmount": 91652000.0,
-        "amount": 1501000000.0,
-        "turnoverPct": 3.83,
-        "changePct": 2.88
-      },
-      "d3": 87225200.0,
-      "d3Pct": 97.95,
-      "d3Detail": {
-        "netAmount": 87225200.0,
-        "phaseChangePct": 3.76,
-        "continuousTurnoverPct": 9.33
-      },
-      "d5": 89286500.0,
-      "d5Pct": 97.11,
-      "d5Detail": {
-        "netAmount": 89286500.0,
-        "phaseChangePct": 6.03,
-        "continuousTurnoverPct": 12.34
-      },
-      "score": 97.69,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000088": {
-      "label": "盐田港",
-      "today": -5108000.0,
-      "todayPct": 63.75,
-      "todayDetail": {
-        "netAmount": -5108000.0,
-        "amount": 119000000.0,
-        "turnoverPct": 0.82,
-        "changePct": -1.09
-      },
-      "d3": 7666500.0,
-      "d3Pct": 92.29,
-      "d3Detail": {
-        "netAmount": 7666500.0,
-        "phaseChangePct": -2.37,
-        "continuousTurnoverPct": 2.37
-      },
-      "d5": 34024200.0,
-      "d5Pct": 95.11,
-      "d5Detail": {
-        "netAmount": 34024200.0,
-        "phaseChangePct": -1.73,
-        "continuousTurnoverPct": 4.17
-      },
-      "score": 86.28,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000089": {
-      "label": "深圳机场",
-      "today": -10680900.0,
-      "todayPct": 46.45,
-      "todayDetail": {
-        "netAmount": -10680900.0,
-        "amount": 57710500.0,
-        "turnoverPct": 0.42,
-        "changePct": -0.45
-      },
-      "d3": -26558800.0,
-      "d3Pct": 42.85,
-      "d3Detail": {
-        "netAmount": -26558800.0,
-        "phaseChangePct": -0.89,
-        "continuousTurnoverPct": 1.6
-      },
-      "d5": -36036300.0,
-      "d5Pct": 41.95,
-      "d5Detail": {
-        "netAmount": -36036300.0,
-        "phaseChangePct": -1.33,
-        "continuousTurnoverPct": 2.62
-      },
-      "score": 43.39,
       "usedWindows": [
         "today",
         "d3",
@@ -367,38 +297,6 @@
       ],
       "missingWindows": []
     },
-    "000301": {
-      "label": "东方盛虹",
-      "today": -18642600.0,
-      "todayPct": 32.23,
-      "todayDetail": {
-        "netAmount": -18642600.0,
-        "amount": 155000000.0,
-        "turnoverPct": 0.24,
-        "changePct": -1.2
-      },
-      "d3": -35849100.0,
-      "d3Pct": 35.95,
-      "d3Detail": {
-        "netAmount": -35849100.0,
-        "phaseChangePct": -3.15,
-        "continuousTurnoverPct": 0.93
-      },
-      "d5": -121000000.0,
-      "d5Pct": 16.09,
-      "d5Detail": {
-        "netAmount": -121000000.0,
-        "phaseChangePct": -5.48,
-        "continuousTurnoverPct": 1.62
-      },
-      "score": 27.08,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "000333": {
       "label": "美的集团",
       "today": 412000000.0,
@@ -456,38 +354,6 @@
         "continuousTurnoverPct": 11.9
       },
       "score": 3.13,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000401": {
-      "label": "金隅冀东",
-      "today": -9731500.0,
-      "todayPct": 48.6,
-      "todayDetail": {
-        "netAmount": -9731500.0,
-        "amount": 25136300.0,
-        "turnoverPct": 0.29,
-        "changePct": -2.42
-      },
-      "d3": -18231300.0,
-      "d3Pct": 51.65,
-      "d3Detail": {
-        "netAmount": -18231300.0,
-        "phaseChangePct": -3.59,
-        "continuousTurnoverPct": 0.74
-      },
-      "d5": -24345900.0,
-      "d5Pct": 50.92,
-      "d5Detail": {
-        "netAmount": -24345900.0,
-        "phaseChangePct": -5.01,
-        "continuousTurnoverPct": 1.25
-      },
-      "score": 50.6,
       "usedWindows": [
         "today",
         "d3",
@@ -559,70 +425,6 @@
       ],
       "missingWindows": []
     },
-    "000507": {
-      "label": "珠海港",
-      "today": -4199800.0,
-      "todayPct": 67.41,
-      "todayDetail": {
-        "netAmount": -4199800.0,
-        "amount": 24780900.0,
-        "turnoverPct": 0.6,
-        "changePct": -1.07
-      },
-      "d3": -12244800.0,
-      "d3Pct": 60.03,
-      "d3Detail": {
-        "netAmount": -12244800.0,
-        "phaseChangePct": -1.5,
-        "continuousTurnoverPct": 1.38
-      },
-      "d5": -15630500.0,
-      "d5Pct": 60.56,
-      "d5Detail": {
-        "netAmount": -15630500.0,
-        "phaseChangePct": -1.91,
-        "continuousTurnoverPct": 2.38
-      },
-      "score": 62.09,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000519": {
-      "label": "中兵红箭",
-      "today": -163000000.0,
-      "todayPct": 3.18,
-      "todayDetail": {
-        "netAmount": -163000000.0,
-        "amount": 514000000.0,
-        "turnoverPct": 2.68,
-        "changePct": -4.11
-      },
-      "d3": -174000000.0,
-      "d3Pct": 7.4,
-      "d3Detail": {
-        "netAmount": -174000000.0,
-        "phaseChangePct": -2.31,
-        "continuousTurnoverPct": 7.97
-      },
-      "d5": -234000000.0,
-      "d5Pct": 7.15,
-      "d5Detail": {
-        "netAmount": -234000000.0,
-        "phaseChangePct": -2.03,
-        "continuousTurnoverPct": 10.83
-      },
-      "score": 6.25,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "000538": {
       "label": "云南白药",
       "today": 113000000.0,
@@ -655,102 +457,6 @@
       ],
       "missingWindows": []
     },
-    "000568": {
-      "label": "泸州老窖",
-      "today": -12762300.0,
-      "todayPct": 41.49,
-      "todayDetail": {
-        "netAmount": -12762300.0,
-        "amount": 1363000000.0,
-        "turnoverPct": 1.18,
-        "changePct": 3.84
-      },
-      "d3": -276000000.0,
-      "d3Pct": 3.62,
-      "d3Detail": {
-        "netAmount": -276000000.0,
-        "phaseChangePct": -0.38,
-        "continuousTurnoverPct": 3.15
-      },
-      "d5": -291000000.0,
-      "d5Pct": 4.97,
-      "d5Detail": {
-        "netAmount": -291000000.0,
-        "phaseChangePct": -1.82,
-        "continuousTurnoverPct": 4.46
-      },
-      "score": 13.63,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000582": {
-      "label": "北部湾港",
-      "today": -33095000.0,
-      "todayPct": 19.61,
-      "todayDetail": {
-        "netAmount": -33095000.0,
-        "amount": 119000000.0,
-        "turnoverPct": 0.69,
-        "changePct": -1.36
-      },
-      "d3": -83137100.0,
-      "d3Pct": 18.12,
-      "d3Detail": {
-        "netAmount": -83137100.0,
-        "phaseChangePct": -3.16,
-        "continuousTurnoverPct": 2.17
-      },
-      "d5": -163000000.0,
-      "d5Pct": 11.41,
-      "d5Detail": {
-        "netAmount": -163000000.0,
-        "phaseChangePct": -4.78,
-        "continuousTurnoverPct": 3.76
-      },
-      "score": 15.81,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000596": {
-      "label": "古井贡酒",
-      "today": 20486500.0,
-      "todayPct": 95.34,
-      "todayDetail": {
-        "netAmount": 20486500.0,
-        "amount": 876000000.0,
-        "turnoverPct": 1.95,
-        "changePct": 5.21
-      },
-      "d3": 23834900.0,
-      "d3Pct": 95.25,
-      "d3Detail": {
-        "netAmount": 23834900.0,
-        "phaseChangePct": 3.28,
-        "continuousTurnoverPct": 4.6
-      },
-      "d5": 80957300.0,
-      "d5Pct": 97.03,
-      "d5Detail": {
-        "netAmount": 80957300.0,
-        "phaseChangePct": 6.0,
-        "continuousTurnoverPct": 7.26
-      },
-      "score": 95.98,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "000617": {
       "label": "中油资本",
       "today": -42279100.0,
@@ -776,38 +482,6 @@
         "continuousTurnoverPct": 1.64
       },
       "score": 7.3,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000625": {
-      "label": "长安汽车",
-      "today": -25659300.0,
-      "todayPct": 25.12,
-      "todayDetail": {
-        "netAmount": -25659300.0,
-        "amount": 274000000.0,
-        "turnoverPct": 0.48,
-        "changePct": -0.43
-      },
-      "d3": -374000000.0,
-      "d3Pct": 2.17,
-      "d3Detail": {
-        "netAmount": -374000000.0,
-        "phaseChangePct": -2.83,
-        "continuousTurnoverPct": 2.17
-      },
-      "d5": -487000000.0,
-      "d5Pct": 2.2,
-      "d5Detail": {
-        "netAmount": -487000000.0,
-        "phaseChangePct": -4.18,
-        "continuousTurnoverPct": 3.05
-      },
-      "score": 7.92,
       "usedWindows": [
         "today",
         "d3",
@@ -872,70 +546,6 @@
         "continuousTurnoverPct": 3.25
       },
       "score": 99.42,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000661": {
-      "label": "长春高新",
-      "today": -17418700.0,
-      "todayPct": 33.86,
-      "todayDetail": {
-        "netAmount": -17418700.0,
-        "amount": 289000000.0,
-        "turnoverPct": 1.03,
-        "changePct": -0.68
-      },
-      "d3": -130000000.0,
-      "d3Pct": 11.25,
-      "d3Detail": {
-        "netAmount": -130000000.0,
-        "phaseChangePct": -2.81,
-        "continuousTurnoverPct": 2.96
-      },
-      "d5": -260000000.0,
-      "d5Pct": 5.98,
-      "d5Detail": {
-        "netAmount": -260000000.0,
-        "phaseChangePct": -4.36,
-        "continuousTurnoverPct": 4.62
-      },
-      "score": 14.79,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000672": {
-      "label": "上峰材料",
-      "today": -43878600.0,
-      "todayPct": 15.15,
-      "todayDetail": {
-        "netAmount": -43878600.0,
-        "amount": 153000000.0,
-        "turnoverPct": 1.22,
-        "changePct": -3.49
-      },
-      "d3": -24102900.0,
-      "d3Pct": 45.3,
-      "d3Detail": {
-        "netAmount": -24102900.0,
-        "phaseChangePct": -2.98,
-        "continuousTurnoverPct": 3.5
-      },
-      "d5": -36419700.0,
-      "d5Pct": 41.79,
-      "d5Detail": {
-        "netAmount": -36419700.0,
-        "phaseChangePct": -3.12,
-        "continuousTurnoverPct": 6.09
-      },
-      "score": 36.36,
       "usedWindows": [
         "today",
         "d3",
@@ -1071,38 +681,6 @@
       ],
       "missingWindows": []
     },
-    "000786": {
-      "label": "北新建材",
-      "today": 31226600.0,
-      "todayPct": 96.59,
-      "todayDetail": {
-        "netAmount": 31226600.0,
-        "amount": 287000000.0,
-        "turnoverPct": 1.04,
-        "changePct": 0.68
-      },
-      "d3": -106000000.0,
-      "d3Pct": 14.23,
-      "d3Detail": {
-        "netAmount": -106000000.0,
-        "phaseChangePct": -2.56,
-        "continuousTurnoverPct": 2.96
-      },
-      "d5": -215000000.0,
-      "d5Pct": 8.07,
-      "d5Detail": {
-        "netAmount": -215000000.0,
-        "phaseChangePct": -5.54,
-        "continuousTurnoverPct": 5.11
-      },
-      "score": 32.36,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "000792": {
       "label": "盐湖股份",
       "today": -14061500.0,
@@ -1128,38 +706,6 @@
         "continuousTurnoverPct": 3.8
       },
       "score": 11.55,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000799": {
-      "label": "酒鬼酒",
-      "today": -12712600.0,
-      "todayPct": 41.68,
-      "todayDetail": {
-        "netAmount": -12712600.0,
-        "amount": 171000000.0,
-        "turnoverPct": 1.54,
-        "changePct": -1.11
-      },
-      "d3": -75617600.0,
-      "d3Pct": 19.79,
-      "d3Detail": {
-        "netAmount": -75617600.0,
-        "phaseChangePct": -3.16,
-        "continuousTurnoverPct": 4.48
-      },
-      "d5": -75281900.0,
-      "d5Pct": 24.42,
-      "d5Detail": {
-        "netAmount": -75281900.0,
-        "phaseChangePct": -2.66,
-        "continuousTurnoverPct": 6.8
-      },
-      "score": 27.11,
       "usedWindows": [
         "today",
         "d3",
@@ -1199,38 +745,6 @@
       ],
       "missingWindows": []
     },
-    "000858": {
-      "label": "五粮液",
-      "today": 183000000.0,
-      "todayPct": 99.19,
-      "todayDetail": {
-        "netAmount": 183000000.0,
-        "amount": 1629000000.0,
-        "turnoverPct": 0.57,
-        "changePct": 1.03
-      },
-      "d3": -403000000.0,
-      "d3Pct": 1.88,
-      "d3Detail": {
-        "netAmount": -403000000.0,
-        "phaseChangePct": -1.17,
-        "continuousTurnoverPct": 1.92
-      },
-      "d5": -649000000.0,
-      "d5Pct": 1.38,
-      "d5Detail": {
-        "netAmount": -649000000.0,
-        "phaseChangePct": -2.6,
-        "continuousTurnoverPct": 2.8
-      },
-      "score": 26.01,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "000895": {
       "label": "双汇发展",
       "today": 80614700.0,
@@ -1263,70 +777,6 @@
       ],
       "missingWindows": []
     },
-    "000905": {
-      "label": "厦门港务",
-      "today": -30870300.0,
-      "todayPct": 20.99,
-      "todayDetail": {
-        "netAmount": -30870300.0,
-        "amount": 118000000.0,
-        "turnoverPct": 1.99,
-        "changePct": -3.28
-      },
-      "d3": -49978700.0,
-      "d3Pct": 28.09,
-      "d3Detail": {
-        "netAmount": -49978700.0,
-        "phaseChangePct": -4.33,
-        "continuousTurnoverPct": 5.37
-      },
-      "d5": -36908100.0,
-      "d5Pct": 41.58,
-      "d5Detail": {
-        "netAmount": -36908100.0,
-        "phaseChangePct": -2.69,
-        "continuousTurnoverPct": 7.27
-      },
-      "score": 31.71,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000935": {
-      "label": "四川双马",
-      "today": -22115400.0,
-      "todayPct": 28.74,
-      "todayDetail": {
-        "netAmount": -22115400.0,
-        "amount": 83120300.0,
-        "turnoverPct": 0.65,
-        "changePct": -4.79
-      },
-      "d3": -43241900.0,
-      "d3Pct": 31.29,
-      "d3Detail": {
-        "netAmount": -43241900.0,
-        "phaseChangePct": -6.95,
-        "continuousTurnoverPct": 1.64
-      },
-      "d5": -34058800.0,
-      "d5Pct": 43.16,
-      "d5Detail": {
-        "netAmount": -34058800.0,
-        "phaseChangePct": -4.63,
-        "continuousTurnoverPct": 2.75
-      },
-      "score": 35.4,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "000938": {
       "label": "紫光股份",
       "today": -122000000.0,
@@ -1352,70 +802,6 @@
         "continuousTurnoverPct": 17.22
       },
       "score": 8.15,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000951": {
-      "label": "中国重汽",
-      "today": -29412000.0,
-      "todayPct": 22.14,
-      "todayDetail": {
-        "netAmount": -29412000.0,
-        "amount": 265000000.0,
-        "turnoverPct": 1.24,
-        "changePct": -2.53
-      },
-      "d3": -89832100.0,
-      "d3Pct": 16.6,
-      "d3Detail": {
-        "netAmount": -89832100.0,
-        "phaseChangePct": -3.93,
-        "continuousTurnoverPct": 2.67
-      },
-      "d5": -201000000.0,
-      "d5Pct": 8.76,
-      "d5Detail": {
-        "netAmount": -201000000.0,
-        "phaseChangePct": -8.17,
-        "continuousTurnoverPct": 4.51
-      },
-      "score": 14.85,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000963": {
-      "label": "华东医药",
-      "today": -133000000.0,
-      "todayPct": 4.08,
-      "todayDetail": {
-        "netAmount": -133000000.0,
-        "amount": 430000000.0,
-        "turnoverPct": 0.94,
-        "changePct": -1.22
-      },
-      "d3": -336000000.0,
-      "d3Pct": 2.59,
-      "d3Detail": {
-        "netAmount": -336000000.0,
-        "phaseChangePct": -3.61,
-        "continuousTurnoverPct": 2.65
-      },
-      "d5": -505000000.0,
-      "d5Pct": 2.11,
-      "d5Detail": {
-        "netAmount": -505000000.0,
-        "phaseChangePct": -6.57,
-        "continuousTurnoverPct": 4.19
-      },
-      "score": 2.77,
       "usedWindows": [
         "today",
         "d3",
@@ -1487,38 +873,6 @@
       ],
       "missingWindows": []
     },
-    "000983": {
-      "label": "山西焦煤",
-      "today": -7846600.0,
-      "todayPct": 53.6,
-      "todayDetail": {
-        "netAmount": -7846600.0,
-        "amount": 247000000.0,
-        "turnoverPct": 0.69,
-        "changePct": 0.32
-      },
-      "d3": -134000000.0,
-      "d3Pct": 10.72,
-      "d3Detail": {
-        "netAmount": -134000000.0,
-        "phaseChangePct": -1.88,
-        "continuousTurnoverPct": 2.09
-      },
-      "d5": -74778800.0,
-      "d5Pct": 24.58,
-      "d5Detail": {
-        "netAmount": -74778800.0,
-        "phaseChangePct": -0.95,
-        "continuousTurnoverPct": 4.26
-      },
-      "score": 26.98,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "000988": {
       "label": "华工科技",
       "today": -258000000.0,
@@ -1544,70 +898,6 @@
         "continuousTurnoverPct": 17.98
       },
       "score": 4.77,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "000999": {
-      "label": "华润三九",
-      "today": 37630000.0,
-      "todayPct": 96.99,
-      "todayDetail": {
-        "netAmount": 37630000.0,
-        "amount": 239000000.0,
-        "turnoverPct": 0.57,
-        "changePct": 1.8
-      },
-      "d3": -37821500.0,
-      "d3Pct": 34.39,
-      "d3Detail": {
-        "netAmount": -37821500.0,
-        "phaseChangePct": 0.39,
-        "continuousTurnoverPct": 1.62
-      },
-      "d5": -54320100.0,
-      "d5Pct": 32.13,
-      "d5Detail": {
-        "netAmount": -54320100.0,
-        "phaseChangePct": -1.77,
-        "continuousTurnoverPct": 2.47
-      },
-      "score": 49.14,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "001391": {
-      "label": "国货航",
-      "today": -17236100.0,
-      "todayPct": 34.16,
-      "todayDetail": {
-        "netAmount": -17236100.0,
-        "amount": 62790500.0,
-        "turnoverPct": 0.22,
-        "changePct": -1.01
-      },
-      "d3": -61627900.0,
-      "d3Pct": 23.79,
-      "d3Detail": {
-        "netAmount": -61627900.0,
-        "phaseChangePct": -3.91,
-        "continuousTurnoverPct": 0.78
-      },
-      "d5": -68162600.0,
-      "d5Pct": 26.46,
-      "d5Detail": {
-        "netAmount": -68162600.0,
-        "phaseChangePct": -4.61,
-        "continuousTurnoverPct": 1.2
-      },
-      "score": 27.45,
       "usedWindows": [
         "today",
         "d3",
@@ -1807,70 +1097,6 @@
       ],
       "missingWindows": []
     },
-    "002040": {
-      "label": "南京港",
-      "today": -13978300.0,
-      "todayPct": 39.17,
-      "todayDetail": {
-        "netAmount": -13978300.0,
-        "amount": 46197000.0,
-        "turnoverPct": 1.22,
-        "changePct": -2.02
-      },
-      "d3": -14665600.0,
-      "d3Pct": 56.4,
-      "d3Detail": {
-        "netAmount": -14665600.0,
-        "phaseChangePct": -2.02,
-        "continuousTurnoverPct": 3.71
-      },
-      "d5": -22137400.0,
-      "d5Pct": 52.95,
-      "d5Detail": {
-        "netAmount": -22137400.0,
-        "phaseChangePct": -1.9,
-        "continuousTurnoverPct": 5.68
-      },
-      "score": 50.71,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002049": {
-      "label": "紫光国微",
-      "today": 4935600.0,
-      "todayPct": 91.53,
-      "todayDetail": {
-        "netAmount": 4935600.0,
-        "amount": 400000000.0,
-        "turnoverPct": 0.92,
-        "changePct": -1.61
-      },
-      "d3": -15034400.0,
-      "d3Pct": 55.71,
-      "d3Detail": {
-        "netAmount": -15034400.0,
-        "phaseChangePct": -2.04,
-        "continuousTurnoverPct": 3.62
-      },
-      "d5": -87375500.0,
-      "d5Pct": 21.8,
-      "d5Detail": {
-        "netAmount": -87375500.0,
-        "phaseChangePct": 0.77,
-        "continuousTurnoverPct": 5.85
-      },
-      "score": 51.1,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "002050": {
       "label": "三花智控",
       "today": 81911000.0,
@@ -1896,70 +1122,6 @@
         "continuousTurnoverPct": 11.19
       },
       "score": 32.87,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002074": {
-      "label": "国轩高科",
-      "today": -31580800.0,
-      "todayPct": 20.55,
-      "todayDetail": {
-        "netAmount": -31580800.0,
-        "amount": 381000000.0,
-        "turnoverPct": 0.93,
-        "changePct": -2.42
-      },
-      "d3": -154000000.0,
-      "d3Pct": 9.01,
-      "d3Detail": {
-        "netAmount": -154000000.0,
-        "phaseChangePct": -4.7,
-        "continuousTurnoverPct": 3.05
-      },
-      "d5": -323000000.0,
-      "d5Pct": 4.12,
-      "d5Detail": {
-        "netAmount": -323000000.0,
-        "phaseChangePct": -6.27,
-        "continuousTurnoverPct": 5.19
-      },
-      "score": 9.94,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002135": {
-      "label": "东南网架",
-      "today": -16453500.0,
-      "todayPct": 35.26,
-      "todayDetail": {
-        "netAmount": -16453500.0,
-        "amount": 64653400.0,
-        "turnoverPct": 1.36,
-        "changePct": -5.21
-      },
-      "d3": -6378100.0,
-      "d3Pct": 70.25,
-      "d3Detail": {
-        "netAmount": -6378100.0,
-        "phaseChangePct": -2.36,
-        "continuousTurnoverPct": 6.32
-      },
-      "d5": -23375400.0,
-      "d5Pct": 51.63,
-      "d5Detail": {
-        "netAmount": -23375400.0,
-        "phaseChangePct": -1.73,
-        "continuousTurnoverPct": 11.29
-      },
-      "score": 54.05,
       "usedWindows": [
         "today",
         "d3",
@@ -2063,134 +1225,6 @@
       ],
       "missingWindows": []
     },
-    "002236": {
-      "label": "大华股份",
-      "today": 73822900.0,
-      "todayPct": 97.87,
-      "todayDetail": {
-        "netAmount": 73822900.0,
-        "amount": 315000000.0,
-        "turnoverPct": 0.92,
-        "changePct": 1.06
-      },
-      "d3": -22015100.0,
-      "d3Pct": 47.49,
-      "d3Detail": {
-        "netAmount": -22015100.0,
-        "phaseChangePct": -0.35,
-        "continuousTurnoverPct": 2.46
-      },
-      "d5": -23721500.0,
-      "d5Pct": 51.34,
-      "d5Detail": {
-        "netAmount": -23721500.0,
-        "phaseChangePct": -1.58,
-        "continuousTurnoverPct": 3.91
-      },
-      "score": 61.62,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002241": {
-      "label": "歌尔股份",
-      "today": -80781700.0,
-      "todayPct": 8.01,
-      "todayDetail": {
-        "netAmount": -80781700.0,
-        "amount": 1536000000.0,
-        "turnoverPct": 1.99,
-        "changePct": -2.27
-      },
-      "d3": -387000000.0,
-      "d3Pct": 2.03,
-      "d3Detail": {
-        "netAmount": -387000000.0,
-        "phaseChangePct": -6.19,
-        "continuousTurnoverPct": 8.58
-      },
-      "d5": 226000000.0,
-      "d5Pct": 98.81,
-      "d5Detail": {
-        "netAmount": 226000000.0,
-        "phaseChangePct": -2.07,
-        "continuousTurnoverPct": 18.18
-      },
-      "score": 42.24,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002252": {
-      "label": "上海莱士",
-      "today": -42547400.0,
-      "todayPct": 15.66,
-      "todayDetail": {
-        "netAmount": -42547400.0,
-        "amount": 179000000.0,
-        "turnoverPct": 0.58,
-        "changePct": -1.89
-      },
-      "d3": -120000000.0,
-      "d3Pct": 12.5,
-      "d3Detail": {
-        "netAmount": -120000000.0,
-        "phaseChangePct": -4.5,
-        "continuousTurnoverPct": 1.73
-      },
-      "d5": -143000000.0,
-      "d5Pct": 13.29,
-      "d5Detail": {
-        "netAmount": -143000000.0,
-        "phaseChangePct": -5.47,
-        "continuousTurnoverPct": 2.77
-      },
-      "score": 13.61,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002261": {
-      "label": "拓维信息",
-      "today": -31484500.0,
-      "todayPct": 20.63,
-      "todayDetail": {
-        "netAmount": -31484500.0,
-        "amount": 1496000000.0,
-        "turnoverPct": 5.85,
-        "changePct": 2.32
-      },
-      "d3": -63606400.0,
-      "d3Pct": 23.22,
-      "d3Detail": {
-        "netAmount": -63606400.0,
-        "phaseChangePct": 0.87,
-        "continuousTurnoverPct": 10.45
-      },
-      "d5": -89355000.0,
-      "d5Pct": 21.4,
-      "d5Detail": {
-        "netAmount": -89355000.0,
-        "phaseChangePct": 1.38,
-        "continuousTurnoverPct": 14.87
-      },
-      "score": 21.84,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "002281": {
       "label": "光迅科技",
       "today": -415000000.0,
@@ -2223,38 +1257,6 @@
       ],
       "missingWindows": []
     },
-    "002304": {
-      "label": "洋河股份",
-      "today": 5779000.0,
-      "todayPct": 91.99,
-      "todayDetail": {
-        "netAmount": 5779000.0,
-        "amount": 294000000.0,
-        "turnoverPct": 0.54,
-        "changePct": 0.14
-      },
-      "d3": -206000000.0,
-      "d3Pct": 5.9,
-      "d3Detail": {
-        "netAmount": -206000000.0,
-        "phaseChangePct": -3.49,
-        "continuousTurnoverPct": 1.87
-      },
-      "d5": -272000000.0,
-      "d5Pct": 5.6,
-      "d5Detail": {
-        "netAmount": -272000000.0,
-        "phaseChangePct": -5.07,
-        "continuousTurnoverPct": 2.64
-      },
-      "score": 27.3,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "002311": {
       "label": "海大集团",
       "today": 31032800.0,
@@ -2280,38 +1282,6 @@
         "continuousTurnoverPct": 2.6
       },
       "score": 96.56,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002352": {
-      "label": "顺丰控股",
-      "today": 116000000.0,
-      "todayPct": 98.62,
-      "todayDetail": {
-        "netAmount": 116000000.0,
-        "amount": 825000000.0,
-        "turnoverPct": 0.54,
-        "changePct": 1.77
-      },
-      "d3": 77959000.0,
-      "d3Pct": 97.85,
-      "d3Detail": {
-        "netAmount": 77959000.0,
-        "phaseChangePct": -1.57,
-        "continuousTurnoverPct": 1.5
-      },
-      "d5": 45449900.0,
-      "d5Pct": 95.76,
-      "d5Detail": {
-        "netAmount": 45449900.0,
-        "phaseChangePct": -3.62,
-        "continuousTurnoverPct": 2.33
-      },
-      "score": 97.21,
       "usedWindows": [
         "today",
         "d3",
@@ -2383,38 +1353,6 @@
       ],
       "missingWindows": []
     },
-    "002401": {
-      "label": "中远海科",
-      "today": -12320700.0,
-      "todayPct": 42.77,
-      "todayDetail": {
-        "netAmount": -12320700.0,
-        "amount": 38589300.0,
-        "turnoverPct": 0.9,
-        "changePct": -2.14
-      },
-      "d3": -15437600.0,
-      "d3Pct": 55.25,
-      "d3Detail": {
-        "netAmount": -15437600.0,
-        "phaseChangePct": -2.97,
-        "continuousTurnoverPct": 2.67
-      },
-      "d5": -25247900.0,
-      "d5Pct": 50.25,
-      "d5Detail": {
-        "netAmount": -25247900.0,
-        "phaseChangePct": -3.54,
-        "continuousTurnoverPct": 4.23
-      },
-      "score": 50.13,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "002415": {
       "label": "海康威视",
       "today": 171000000.0,
@@ -2472,38 +1410,6 @@
         "continuousTurnoverPct": 4.41
       },
       "score": 65.11,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002456": {
-      "label": "欧菲光",
-      "today": -32407600.0,
-      "todayPct": 20.07,
-      "todayDetail": {
-        "netAmount": -32407600.0,
-        "amount": 223000000.0,
-        "turnoverPct": 1.21,
-        "changePct": -1.8
-      },
-      "d3": -113000000.0,
-      "d3Pct": 13.4,
-      "d3Detail": {
-        "netAmount": -113000000.0,
-        "phaseChangePct": -4.71,
-        "continuousTurnoverPct": 4.11
-      },
-      "d5": -92989700.0,
-      "d5Pct": 20.44,
-      "d5Detail": {
-        "netAmount": -92989700.0,
-        "phaseChangePct": -3.53,
-        "continuousTurnoverPct": 7.16
-      },
-      "score": 17.88,
       "usedWindows": [
         "today",
         "d3",
@@ -2639,70 +1545,6 @@
       ],
       "missingWindows": []
     },
-    "002493": {
-      "label": "荣盛石化",
-      "today": -32744100.0,
-      "todayPct": 19.82,
-      "todayDetail": {
-        "netAmount": -32744100.0,
-        "amount": 210000000.0,
-        "turnoverPct": 0.2,
-        "changePct": -0.97
-      },
-      "d3": -91120700.0,
-      "d3Pct": 16.14,
-      "d3Detail": {
-        "netAmount": -91120700.0,
-        "phaseChangePct": -4.09,
-        "continuousTurnoverPct": 0.76
-      },
-      "d5": -231000000.0,
-      "d5Pct": 7.23,
-      "d5Detail": {
-        "netAmount": -231000000.0,
-        "phaseChangePct": -5.93,
-        "continuousTurnoverPct": 1.29
-      },
-      "score": 13.5,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002541": {
-      "label": "鸿路钢构",
-      "today": -30429500.0,
-      "todayPct": 21.4,
-      "todayDetail": {
-        "netAmount": -30429500.0,
-        "amount": 123000000.0,
-        "turnoverPct": 1.21,
-        "changePct": -2.09
-      },
-      "d3": -89554400.0,
-      "d3Pct": 16.7,
-      "d3Detail": {
-        "netAmount": -89554400.0,
-        "phaseChangePct": -4.66,
-        "continuousTurnoverPct": 4.13
-      },
-      "d5": -130000000.0,
-      "d5Pct": 14.82,
-      "d5Detail": {
-        "netAmount": -130000000.0,
-        "phaseChangePct": -12.18,
-        "continuousTurnoverPct": 8.88
-      },
-      "score": 17.12,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "002594": {
       "label": "比亚迪",
       "today": -428000000.0,
@@ -2767,102 +1609,6 @@
       ],
       "missingWindows": []
     },
-    "002601": {
-      "label": "龙佰集团",
-      "today": -6876000.0,
-      "todayPct": 56.73,
-      "todayDetail": {
-        "netAmount": -6876000.0,
-        "amount": 136000000.0,
-        "turnoverPct": 0.46,
-        "changePct": -1.07
-      },
-      "d3": -66131900.0,
-      "d3Pct": 22.34,
-      "d3Detail": {
-        "netAmount": -66131900.0,
-        "phaseChangePct": -3.91,
-        "continuousTurnoverPct": 1.45
-      },
-      "d5": -95862300.0,
-      "d5Pct": 19.77,
-      "d5Detail": {
-        "netAmount": -95862300.0,
-        "phaseChangePct": -5.69,
-        "continuousTurnoverPct": 2.67
-      },
-      "score": 29.91,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002625": {
-      "label": "光启技术",
-      "today": -90160300.0,
-      "todayPct": 7.06,
-      "todayDetail": {
-        "netAmount": -90160300.0,
-        "amount": 487000000.0,
-        "turnoverPct": 1.2,
-        "changePct": -2.27
-      },
-      "d3": -304000000.0,
-      "d3Pct": 3.03,
-      "d3Detail": {
-        "netAmount": -304000000.0,
-        "phaseChangePct": -5.47,
-        "continuousTurnoverPct": 4.37
-      },
-      "d5": -166000000.0,
-      "d5Pct": 11.1,
-      "d5Detail": {
-        "netAmount": -166000000.0,
-        "phaseChangePct": -1.55,
-        "continuousTurnoverPct": 7.43
-      },
-      "score": 7.27,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002645": {
-      "label": "华宏科技",
-      "today": -29033200.0,
-      "todayPct": 22.43,
-      "todayDetail": {
-        "netAmount": -29033200.0,
-        "amount": 310000000.0,
-        "turnoverPct": 3.33,
-        "changePct": -1.7
-      },
-      "d3": -27346500.0,
-      "d3Pct": 42.2,
-      "d3Detail": {
-        "netAmount": -27346500.0,
-        "phaseChangePct": -1.26,
-        "continuousTurnoverPct": 7.76
-      },
-      "d5": -66853200.0,
-      "d5Pct": 27.13,
-      "d5Detail": {
-        "netAmount": -66853200.0,
-        "phaseChangePct": -0.89,
-        "continuousTurnoverPct": 12.05
-      },
-      "score": 31.23,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "002648": {
       "label": "卫星化学",
       "today": 24960700.0,
@@ -2888,38 +1634,6 @@
         "continuousTurnoverPct": 4.39
       },
       "score": 31.22,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002709": {
-      "label": "天赐材料",
-      "today": -149000000.0,
-      "todayPct": 3.59,
-      "todayDetail": {
-        "netAmount": -149000000.0,
-        "amount": 954000000.0,
-        "turnoverPct": 2.33,
-        "changePct": -2.14
-      },
-      "d3": -397000000.0,
-      "d3Pct": 1.96,
-      "d3Detail": {
-        "netAmount": -397000000.0,
-        "phaseChangePct": -5.05,
-        "continuousTurnoverPct": 7.87
-      },
-      "d5": -834000000.0,
-      "d5Pct": 0.81,
-      "d5Detail": {
-        "netAmount": -834000000.0,
-        "phaseChangePct": -7.37,
-        "continuousTurnoverPct": 14.21
-      },
-      "score": 1.91,
       "usedWindows": [
         "today",
         "d3",
@@ -2991,134 +1705,6 @@
       ],
       "missingWindows": []
     },
-    "002738": {
-      "label": "中矿资源",
-      "today": -78988700.0,
-      "todayPct": 8.3,
-      "todayDetail": {
-        "netAmount": -78988700.0,
-        "amount": 705000000.0,
-        "turnoverPct": 2.79,
-        "changePct": -1.24
-      },
-      "d3": -137000000.0,
-      "d3Pct": 10.43,
-      "d3Detail": {
-        "netAmount": -137000000.0,
-        "phaseChangePct": -2.83,
-        "continuousTurnoverPct": 8.12
-      },
-      "d5": -326000000.0,
-      "d5Pct": 4.05,
-      "d5Detail": {
-        "netAmount": -326000000.0,
-        "phaseChangePct": -6.14,
-        "continuousTurnoverPct": 14.03
-      },
-      "score": 7.35,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002743": {
-      "label": "富煌钢构",
-      "today": -3342600.0,
-      "todayPct": 71.15,
-      "todayDetail": {
-        "netAmount": -3342600.0,
-        "amount": 13825000.0,
-        "turnoverPct": 0.88,
-        "changePct": -1.91
-      },
-      "d3": -14741500.0,
-      "d3Pct": 56.21,
-      "d3Detail": {
-        "netAmount": -14741500.0,
-        "phaseChangePct": -5.53,
-        "continuousTurnoverPct": 3.49
-      },
-      "d5": -16639600.0,
-      "d5Pct": 59.32,
-      "d5Detail": {
-        "netAmount": -16639600.0,
-        "phaseChangePct": -4.01,
-        "continuousTurnoverPct": 6.08
-      },
-      "score": 61.19,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002837": {
-      "label": "英维克",
-      "today": -194000000.0,
-      "todayPct": 2.45,
-      "todayDetail": {
-        "netAmount": -194000000.0,
-        "amount": 1503000000.0,
-        "turnoverPct": 3.34,
-        "changePct": -6.44
-      },
-      "d3": -289000000.0,
-      "d3Pct": 3.34,
-      "d3Detail": {
-        "netAmount": -289000000.0,
-        "phaseChangePct": -2.64,
-        "continuousTurnoverPct": 13.37
-      },
-      "d5": -155000000.0,
-      "d5Pct": 12.04,
-      "d5Detail": {
-        "netAmount": -155000000.0,
-        "phaseChangePct": 2.71,
-        "continuousTurnoverPct": 18.18
-      },
-      "score": 6.6,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002891": {
-      "label": "中宠股份",
-      "today": -3390800.0,
-      "todayPct": 70.95,
-      "todayDetail": {
-        "netAmount": -3390800.0,
-        "amount": 121000000.0,
-        "turnoverPct": 1.36,
-        "changePct": 0.84
-      },
-      "d3": -24625200.0,
-      "d3Pct": 44.77,
-      "d3Detail": {
-        "netAmount": -24625200.0,
-        "phaseChangePct": 0.51,
-        "continuousTurnoverPct": 4.25
-      },
-      "d5": -75803100.0,
-      "d5Pct": 24.27,
-      "d5Detail": {
-        "netAmount": -75803100.0,
-        "phaseChangePct": -4.22,
-        "continuousTurnoverPct": 6.71
-      },
-      "score": 43.11,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "002916": {
       "label": "深南电路",
       "today": -359000000.0,
@@ -3144,38 +1730,6 @@
         "continuousTurnoverPct": 10.29
       },
       "score": 4.96,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "002920": {
-      "label": "德赛西威",
-      "today": -20424100.0,
-      "todayPct": 30.39,
-      "todayDetail": {
-        "netAmount": -20424100.0,
-        "amount": 516000000.0,
-        "turnoverPct": 1.04,
-        "changePct": -0.09
-      },
-      "d3": -134000000.0,
-      "d3Pct": 10.72,
-      "d3Detail": {
-        "netAmount": -134000000.0,
-        "phaseChangePct": -1.43,
-        "continuousTurnoverPct": 4.04
-      },
-      "d5": -32923800.0,
-      "d5Pct": 44.04,
-      "d5Detail": {
-        "netAmount": -32923800.0,
-        "phaseChangePct": 2.9,
-        "continuousTurnoverPct": 6.61
-      },
-      "score": 28.97,
       "usedWindows": [
         "today",
         "d3",
@@ -3279,38 +1833,6 @@
       ],
       "missingWindows": []
     },
-    "300015": {
-      "label": "爱尔眼科",
-      "today": 152000000.0,
-      "todayPct": 99.02,
-      "todayDetail": {
-        "netAmount": 152000000.0,
-        "amount": 728000000.0,
-        "turnoverPct": 1.04,
-        "changePct": 2.43
-      },
-      "d3": 41264700.0,
-      "d3Pct": 96.84,
-      "d3Detail": {
-        "netAmount": 41264700.0,
-        "phaseChangePct": 0.11,
-        "continuousTurnoverPct": 2.85
-      },
-      "d5": -180000000.0,
-      "d5Pct": 10.3,
-      "d5Detail": {
-        "netAmount": -180000000.0,
-        "phaseChangePct": -1.66,
-        "continuousTurnoverPct": 4.62
-      },
-      "score": 62.77,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "300033": {
       "label": "同花顺",
       "today": 117000000.0,
@@ -3375,38 +1897,6 @@
       ],
       "missingWindows": []
     },
-    "300122": {
-      "label": "智飞生物",
-      "today": -25422100.0,
-      "todayPct": 25.33,
-      "todayDetail": {
-        "netAmount": -25422100.0,
-        "amount": 357000000.0,
-        "turnoverPct": 1.81,
-        "changePct": 0.07
-      },
-      "d3": -163000000.0,
-      "d3Pct": 8.09,
-      "d3Detail": {
-        "netAmount": -163000000.0,
-        "phaseChangePct": -3.88,
-        "continuousTurnoverPct": 5.73
-      },
-      "d5": -255000000.0,
-      "d5Pct": 6.27,
-      "d5Detail": {
-        "netAmount": -255000000.0,
-        "phaseChangePct": -7.04,
-        "continuousTurnoverPct": 9.99
-      },
-      "score": 11.67,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "300124": {
       "label": "汇川技术",
       "today": 105000000.0,
@@ -3432,38 +1922,6 @@
         "continuousTurnoverPct": 6.4
       },
       "score": 30.85,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300251": {
-      "label": "光线传媒",
-      "today": 280000000.0,
-      "todayPct": 99.58,
-      "todayDetail": {
-        "netAmount": 280000000.0,
-        "amount": 1986000000.0,
-        "turnoverPct": 5.56,
-        "changePct": 5.15
-      },
-      "d3": -58503000.0,
-      "d3Pct": 24.77,
-      "d3Detail": {
-        "netAmount": -58503000.0,
-        "phaseChangePct": 1.16,
-        "continuousTurnoverPct": 14.81
-      },
-      "d5": 129000000.0,
-      "d5Pct": 97.83,
-      "d5Detail": {
-        "netAmount": 129000000.0,
-        "phaseChangePct": 5.57,
-        "continuousTurnoverPct": 23.23
-      },
-      "score": 72.7,
       "usedWindows": [
         "today",
         "d3",
@@ -3535,70 +1993,6 @@
       ],
       "missingWindows": []
     },
-    "300316": {
-      "label": "晶盛机电",
-      "today": -6371700.0,
-      "todayPct": 58.42,
-      "todayDetail": {
-        "netAmount": -6371700.0,
-        "amount": 289000000.0,
-        "turnoverPct": 0.69,
-        "changePct": -4.16
-      },
-      "d3": -5788400.0,
-      "d3Pct": 71.28,
-      "d3Detail": {
-        "netAmount": -5788400.0,
-        "phaseChangePct": -9.52,
-        "continuousTurnoverPct": 2.92
-      },
-      "d5": -48455000.0,
-      "d5Pct": 35.05,
-      "d5Detail": {
-        "netAmount": -48455000.0,
-        "phaseChangePct": -10.3,
-        "continuousTurnoverPct": 4.28
-      },
-      "score": 53.57,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300347": {
-      "label": "泰格医药",
-      "today": -8825200.0,
-      "todayPct": 50.82,
-      "todayDetail": {
-        "netAmount": -8825200.0,
-        "amount": 412000000.0,
-        "turnoverPct": 1.52,
-        "changePct": -2.15
-      },
-      "d3": -211000000.0,
-      "d3Pct": 5.69,
-      "d3Detail": {
-        "netAmount": -211000000.0,
-        "phaseChangePct": -6.61,
-        "continuousTurnoverPct": 5.28
-      },
-      "d5": -294000000.0,
-      "d5Pct": 4.81,
-      "d5Detail": {
-        "netAmount": -294000000.0,
-        "phaseChangePct": -7.27,
-        "continuousTurnoverPct": 7.46
-      },
-      "score": 16.62,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "300394": {
       "label": "天孚通信",
       "today": -653000000.0,
@@ -3656,38 +2050,6 @@
         "continuousTurnoverPct": 13.33
       },
       "score": 28.3,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300413": {
-      "label": "芒果超媒",
-      "today": 77615000.0,
-      "todayPct": 97.93,
-      "todayDetail": {
-        "netAmount": 77615000.0,
-        "amount": 4516000000.0,
-        "turnoverPct": 13.62,
-        "changePct": -5.14
-      },
-      "d3": 440000000.0,
-      "d3Pct": 99.58,
-      "d3Detail": {
-        "netAmount": 440000000.0,
-        "phaseChangePct": -11.67,
-        "continuousTurnoverPct": 43.95
-      },
-      "d5": 584000000.0,
-      "d5Pct": 99.62,
-      "d5Detail": {
-        "netAmount": 584000000.0,
-        "phaseChangePct": -9.85,
-        "continuousTurnoverPct": 70.5
-      },
-      "score": 99.18,
       "usedWindows": [
         "today",
         "d3",
@@ -3791,38 +2153,6 @@
       ],
       "missingWindows": []
     },
-    "300496": {
-      "label": "中科创达",
-      "today": -14902900.0,
-      "todayPct": 37.56,
-      "todayDetail": {
-        "netAmount": -14902900.0,
-        "amount": 492000000.0,
-        "turnoverPct": 2.39,
-        "changePct": -0.15
-      },
-      "d3": -134000000.0,
-      "d3Pct": 10.72,
-      "d3Detail": {
-        "netAmount": -134000000.0,
-        "phaseChangePct": -3.71,
-        "continuousTurnoverPct": 7.09
-      },
-      "d5": -103000000.0,
-      "d5Pct": 18.75,
-      "d5Detail": {
-        "netAmount": -103000000.0,
-        "phaseChangePct": -0.45,
-        "continuousTurnoverPct": 11.86
-      },
-      "score": 20.64,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "300498": {
       "label": "温氏股份",
       "today": 366000000.0,
@@ -3887,70 +2217,6 @@
       ],
       "missingWindows": []
     },
-    "300527": {
-      "label": "ST应急",
-      "today": -27775000.0,
-      "todayPct": 23.33,
-      "todayDetail": {
-        "netAmount": -27775000.0,
-        "amount": 81491300.0,
-        "turnoverPct": 1.22,
-        "changePct": -4.01
-      },
-      "d3": -13902700.0,
-      "d3Pct": 57.55,
-      "d3Detail": {
-        "netAmount": -13902700.0,
-        "phaseChangePct": -2.42,
-        "continuousTurnoverPct": 3.27
-      },
-      "d5": -50210100.0,
-      "d5Pct": 33.99,
-      "d5Detail": {
-        "netAmount": -50210100.0,
-        "phaseChangePct": -4.01,
-        "continuousTurnoverPct": 4.9
-      },
-      "score": 39.57,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300602": {
-      "label": "飞荣达",
-      "today": -47107200.0,
-      "todayPct": 14.13,
-      "todayDetail": {
-        "netAmount": -47107200.0,
-        "amount": 329000000.0,
-        "turnoverPct": 2.88,
-        "changePct": -4.71
-      },
-      "d3": -24812500.0,
-      "d3Pct": 44.61,
-      "d3Detail": {
-        "netAmount": -24812500.0,
-        "phaseChangePct": -4.11,
-        "continuousTurnoverPct": 10.48
-      },
-      "d5": 7353800.0,
-      "d5Pct": 90.41,
-      "d5Detail": {
-        "netAmount": 7353800.0,
-        "phaseChangePct": 0.59,
-        "continuousTurnoverPct": 16.0
-      },
-      "score": 55.31,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "300628": {
       "label": "亿联网络",
       "today": 25145100.0,
@@ -3976,70 +2242,6 @@
         "continuousTurnoverPct": 4.79
       },
       "score": 59.43,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300661": {
-      "label": "圣邦股份",
-      "today": -9270400.0,
-      "todayPct": 49.79,
-      "todayDetail": {
-        "netAmount": -9270400.0,
-        "amount": 1420000000.0,
-        "turnoverPct": 2.94,
-        "changePct": -8.72
-      },
-      "d3": 82961700.0,
-      "d3Pct": 97.91,
-      "d3Detail": {
-        "netAmount": 82961700.0,
-        "phaseChangePct": -5.76,
-        "continuousTurnoverPct": 6.43
-      },
-      "d5": 14338600.0,
-      "d5Pct": 92.47,
-      "d5Detail": {
-        "netAmount": 14338600.0,
-        "phaseChangePct": -4.9,
-        "continuousTurnoverPct": 9.27
-      },
-      "score": 83.7,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300718": {
-      "label": "长盛轴承",
-      "today": -38465000.0,
-      "todayPct": 17.22,
-      "todayDetail": {
-        "netAmount": -38465000.0,
-        "amount": 352000000.0,
-        "turnoverPct": 3.46,
-        "changePct": -2.16
-      },
-      "d3": -110000000.0,
-      "d3Pct": 13.69,
-      "d3Detail": {
-        "netAmount": -110000000.0,
-        "phaseChangePct": -4.7,
-        "continuousTurnoverPct": 15.42
-      },
-      "d5": -82102900.0,
-      "d5Pct": 22.74,
-      "d5Detail": {
-        "netAmount": -82102900.0,
-        "phaseChangePct": 0.38,
-        "continuousTurnoverPct": 25.07
-      },
-      "score": 18.19,
       "usedWindows": [
         "today",
         "d3",
@@ -4079,166 +2281,6 @@
       ],
       "missingWindows": []
     },
-    "300759": {
-      "label": "康龙化成",
-      "today": -50286000.0,
-      "todayPct": 13.32,
-      "todayDetail": {
-        "netAmount": -50286000.0,
-        "amount": 1758000000.0,
-        "turnoverPct": 2.88,
-        "changePct": -4.01
-      },
-      "d3": -331000000.0,
-      "d3Pct": 2.7,
-      "d3Detail": {
-        "netAmount": -331000000.0,
-        "phaseChangePct": -6.2,
-        "continuousTurnoverPct": 8.83
-      },
-      "d5": -363000000.0,
-      "d5Pct": 3.57,
-      "d5Detail": {
-        "netAmount": -363000000.0,
-        "phaseChangePct": -7.63,
-        "continuousTurnoverPct": 15.04
-      },
-      "score": 5.7,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300760": {
-      "label": "迈瑞医疗",
-      "today": 193000000.0,
-      "todayPct": 99.31,
-      "todayDetail": {
-        "netAmount": 193000000.0,
-        "amount": 1412000000.0,
-        "turnoverPct": 0.65,
-        "changePct": 0.99
-      },
-      "d3": 145000000.0,
-      "d3Pct": 98.66,
-      "d3Detail": {
-        "netAmount": 145000000.0,
-        "phaseChangePct": 0.2,
-        "continuousTurnoverPct": 1.75
-      },
-      "d5": 157000000.0,
-      "d5Pct": 98.22,
-      "d5Detail": {
-        "netAmount": 157000000.0,
-        "phaseChangePct": -1.96,
-        "continuousTurnoverPct": 3.1
-      },
-      "score": 98.65,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300782": {
-      "label": "卓胜微",
-      "today": -22147400.0,
-      "todayPct": 28.68,
-      "todayDetail": {
-        "netAmount": -22147400.0,
-        "amount": 379000000.0,
-        "turnoverPct": 1.42,
-        "changePct": -2.33
-      },
-      "d3": -83557500.0,
-      "d3Pct": 17.96,
-      "d3Detail": {
-        "netAmount": -83557500.0,
-        "phaseChangePct": -4.17,
-        "continuousTurnoverPct": 4.75
-      },
-      "d5": -79996300.0,
-      "d5Pct": 23.26,
-      "d5Detail": {
-        "netAmount": -79996300.0,
-        "phaseChangePct": 1.51,
-        "continuousTurnoverPct": 7.96
-      },
-      "score": 22.76,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300803": {
-      "label": "指南针",
-      "today": -59025100.0,
-      "todayPct": 11.33,
-      "todayDetail": {
-        "netAmount": -59025100.0,
-        "amount": 732000000.0,
-        "turnoverPct": 1.9,
-        "changePct": -1.15
-      },
-      "d3": -58221700.0,
-      "d3Pct": 24.85,
-      "d3Detail": {
-        "netAmount": -58221700.0,
-        "phaseChangePct": -2.88,
-        "continuousTurnoverPct": 6.45
-      },
-      "d5": -107000000.0,
-      "d5Pct": 17.91,
-      "d5Detail": {
-        "netAmount": -107000000.0,
-        "phaseChangePct": -2.68,
-        "continuousTurnoverPct": 10.83
-      },
-      "score": 18.69,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300832": {
-      "label": "新产业",
-      "today": -17239500.0,
-      "todayPct": 34.14,
-      "todayDetail": {
-        "netAmount": -17239500.0,
-        "amount": 358000000.0,
-        "turnoverPct": 0.87,
-        "changePct": 2.42
-      },
-      "d3": -44686000.0,
-      "d3Pct": 30.6,
-      "d3Detail": {
-        "netAmount": -44686000.0,
-        "phaseChangePct": 2.56,
-        "continuousTurnoverPct": 2.09
-      },
-      "d5": -49558000.0,
-      "d5Pct": 34.39,
-      "d5Detail": {
-        "netAmount": -49558000.0,
-        "phaseChangePct": 0.15,
-        "continuousTurnoverPct": 3.49
-      },
-      "score": 33.0,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "300866": {
       "label": "安克创新",
       "today": -3864300.0,
@@ -4264,198 +2306,6 @@
         "continuousTurnoverPct": 4.63
       },
       "score": 51.81,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300896": {
-      "label": "爱美客",
-      "today": 2601700.0,
-      "todayPct": 89.51,
-      "todayDetail": {
-        "netAmount": 2601700.0,
-        "amount": 153000000.0,
-        "turnoverPct": 0.81,
-        "changePct": -0.66
-      },
-      "d3": -62920300.0,
-      "d3Pct": 23.37,
-      "d3Detail": {
-        "netAmount": -62920300.0,
-        "phaseChangePct": -2.76,
-        "continuousTurnoverPct": 2.66
-      },
-      "d5": -119000000.0,
-      "d5Pct": 16.33,
-      "d5Detail": {
-        "netAmount": -119000000.0,
-        "phaseChangePct": -5.47,
-        "continuousTurnoverPct": 4.48
-      },
-      "score": 37.09,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300979": {
-      "label": "华利集团",
-      "today": -10889000.0,
-      "todayPct": 46.05,
-      "todayDetail": {
-        "netAmount": -10889000.0,
-        "amount": 210000000.0,
-        "turnoverPct": 0.49,
-        "changePct": 0.91
-      },
-      "d3": 7090100.0,
-      "d3Pct": 91.93,
-      "d3Detail": {
-        "netAmount": 7090100.0,
-        "phaseChangePct": -7.0,
-        "continuousTurnoverPct": 2.97
-      },
-      "d5": 19467900.0,
-      "d5Pct": 93.33,
-      "d5Detail": {
-        "netAmount": 19467900.0,
-        "phaseChangePct": -9.19,
-        "continuousTurnoverPct": 3.51
-      },
-      "score": 81.02,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "300999": {
-      "label": "金龙鱼",
-      "today": 625500.0,
-      "todayPct": 86.81,
-      "todayDetail": {
-        "netAmount": 625500.0,
-        "amount": 136000000.0,
-        "turnoverPct": 0.99,
-        "changePct": -0.71
-      },
-      "d3": -49927900.0,
-      "d3Pct": 28.11,
-      "d3Detail": {
-        "netAmount": -49927900.0,
-        "phaseChangePct": -2.51,
-        "continuousTurnoverPct": 3.4
-      },
-      "d5": -76651700.0,
-      "d5Pct": 23.95,
-      "d5Detail": {
-        "netAmount": -76651700.0,
-        "phaseChangePct": -3.59,
-        "continuousTurnoverPct": 5.46
-      },
-      "score": 41.12,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "301071": {
-      "label": "力量钻石",
-      "today": -51750300.0,
-      "todayPct": 12.94,
-      "todayDetail": {
-        "netAmount": -51750300.0,
-        "amount": 768000000.0,
-        "turnoverPct": 7.16,
-        "changePct": -5.67
-      },
-      "d3": 152000000.0,
-      "d3Pct": 98.75,
-      "d3Detail": {
-        "netAmount": 152000000.0,
-        "phaseChangePct": 2.88,
-        "continuousTurnoverPct": 27.98
-      },
-      "d5": 150000000.0,
-      "d5Pct": 98.08,
-      "d5Detail": {
-        "netAmount": 150000000.0,
-        "phaseChangePct": 4.8,
-        "continuousTurnoverPct": 37.89
-      },
-      "score": 77.03,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "301236": {
-      "label": "软通动力",
-      "today": 260000000.0,
-      "todayPct": 99.52,
-      "todayDetail": {
-        "netAmount": 260000000.0,
-        "amount": 1415000000.0,
-        "turnoverPct": 4.77,
-        "changePct": 7.39
-      },
-      "d3": 177000000.0,
-      "d3Pct": 98.91,
-      "d3Detail": {
-        "netAmount": 177000000.0,
-        "phaseChangePct": 3.28,
-        "continuousTurnoverPct": 7.8
-      },
-      "d5": 167000000.0,
-      "d5Pct": 98.31,
-      "d5Detail": {
-        "netAmount": 167000000.0,
-        "phaseChangePct": 4.72,
-        "continuousTurnoverPct": 9.95
-      },
-      "score": 98.82,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "301269": {
-      "label": "华大九天",
-      "today": 19709800.0,
-      "todayPct": 95.26,
-      "todayDetail": {
-        "netAmount": 19709800.0,
-        "amount": 1144000000.0,
-        "turnoverPct": 2.23,
-        "changePct": 1.98
-      },
-      "d3": -16043500.0,
-      "d3Pct": 54.39,
-      "d3Detail": {
-        "netAmount": -16043500.0,
-        "phaseChangePct": 1.36,
-        "continuousTurnoverPct": 5.24
-      },
-      "d5": -124000000.0,
-      "d5Pct": 15.7,
-      "d5Detail": {
-        "netAmount": -124000000.0,
-        "phaseChangePct": -2.08,
-        "continuousTurnoverPct": 7.9
-      },
-      "score": 49.13,
       "usedWindows": [
         "today",
         "d3",
@@ -4559,102 +2409,6 @@
       ],
       "missingWindows": []
     },
-    "600004": {
-      "label": "白云机场",
-      "today": 2081100.0,
-      "todayPct": 88.9,
-      "todayDetail": {
-        "netAmount": 2081100.0,
-        "amount": 107000000.0,
-        "turnoverPct": 0.56,
-        "changePct": 0.0
-      },
-      "d3": 6298900.0,
-      "d3Pct": 91.43,
-      "d3Detail": {
-        "netAmount": 6298900.0,
-        "phaseChangePct": 1.0,
-        "continuousTurnoverPct": 1.68
-      },
-      "d5": -13035800.0,
-      "d5Pct": 63.71,
-      "d5Detail": {
-        "netAmount": -13035800.0,
-        "phaseChangePct": -1.22,
-        "continuousTurnoverPct": 2.4
-      },
-      "score": 79.71,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600009": {
-      "label": "上海机场",
-      "today": 33750500.0,
-      "todayPct": 96.72,
-      "todayDetail": {
-        "netAmount": 33750500.0,
-        "amount": 326000000.0,
-        "turnoverPct": 0.54,
-        "changePct": 1.75
-      },
-      "d3": 1425800.0,
-      "d3Pct": 85.28,
-      "d3Detail": {
-        "netAmount": 1425800.0,
-        "phaseChangePct": 0.0,
-        "continuousTurnoverPct": 1.1
-      },
-      "d5": -5548400.0,
-      "d5Pct": 75.15,
-      "d5Detail": {
-        "netAmount": -5548400.0,
-        "phaseChangePct": -1.01,
-        "continuousTurnoverPct": 1.74
-      },
-      "score": 84.09,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600010": {
-      "label": "包钢股份",
-      "today": -171000000.0,
-      "todayPct": 2.91,
-      "todayDetail": {
-        "netAmount": -171000000.0,
-        "amount": 500000000.0,
-        "turnoverPct": 0.81,
-        "changePct": -1.01
-      },
-      "d3": -116000000.0,
-      "d3Pct": 12.98,
-      "d3Detail": {
-        "netAmount": -116000000.0,
-        "phaseChangePct": -1.5,
-        "continuousTurnoverPct": 2.19
-      },
-      "d5": -205000000.0,
-      "d5Pct": 8.61,
-      "d5Detail": {
-        "netAmount": -205000000.0,
-        "phaseChangePct": -1.01,
-        "continuousTurnoverPct": 3.21
-      },
-      "score": 8.71,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600011": {
       "label": "华能国际",
       "today": 114000000.0,
@@ -4744,38 +2498,6 @@
         "continuousTurnoverPct": 2.87
       },
       "score": 71.27,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600017": {
-      "label": "日照港",
-      "today": -9535700.0,
-      "todayPct": 49.16,
-      "todayDetail": {
-        "netAmount": -9535700.0,
-        "amount": 69202700.0,
-        "turnoverPct": 0.84,
-        "changePct": -0.37
-      },
-      "d3": -30886600.0,
-      "d3Pct": 39.32,
-      "d3Detail": {
-        "netAmount": -30886600.0,
-        "phaseChangePct": -1.48,
-        "continuousTurnoverPct": 2.59
-      },
-      "d5": -52012000.0,
-      "d5Pct": 33.11,
-      "d5Detail": {
-        "netAmount": -52012000.0,
-        "phaseChangePct": -2.55,
-        "continuousTurnoverPct": 4.16
-      },
-      "score": 39.3,
       "usedWindows": [
         "today",
         "d3",
@@ -5135,38 +2857,6 @@
       ],
       "missingWindows": []
     },
-    "600038": {
-      "label": "中直股份",
-      "today": -43273200.0,
-      "todayPct": 15.32,
-      "todayDetail": {
-        "netAmount": -43273200.0,
-        "amount": 213000000.0,
-        "turnoverPct": 1.17,
-        "changePct": -1.68
-      },
-      "d3": -124000000.0,
-      "d3Pct": 12.1,
-      "d3Detail": {
-        "netAmount": -124000000.0,
-        "phaseChangePct": -4.0,
-        "continuousTurnoverPct": 3.84
-      },
-      "d5": -210000000.0,
-      "d5Pct": 8.32,
-      "d5Detail": {
-        "netAmount": -210000000.0,
-        "phaseChangePct": -6.6,
-        "continuousTurnoverPct": 8.23
-      },
-      "score": 11.39,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600039": {
       "label": "四川路桥",
       "today": -21976700.0,
@@ -5192,38 +2882,6 @@
         "continuousTurnoverPct": 0.94
       },
       "score": 72.08,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600048": {
-      "label": "保利发展",
-      "today": -215000000.0,
-      "todayPct": 2.05,
-      "todayDetail": {
-        "netAmount": -215000000.0,
-        "amount": 663000000.0,
-        "turnoverPct": 1.05,
-        "changePct": -2.43
-      },
-      "d3": -463000000.0,
-      "d3Pct": 1.48,
-      "d3Detail": {
-        "netAmount": -463000000.0,
-        "phaseChangePct": -4.04,
-        "continuousTurnoverPct": 2.73
-      },
-      "d5": -723000000.0,
-      "d5Pct": 1.07,
-      "d5Detail": {
-        "netAmount": -723000000.0,
-        "phaseChangePct": -6.61,
-        "continuousTurnoverPct": 4.38
-      },
-      "score": 1.46,
       "usedWindows": [
         "today",
         "d3",
@@ -5263,70 +2921,6 @@
       ],
       "missingWindows": []
     },
-    "600056": {
-      "label": "中国医药",
-      "today": -49691800.0,
-      "todayPct": 13.44,
-      "todayDetail": {
-        "netAmount": -49691800.0,
-        "amount": 139000000.0,
-        "turnoverPct": 1.08,
-        "changePct": -2.63
-      },
-      "d3": -80882800.0,
-      "d3Pct": 18.58,
-      "d3Detail": {
-        "netAmount": -80882800.0,
-        "phaseChangePct": -3.41,
-        "continuousTurnoverPct": 2.76
-      },
-      "d5": -111000000.0,
-      "d5Pct": 17.27,
-      "d5Detail": {
-        "netAmount": -111000000.0,
-        "phaseChangePct": -4.7,
-        "continuousTurnoverPct": 3.83
-      },
-      "score": 16.77,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600061": {
-      "label": "国投资本",
-      "today": 29429900.0,
-      "todayPct": 96.41,
-      "todayDetail": {
-        "netAmount": 29429900.0,
-        "amount": 170000000.0,
-        "turnoverPct": 0.44,
-        "changePct": 0.66
-      },
-      "d3": -24379200.0,
-      "d3Pct": 45.11,
-      "d3Detail": {
-        "netAmount": -24379200.0,
-        "phaseChangePct": -1.3,
-        "continuousTurnoverPct": 1.11
-      },
-      "d5": -40850000.0,
-      "d5Pct": 39.19,
-      "d5Detail": {
-        "netAmount": -40850000.0,
-        "phaseChangePct": -2.25,
-        "continuousTurnoverPct": 1.75
-      },
-      "score": 55.57,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600066": {
       "label": "宇通客车",
       "today": 81858900.0,
@@ -5352,70 +2946,6 @@
         "continuousTurnoverPct": 3.55
       },
       "score": 95.32,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600085": {
-      "label": "同仁堂",
-      "today": -38365000.0,
-      "todayPct": 17.24,
-      "todayDetail": {
-        "netAmount": -38365000.0,
-        "amount": 193000000.0,
-        "turnoverPct": 0.59,
-        "changePct": -0.75
-      },
-      "d3": -179000000.0,
-      "d3Pct": 7.09,
-      "d3Detail": {
-        "netAmount": -179000000.0,
-        "phaseChangePct": -4.46,
-        "continuousTurnoverPct": 2.03
-      },
-      "d5": -287000000.0,
-      "d5Pct": 5.1,
-      "d5Detail": {
-        "netAmount": -287000000.0,
-        "phaseChangePct": -7.22,
-        "continuousTurnoverPct": 3.05
-      },
-      "score": 8.83,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600088": {
-      "label": "中视传媒",
-      "today": -9212200.0,
-      "todayPct": 49.94,
-      "todayDetail": {
-        "netAmount": -9212200.0,
-        "amount": 323000000.0,
-        "turnoverPct": 5.92,
-        "changePct": 3.76
-      },
-      "d3": -29921800.0,
-      "d3Pct": 40.28,
-      "d3Detail": {
-        "netAmount": -29921800.0,
-        "phaseChangePct": 0.58,
-        "continuousTurnoverPct": 12.43
-      },
-      "d5": 6103800.0,
-      "d5Pct": 89.84,
-      "d5Detail": {
-        "netAmount": 6103800.0,
-        "phaseChangePct": 4.78,
-        "continuousTurnoverPct": 20.59
-      },
-      "score": 62.52,
       "usedWindows": [
         "today",
         "d3",
@@ -5487,38 +3017,6 @@
       ],
       "missingWindows": []
     },
-    "600111": {
-      "label": "北方稀土",
-      "today": -125000000.0,
-      "todayPct": 4.52,
-      "todayDetail": {
-        "netAmount": -125000000.0,
-        "amount": 1124000000.0,
-        "turnoverPct": 0.86,
-        "changePct": -0.98
-      },
-      "d3": -80546900.0,
-      "d3Pct": 18.67,
-      "d3Detail": {
-        "netAmount": -80546900.0,
-        "phaseChangePct": -0.52,
-        "continuousTurnoverPct": 2.96
-      },
-      "d5": -236000000.0,
-      "d5Pct": 7.0,
-      "d5Detail": {
-        "netAmount": -236000000.0,
-        "phaseChangePct": -0.22,
-        "continuousTurnoverPct": 4.3
-      },
-      "score": 10.46,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600115": {
       "label": "中国东航",
       "today": -6096500.0,
@@ -5583,38 +3081,6 @@
       ],
       "missingWindows": []
     },
-    "600138": {
-      "label": "中青旅",
-      "today": -12691100.0,
-      "todayPct": 41.76,
-      "todayDetail": {
-        "netAmount": -12691100.0,
-        "amount": 41366700.0,
-        "turnoverPct": 0.87,
-        "changePct": -1.52
-      },
-      "d3": -26207700.0,
-      "d3Pct": 43.29,
-      "d3Detail": {
-        "netAmount": -26207700.0,
-        "phaseChangePct": -2.99,
-        "continuousTurnoverPct": 2.06
-      },
-      "d5": -40813400.0,
-      "d5Pct": 39.24,
-      "d5Detail": {
-        "netAmount": -40813400.0,
-        "phaseChangePct": -4.27,
-        "continuousTurnoverPct": 3.53
-      },
-      "score": 41.29,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600150": {
       "label": "中国船舶",
       "today": -61854000.0,
@@ -5647,38 +3113,6 @@
       ],
       "missingWindows": []
     },
-    "600158": {
-      "label": "中体产业",
-      "today": -16630200.0,
-      "todayPct": 34.99,
-      "todayDetail": {
-        "netAmount": -16630200.0,
-        "amount": 125000000.0,
-        "turnoverPct": 1.93,
-        "changePct": -0.74
-      },
-      "d3": -70711300.0,
-      "d3Pct": 20.95,
-      "d3Detail": {
-        "netAmount": -70711300.0,
-        "phaseChangePct": -3.99,
-        "continuousTurnoverPct": 5.94
-      },
-      "d5": -90189400.0,
-      "d5Pct": 21.22,
-      "d5Detail": {
-        "netAmount": -90189400.0,
-        "phaseChangePct": -4.27,
-        "continuousTurnoverPct": 9.25
-      },
-      "score": 24.57,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600160": {
       "label": "巨化股份",
       "today": -21924900.0,
@@ -5704,38 +3138,6 @@
         "continuousTurnoverPct": 3.58
       },
       "score": 16.19,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600161": {
-      "label": "天坛生物",
-      "today": -63132000.0,
-      "todayPct": 10.54,
-      "todayDetail": {
-        "netAmount": -63132000.0,
-        "amount": 228000000.0,
-        "turnoverPct": 0.95,
-        "changePct": -1.72
-      },
-      "d3": -137000000.0,
-      "d3Pct": 10.43,
-      "d3Detail": {
-        "netAmount": -137000000.0,
-        "phaseChangePct": -4.0,
-        "continuousTurnoverPct": 2.21
-      },
-      "d5": -182000000.0,
-      "d5Pct": 10.12,
-      "d5Detail": {
-        "netAmount": -182000000.0,
-        "phaseChangePct": -5.21,
-        "continuousTurnoverPct": 3.21
-      },
-      "score": 10.33,
       "usedWindows": [
         "today",
         "d3",
@@ -5839,70 +3241,6 @@
       ],
       "missingWindows": []
     },
-    "600196": {
-      "label": "复星医药",
-      "today": -36738900.0,
-      "todayPct": 17.91,
-      "todayDetail": {
-        "netAmount": -36738900.0,
-        "amount": 254000000.0,
-        "turnoverPct": 0.53,
-        "changePct": -1.23
-      },
-      "d3": -164000000.0,
-      "d3Pct": 7.98,
-      "d3Detail": {
-        "netAmount": -164000000.0,
-        "phaseChangePct": -3.72,
-        "continuousTurnoverPct": 1.82
-      },
-      "d5": -238000000.0,
-      "d5Pct": 6.92,
-      "d5Detail": {
-        "netAmount": -238000000.0,
-        "phaseChangePct": -4.45,
-        "continuousTurnoverPct": 3.24
-      },
-      "score": 10.04,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600219": {
-      "label": "南山铝业",
-      "today": -120000000.0,
-      "todayPct": 4.91,
-      "todayDetail": {
-        "netAmount": -120000000.0,
-        "amount": 371000000.0,
-        "turnoverPct": 0.77,
-        "changePct": -1.19
-      },
-      "d3": -282000000.0,
-      "d3Pct": 3.49,
-      "d3Detail": {
-        "netAmount": -282000000.0,
-        "phaseChangePct": -3.7,
-        "continuousTurnoverPct": 2.49
-      },
-      "d5": -386000000.0,
-      "d5Pct": 3.34,
-      "d5Detail": {
-        "netAmount": -386000000.0,
-        "phaseChangePct": -4.81,
-        "continuousTurnoverPct": 3.73
-      },
-      "score": 3.79,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600233": {
       "label": "圆通速递",
       "today": -11802300.0,
@@ -5967,38 +3305,6 @@
       ],
       "missingWindows": []
     },
-    "600279": {
-      "label": "重庆港",
-      "today": -753500.0,
-      "todayPct": 83.45,
-      "todayDetail": {
-        "netAmount": -753500.0,
-        "amount": 19135600.0,
-        "turnoverPct": 0.39,
-        "changePct": 0.0
-      },
-      "d3": -3600600.0,
-      "d3Pct": 75.63,
-      "d3Detail": {
-        "netAmount": -3600600.0,
-        "phaseChangePct": -0.97,
-        "continuousTurnoverPct": 1.05
-      },
-      "d5": -5083600.0,
-      "d5Pct": 75.82,
-      "d5Detail": {
-        "netAmount": -5083600.0,
-        "phaseChangePct": -1.91,
-        "continuousTurnoverPct": 1.92
-      },
-      "score": 77.66,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600309": {
       "label": "万华化学",
       "today": -194000000.0,
@@ -6024,38 +3330,6 @@
         "continuousTurnoverPct": 3.03
       },
       "score": 1.17,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600326": {
-      "label": "西藏天路",
-      "today": -33202500.0,
-      "todayPct": 19.57,
-      "todayDetail": {
-        "netAmount": -33202500.0,
-        "amount": 89796100.0,
-        "turnoverPct": 1.13,
-        "changePct": -3.69
-      },
-      "d3": -43833700.0,
-      "d3Pct": 31.04,
-      "d3Detail": {
-        "netAmount": -43833700.0,
-        "phaseChangePct": -3.52,
-        "continuousTurnoverPct": 2.88
-      },
-      "d5": -78546200.0,
-      "d5Pct": 23.56,
-      "d5Detail": {
-        "netAmount": -78546200.0,
-        "phaseChangePct": -4.96,
-        "continuousTurnoverPct": 4.23
-      },
-      "score": 25.18,
       "usedWindows": [
         "today",
         "d3",
@@ -6159,38 +3433,6 @@
       ],
       "missingWindows": []
     },
-    "600373": {
-      "label": "中文传媒",
-      "today": -12750100.0,
-      "todayPct": 41.55,
-      "todayDetail": {
-        "netAmount": -12750100.0,
-        "amount": 129000000.0,
-        "turnoverPct": 1.25,
-        "changePct": -0.79
-      },
-      "d3": -45306400.0,
-      "d3Pct": 30.25,
-      "d3Detail": {
-        "netAmount": -45306400.0,
-        "phaseChangePct": -4.3,
-        "continuousTurnoverPct": 4.19
-      },
-      "d5": -46564900.0,
-      "d5Pct": 35.91,
-      "d5Detail": {
-        "netAmount": -46564900.0,
-        "phaseChangePct": -2.95,
-        "continuousTurnoverPct": 7.95
-      },
-      "score": 35.34,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600377": {
       "label": "宁沪高速",
       "today": 27311000.0,
@@ -6287,38 +3529,6 @@
       ],
       "missingWindows": []
     },
-    "600425": {
-      "label": "青松建化",
-      "today": -20942900.0,
-      "todayPct": 29.98,
-      "todayDetail": {
-        "netAmount": -20942900.0,
-        "amount": 58006700.0,
-        "turnoverPct": 1.11,
-        "changePct": -3.3
-      },
-      "d3": -25940400.0,
-      "d3Pct": 43.63,
-      "d3Detail": {
-        "netAmount": -25940400.0,
-        "phaseChangePct": -4.45,
-        "continuousTurnoverPct": 3.04
-      },
-      "d5": -41956400.0,
-      "d5Pct": 38.52,
-      "d5Detail": {
-        "netAmount": -41956400.0,
-        "phaseChangePct": -6.94,
-        "continuousTurnoverPct": 4.71
-      },
-      "score": 38.17,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600426": {
       "label": "华鲁恒升",
       "today": -64746100.0,
@@ -6344,166 +3554,6 @@
         "continuousTurnoverPct": 4.52
       },
       "score": 4.53,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600428": {
-      "label": "中远海特",
-      "today": -15993400.0,
-      "todayPct": 35.79,
-      "todayDetail": {
-        "netAmount": -15993400.0,
-        "amount": 299000000.0,
-        "turnoverPct": 1.04,
-        "changePct": -2.08
-      },
-      "d3": 25025100.0,
-      "d3Pct": 95.44,
-      "d3Detail": {
-        "netAmount": 25025100.0,
-        "phaseChangePct": -1.24,
-        "continuousTurnoverPct": 2.76
-      },
-      "d5": 3019400.0,
-      "d5Pct": 87.58,
-      "d5Detail": {
-        "netAmount": 3019400.0,
-        "phaseChangePct": -3.18,
-        "continuousTurnoverPct": 5.01
-      },
-      "score": 77.38,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600436": {
-      "label": "片仔癀",
-      "today": -46518500.0,
-      "todayPct": 14.3,
-      "todayDetail": {
-        "netAmount": -46518500.0,
-        "amount": 333000000.0,
-        "turnoverPct": 0.42,
-        "changePct": 0.38
-      },
-      "d3": -163000000.0,
-      "d3Pct": 8.09,
-      "d3Detail": {
-        "netAmount": -163000000.0,
-        "phaseChangePct": -3.33,
-        "continuousTurnoverPct": 1.73
-      },
-      "d5": -173000000.0,
-      "d5Pct": 10.76,
-      "d5Detail": {
-        "netAmount": -173000000.0,
-        "phaseChangePct": -4.12,
-        "continuousTurnoverPct": 2.6
-      },
-      "score": 10.71,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600449": {
-      "label": "宁夏建材",
-      "today": -9339000.0,
-      "todayPct": 49.64,
-      "todayDetail": {
-        "netAmount": -9339000.0,
-        "amount": 41820700.0,
-        "turnoverPct": 0.77,
-        "changePct": -1.74
-      },
-      "d3": -7103700.0,
-      "d3Pct": 69.08,
-      "d3Detail": {
-        "netAmount": -7103700.0,
-        "phaseChangePct": -0.97,
-        "continuousTurnoverPct": 2.32
-      },
-      "d5": -20971200.0,
-      "d5Pct": 54.16,
-      "d5Detail": {
-        "netAmount": -20971200.0,
-        "phaseChangePct": -1.23,
-        "continuousTurnoverPct": 3.41
-      },
-      "score": 58.25,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600460": {
-      "label": "士兰微",
-      "today": -130000000.0,
-      "todayPct": 4.26,
-      "todayDetail": {
-        "netAmount": -130000000.0,
-        "amount": 1024000000.0,
-        "turnoverPct": 2.59,
-        "changePct": -2.67
-      },
-      "d3": -241000000.0,
-      "d3Pct": 4.62,
-      "d3Detail": {
-        "netAmount": -241000000.0,
-        "phaseChangePct": -2.84,
-        "continuousTurnoverPct": 8.67
-      },
-      "d5": -425000000.0,
-      "d5Pct": 2.84,
-      "d5Detail": {
-        "netAmount": -425000000.0,
-        "phaseChangePct": -2.02,
-        "continuousTurnoverPct": 12.83
-      },
-      "score": 3.82,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600477": {
-      "label": "杭萧钢构",
-      "today": -29413600.0,
-      "todayPct": 22.12,
-      "todayDetail": {
-        "netAmount": -29413600.0,
-        "amount": 80223200.0,
-        "turnoverPct": 1.52,
-        "changePct": -2.63
-      },
-      "d3": -39795700.0,
-      "d3Pct": 33.15,
-      "d3Detail": {
-        "netAmount": -39795700.0,
-        "phaseChangePct": -3.06,
-        "continuousTurnoverPct": 3.58
-      },
-      "d5": -66959700.0,
-      "d5Pct": 27.07,
-      "d5Detail": {
-        "netAmount": -66959700.0,
-        "phaseChangePct": -3.06,
-        "continuousTurnoverPct": 5.38
-      },
-      "score": 27.96,
       "usedWindows": [
         "today",
         "d3",
@@ -6575,70 +3625,6 @@
       ],
       "missingWindows": []
     },
-    "600496": {
-      "label": "精工钢构",
-      "today": -10982600.0,
-      "todayPct": 45.8,
-      "todayDetail": {
-        "netAmount": -10982600.0,
-        "amount": 67750100.0,
-        "turnoverPct": 1.1,
-        "changePct": -0.65
-      },
-      "d3": -25734000.0,
-      "d3Pct": 43.77,
-      "d3Detail": {
-        "netAmount": -25734000.0,
-        "phaseChangePct": -1.91,
-        "continuousTurnoverPct": 4.34
-      },
-      "d5": -29636200.0,
-      "d5Pct": 46.72,
-      "d5Detail": {
-        "netAmount": -29636200.0,
-        "phaseChangePct": -1.28,
-        "continuousTurnoverPct": 6.17
-      },
-      "score": 45.46,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600515": {
-      "label": "海南机场",
-      "today": -32606700.0,
-      "todayPct": 19.88,
-      "todayDetail": {
-        "netAmount": -32606700.0,
-        "amount": 142000000.0,
-        "turnoverPct": 0.6,
-        "changePct": -0.78
-      },
-      "d3": -162000000.0,
-      "d3Pct": 8.36,
-      "d3Detail": {
-        "netAmount": -162000000.0,
-        "phaseChangePct": -4.51,
-        "continuousTurnoverPct": 1.88
-      },
-      "d5": -175000000.0,
-      "d5Pct": 10.66,
-      "d5Detail": {
-        "netAmount": -175000000.0,
-        "phaseChangePct": -4.51,
-        "continuousTurnoverPct": 2.69
-      },
-      "score": 12.16,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600519": {
       "label": "贵州茅台",
       "today": 443000000.0,
@@ -6703,38 +3689,6 @@
       ],
       "missingWindows": []
     },
-    "600536": {
-      "label": "中国软件",
-      "today": -27199100.0,
-      "todayPct": 23.62,
-      "todayDetail": {
-        "netAmount": -27199100.0,
-        "amount": 202000000.0,
-        "turnoverPct": 0.81,
-        "changePct": -0.98
-      },
-      "d3": -81103800.0,
-      "d3Pct": 18.56,
-      "d3Detail": {
-        "netAmount": -81103800.0,
-        "phaseChangePct": -2.47,
-        "continuousTurnoverPct": 2.88
-      },
-      "d5": -133000000.0,
-      "d5Pct": 14.4,
-      "d5Detail": {
-        "netAmount": -133000000.0,
-        "phaseChangePct": -3.09,
-        "continuousTurnoverPct": 4.35
-      },
-      "score": 18.16,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600547": {
       "label": "山东黄金",
       "today": -132000000.0,
@@ -6767,70 +3721,6 @@
       ],
       "missingWindows": []
     },
-    "600570": {
-      "label": "恒生电子",
-      "today": 10017000.0,
-      "todayPct": 93.31,
-      "todayDetail": {
-        "netAmount": 10017000.0,
-        "amount": 326000000.0,
-        "turnoverPct": 0.84,
-        "changePct": 0.2
-      },
-      "d3": -161000000.0,
-      "d3Pct": 8.44,
-      "d3Detail": {
-        "netAmount": -161000000.0,
-        "phaseChangePct": -3.53,
-        "continuousTurnoverPct": 2.91
-      },
-      "d5": -278000000.0,
-      "d5Pct": 5.41,
-      "d5Detail": {
-        "netAmount": -278000000.0,
-        "phaseChangePct": -4.21,
-        "continuousTurnoverPct": 4.85
-      },
-      "score": 28.45,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600580": {
-      "label": "卧龙电驱",
-      "today": -124000000.0,
-      "todayPct": 4.58,
-      "todayDetail": {
-        "netAmount": -124000000.0,
-        "amount": 674000000.0,
-        "turnoverPct": 1.83,
-        "changePct": -2.0
-      },
-      "d3": -243000000.0,
-      "d3Pct": 4.51,
-      "d3Detail": {
-        "netAmount": -243000000.0,
-        "phaseChangePct": -4.98,
-        "continuousTurnoverPct": 7.02
-      },
-      "d5": -252000000.0,
-      "d5Pct": 6.4,
-      "d5Detail": {
-        "netAmount": -252000000.0,
-        "phaseChangePct": -0.47,
-        "continuousTurnoverPct": 12.06
-      },
-      "score": 5.28,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600584": {
       "label": "长电科技",
       "today": -297000000.0,
@@ -6856,38 +3746,6 @@
         "continuousTurnoverPct": 19.48
       },
       "score": 1.71,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600585": {
-      "label": "海螺水泥",
-      "today": -5215900.0,
-      "todayPct": 63.31,
-      "todayDetail": {
-        "netAmount": -5215900.0,
-        "amount": 315000000.0,
-        "turnoverPct": 0.44,
-        "changePct": 0.06
-      },
-      "d3": -125000000.0,
-      "d3Pct": 11.92,
-      "d3Detail": {
-        "netAmount": -125000000.0,
-        "phaseChangePct": -2.51,
-        "continuousTurnoverPct": 1.4
-      },
-      "d5": -163000000.0,
-      "d5Pct": 11.41,
-      "d5Detail": {
-        "netAmount": -163000000.0,
-        "phaseChangePct": -3.72,
-        "continuousTurnoverPct": 2.4
-      },
-      "score": 24.56,
       "usedWindows": [
         "today",
         "d3",
@@ -6991,38 +3849,6 @@
       ],
       "missingWindows": []
     },
-    "600685": {
-      "label": "中船防务",
-      "today": -41177300.0,
-      "todayPct": 16.14,
-      "todayDetail": {
-        "netAmount": -41177300.0,
-        "amount": 223000000.0,
-        "turnoverPct": 1.08,
-        "changePct": -1.97
-      },
-      "d3": -110000000.0,
-      "d3Pct": 13.69,
-      "d3Detail": {
-        "netAmount": -110000000.0,
-        "phaseChangePct": -2.81,
-        "continuousTurnoverPct": 3.2
-      },
-      "d5": -177000000.0,
-      "d5Pct": 10.54,
-      "d5Detail": {
-        "netAmount": -177000000.0,
-        "phaseChangePct": -4.35,
-        "continuousTurnoverPct": 5.06
-      },
-      "score": 13.04,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600690": {
       "label": "海尔智家",
       "today": 209000000.0,
@@ -7048,70 +3874,6 @@
         "continuousTurnoverPct": 3.22
       },
       "score": 99.47,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600717": {
-      "label": "天津港",
-      "today": -13178300.0,
-      "todayPct": 40.62,
-      "todayDetail": {
-        "netAmount": -13178300.0,
-        "amount": 79360100.0,
-        "turnoverPct": 0.64,
-        "changePct": -0.47
-      },
-      "d3": -25218500.0,
-      "d3Pct": 44.08,
-      "d3Detail": {
-        "netAmount": -25218500.0,
-        "phaseChangePct": -1.15,
-        "continuousTurnoverPct": 1.83
-      },
-      "d5": -41885800.0,
-      "d5Pct": 38.57,
-      "d5Detail": {
-        "netAmount": -41885800.0,
-        "phaseChangePct": -1.83,
-        "continuousTurnoverPct": 3.13
-      },
-      "score": 41.01,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600741": {
-      "label": "华域汽车",
-      "today": 12514200.0,
-      "todayPct": 94.1,
-      "todayDetail": {
-        "netAmount": 12514200.0,
-        "amount": 254000000.0,
-        "turnoverPct": 0.48,
-        "changePct": 0.67
-      },
-      "d3": -33642600.0,
-      "d3Pct": 37.31,
-      "d3Detail": {
-        "netAmount": -33642600.0,
-        "phaseChangePct": -0.78,
-        "continuousTurnoverPct": 1.32
-      },
-      "d5": -12500100.0,
-      "d5Pct": 64.49,
-      "d5Detail": {
-        "netAmount": -12500100.0,
-        "phaseChangePct": -0.24,
-        "continuousTurnoverPct": 2.23
-      },
-      "score": 62.38,
       "usedWindows": [
         "today",
         "d3",
@@ -7151,134 +3913,6 @@
       ],
       "missingWindows": []
     },
-    "600764": {
-      "label": "中国海防",
-      "today": -6589800.0,
-      "todayPct": 57.71,
-      "todayDetail": {
-        "netAmount": -6589800.0,
-        "amount": 114000000.0,
-        "turnoverPct": 0.94,
-        "changePct": -0.94
-      },
-      "d3": -7689400.0,
-      "d3Pct": 67.98,
-      "d3Detail": {
-        "netAmount": -7689400.0,
-        "phaseChangePct": 0.06,
-        "continuousTurnoverPct": 2.94
-      },
-      "d5": -32514500.0,
-      "d5Pct": 44.44,
-      "d5Detail": {
-        "netAmount": -32514500.0,
-        "phaseChangePct": -1.29,
-        "continuousTurnoverPct": 4.14
-      },
-      "score": 56.0,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600765": {
-      "label": "中航重机",
-      "today": -4942400.0,
-      "todayPct": 64.32,
-      "todayDetail": {
-        "netAmount": -4942400.0,
-        "amount": 135000000.0,
-        "turnoverPct": 0.72,
-        "changePct": -1.5
-      },
-      "d3": -26047000.0,
-      "d3Pct": 43.5,
-      "d3Detail": {
-        "netAmount": -26047000.0,
-        "phaseChangePct": -2.23,
-        "continuousTurnoverPct": 1.74
-      },
-      "d5": -51887000.0,
-      "d5Pct": 33.17,
-      "d5Detail": {
-        "netAmount": -51887000.0,
-        "phaseChangePct": -3.03,
-        "continuousTurnoverPct": 2.74
-      },
-      "score": 44.57,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600779": {
-      "label": "水井坊",
-      "today": -7665100.0,
-      "todayPct": 54.16,
-      "todayDetail": {
-        "netAmount": -7665100.0,
-        "amount": 147000000.0,
-        "turnoverPct": 1.09,
-        "changePct": 0.51
-      },
-      "d3": -47322500.0,
-      "d3Pct": 29.2,
-      "d3Detail": {
-        "netAmount": -47322500.0,
-        "phaseChangePct": -3.1,
-        "continuousTurnoverPct": 2.86
-      },
-      "d5": -51016300.0,
-      "d5Pct": 33.65,
-      "d5Detail": {
-        "netAmount": -51016300.0,
-        "phaseChangePct": -2.58,
-        "continuousTurnoverPct": 4.27
-      },
-      "score": 37.22,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600787": {
-      "label": "中储股份",
-      "today": -35724400.0,
-      "todayPct": 18.46,
-      "todayDetail": {
-        "netAmount": -35724400.0,
-        "amount": 99873000.0,
-        "turnoverPct": 1.03,
-        "changePct": -1.77
-      },
-      "d3": -67479800.0,
-      "d3Pct": 21.95,
-      "d3Detail": {
-        "netAmount": -67479800.0,
-        "phaseChangePct": -3.06,
-        "continuousTurnoverPct": 2.54
-      },
-      "d5": -103000000.0,
-      "d5Pct": 18.75,
-      "d5Detail": {
-        "netAmount": -103000000.0,
-        "phaseChangePct": -4.73,
-        "continuousTurnoverPct": 3.84
-      },
-      "score": 19.8,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600795": {
       "label": "国电电力",
       "today": 141000000.0,
@@ -7304,38 +3938,6 @@
         "continuousTurnoverPct": 3.46
       },
       "score": 98.66,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600798": {
-      "label": "宁波海运",
-      "today": -17449500.0,
-      "todayPct": 33.84,
-      "todayDetail": {
-        "netAmount": -17449500.0,
-        "amount": 38664800.0,
-        "turnoverPct": 1.03,
-        "changePct": -1.59
-      },
-      "d3": -16536600.0,
-      "d3Pct": 53.64,
-      "d3Detail": {
-        "netAmount": -16536600.0,
-        "phaseChangePct": -1.59,
-        "continuousTurnoverPct": 2.72
-      },
-      "d5": -44457600.0,
-      "d5Pct": 37.14,
-      "d5Detail": {
-        "netAmount": -44457600.0,
-        "phaseChangePct": -2.83,
-        "continuousTurnoverPct": 5.03
-      },
-      "score": 42.09,
       "usedWindows": [
         "today",
         "d3",
@@ -7400,102 +4002,6 @@
         "continuousTurnoverPct": 1.63
       },
       "score": 95.43,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600809": {
-      "label": "山西汾酒",
-      "today": 54173600.0,
-      "todayPct": 97.41,
-      "todayDetail": {
-        "netAmount": 54173600.0,
-        "amount": 1255000000.0,
-        "turnoverPct": 0.8,
-        "changePct": 3.4
-      },
-      "d3": -111000000.0,
-      "d3Pct": 13.54,
-      "d3Detail": {
-        "netAmount": -111000000.0,
-        "phaseChangePct": -0.15,
-        "continuousTurnoverPct": 1.95
-      },
-      "d5": -57779600.0,
-      "d5Pct": 30.56,
-      "d5Detail": {
-        "netAmount": -57779600.0,
-        "phaseChangePct": -2.08,
-        "continuousTurnoverPct": 2.93
-      },
-      "score": 41.32,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600845": {
-      "label": "宝信软件",
-      "today": 101000000.0,
-      "todayPct": 98.35,
-      "todayDetail": {
-        "netAmount": 101000000.0,
-        "amount": 504000000.0,
-        "turnoverPct": 1.42,
-        "changePct": 4.42
-      },
-      "d3": -43010800.0,
-      "d3Pct": 31.37,
-      "d3Detail": {
-        "netAmount": -43010800.0,
-        "phaseChangePct": -0.53,
-        "continuousTurnoverPct": 2.89
-      },
-      "d5": -94152700.0,
-      "d5Pct": 20.23,
-      "d5Detail": {
-        "netAmount": -94152700.0,
-        "phaseChangePct": -2.04,
-        "continuousTurnoverPct": 3.72
-      },
-      "score": 43.66,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600862": {
-      "label": "中航高科",
-      "today": -8159700.0,
-      "todayPct": 52.74,
-      "todayDetail": {
-        "netAmount": -8159700.0,
-        "amount": 163000000.0,
-        "turnoverPct": 0.64,
-        "changePct": -0.6
-      },
-      "d3": -30517400.0,
-      "d3Pct": 39.74,
-      "d3Detail": {
-        "netAmount": -30517400.0,
-        "phaseChangePct": -1.41,
-        "continuousTurnoverPct": 1.78
-      },
-      "d5": -75684100.0,
-      "d5Pct": 24.33,
-      "d5Detail": {
-        "netAmount": -75684100.0,
-        "phaseChangePct": -2.67,
-        "continuousTurnoverPct": 3.33
-      },
-      "score": 36.83,
       "usedWindows": [
         "today",
         "d3",
@@ -7631,38 +4137,6 @@
       ],
       "missingWindows": []
     },
-    "600897": {
-      "label": "厦门空港",
-      "today": -2548200.0,
-      "todayPct": 75.06,
-      "todayDetail": {
-        "netAmount": -2548200.0,
-        "amount": 21424300.0,
-        "turnoverPct": 0.36,
-        "changePct": -0.99
-      },
-      "d3": -5372700.0,
-      "d3Pct": 71.95,
-      "d3Detail": {
-        "netAmount": -5372700.0,
-        "phaseChangePct": -0.92,
-        "continuousTurnoverPct": 1.13
-      },
-      "d5": -13417000.0,
-      "d5Pct": 63.15,
-      "d5Detail": {
-        "netAmount": -13417000.0,
-        "phaseChangePct": -1.47,
-        "continuousTurnoverPct": 1.85
-      },
-      "score": 69.21,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600900": {
       "label": "长江电力",
       "today": 626000000.0,
@@ -7727,38 +4201,6 @@
       ],
       "missingWindows": []
     },
-    "600918": {
-      "label": "中泰证券",
-      "today": 8891000.0,
-      "todayPct": 92.96,
-      "todayDetail": {
-        "netAmount": 8891000.0,
-        "amount": 132000000.0,
-        "turnoverPct": 0.56,
-        "changePct": 0.0
-      },
-      "d3": 8761700.0,
-      "d3Pct": 92.71,
-      "d3Detail": {
-        "netAmount": 8761700.0,
-        "phaseChangePct": -0.76,
-        "continuousTurnoverPct": 1.59
-      },
-      "d5": -56767600.0,
-      "d5Pct": 30.87,
-      "d5Detail": {
-        "netAmount": -56767600.0,
-        "phaseChangePct": -2.26,
-        "continuousTurnoverPct": 2.5
-      },
-      "score": 68.04,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600919": {
       "label": "江苏银行",
       "today": 458000000.0,
@@ -7816,38 +4258,6 @@
         "continuousTurnoverPct": 2.56
       },
       "score": 99.59,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "600930": {
-      "label": "华电新能",
-      "today": 198000000.0,
-      "todayPct": 99.37,
-      "todayDetail": {
-        "netAmount": 198000000.0,
-        "amount": 1088000000.0,
-        "turnoverPct": 2.54,
-        "changePct": 1.27
-      },
-      "d3": 220000000.0,
-      "d3Pct": 99.08,
-      "d3Detail": {
-        "netAmount": 220000000.0,
-        "phaseChangePct": 1.27,
-        "continuousTurnoverPct": 4.94
-      },
-      "d5": 147000000.0,
-      "d5Pct": 98.04,
-      "d5Detail": {
-        "netAmount": 147000000.0,
-        "phaseChangePct": 0.25,
-        "continuousTurnoverPct": 6.5
-      },
-      "score": 98.74,
       "usedWindows": [
         "today",
         "d3",
@@ -7951,38 +4361,6 @@
       ],
       "missingWindows": []
     },
-    "600977": {
-      "label": "中国电影",
-      "today": -155000000.0,
-      "todayPct": 3.39,
-      "todayDetail": {
-        "netAmount": -155000000.0,
-        "amount": 1899000000.0,
-        "turnoverPct": 6.07,
-        "changePct": 10.0
-      },
-      "d3": -223000000.0,
-      "d3Pct": 5.1,
-      "d3Detail": {
-        "netAmount": -223000000.0,
-        "phaseChangePct": 5.7,
-        "continuousTurnoverPct": 11.04
-      },
-      "d5": -137000000.0,
-      "d5Pct": 13.86,
-      "d5Detail": {
-        "netAmount": -137000000.0,
-        "phaseChangePct": 6.5,
-        "continuousTurnoverPct": 18.58
-      },
-      "score": 8.18,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "600989": {
       "label": "宝丰能源",
       "today": -21227500.0,
@@ -8047,38 +4425,6 @@
       ],
       "missingWindows": []
     },
-    "601000": {
-      "label": "唐山港",
-      "today": 63977000.0,
-      "todayPct": 97.68,
-      "todayDetail": {
-        "netAmount": 63977000.0,
-        "amount": 278000000.0,
-        "turnoverPct": 0.95,
-        "changePct": 2.67
-      },
-      "d3": 87712600.0,
-      "d3Pct": 97.99,
-      "d3Detail": {
-        "netAmount": 87712600.0,
-        "phaseChangePct": 2.25,
-        "continuousTurnoverPct": 2.14
-      },
-      "d5": 90530200.0,
-      "d5Pct": 97.14,
-      "d5Detail": {
-        "netAmount": 90530200.0,
-        "phaseChangePct": 4.17,
-        "continuousTurnoverPct": 3.57
-      },
-      "score": 97.57,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "601006": {
       "label": "大秦铁路",
       "today": 114000000.0,
@@ -8104,38 +4450,6 @@
         "continuousTurnoverPct": 2.82
       },
       "score": 33.4,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "601008": {
-      "label": "连云港",
-      "today": -14169400.0,
-      "todayPct": 38.9,
-      "todayDetail": {
-        "netAmount": -14169400.0,
-        "amount": 43977200.0,
-        "turnoverPct": 0.88,
-        "changePct": -1.97
-      },
-      "d3": -34491600.0,
-      "d3Pct": 36.79,
-      "d3Detail": {
-        "netAmount": -34491600.0,
-        "phaseChangePct": -3.16,
-        "continuousTurnoverPct": 1.88
-      },
-      "d5": -42449800.0,
-      "d5Pct": 38.19,
-      "d5Detail": {
-        "netAmount": -42449800.0,
-        "phaseChangePct": -3.86,
-        "continuousTurnoverPct": 3.01
-      },
-      "score": 37.88,
       "usedWindows": [
         "today",
         "d3",
@@ -8207,70 +4521,6 @@
       ],
       "missingWindows": []
     },
-    "601021": {
-      "label": "春秋航空",
-      "today": 832900.0,
-      "todayPct": 87.27,
-      "todayDetail": {
-        "netAmount": 832900.0,
-        "amount": 233000000.0,
-        "turnoverPct": 0.53,
-        "changePct": -0.8
-      },
-      "d3": -37771400.0,
-      "d3Pct": 34.45,
-      "d3Detail": {
-        "netAmount": -37771400.0,
-        "phaseChangePct": -2.0,
-        "continuousTurnoverPct": 1.58
-      },
-      "d5": 14044600.0,
-      "d5Pct": 92.33,
-      "d5Detail": {
-        "netAmount": 14044600.0,
-        "phaseChangePct": 0.52,
-        "continuousTurnoverPct": 3.38
-      },
-      "score": 70.81,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "601058": {
-      "label": "赛轮轮胎",
-      "today": -6762000.0,
-      "todayPct": 57.11,
-      "todayDetail": {
-        "netAmount": -6762000.0,
-        "amount": 378000000.0,
-        "turnoverPct": 0.94,
-        "changePct": 0.0
-      },
-      "d3": -107000000.0,
-      "d3Pct": 14.09,
-      "d3Detail": {
-        "netAmount": -107000000.0,
-        "phaseChangePct": -1.29,
-        "continuousTurnoverPct": 2.58
-      },
-      "d5": -200000000.0,
-      "d5Pct": 8.86,
-      "d5Detail": {
-        "netAmount": -200000000.0,
-        "phaseChangePct": -2.16,
-        "continuousTurnoverPct": 5.27
-      },
-      "score": 22.75,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "601059": {
       "label": "信达证券",
       "today": null,
@@ -8289,38 +4539,6 @@
         "d3",
         "d5"
       ]
-    },
-    "601066": {
-      "label": "中信建投",
-      "today": 15082200.0,
-      "todayPct": 94.61,
-      "todayDetail": {
-        "netAmount": 15082200.0,
-        "amount": 251000000.0,
-        "turnoverPct": 0.18,
-        "changePct": 0.64
-      },
-      "d3": -27536700.0,
-      "d3Pct": 42.01,
-      "d3Detail": {
-        "netAmount": -27536700.0,
-        "phaseChangePct": -1.22,
-        "continuousTurnoverPct": 0.5
-      },
-      "d5": -44621600.0,
-      "d5Pct": 37.04,
-      "d5Detail": {
-        "netAmount": -44621600.0,
-        "phaseChangePct": -1.93,
-        "continuousTurnoverPct": 0.75
-      },
-      "score": 53.17,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
     },
     "601077": {
       "label": "渝农商行",
@@ -8418,38 +4636,6 @@
       ],
       "missingWindows": []
     },
-    "601106": {
-      "label": "中国一重",
-      "today": -37960300.0,
-      "todayPct": 17.41,
-      "todayDetail": {
-        "netAmount": -37960300.0,
-        "amount": 126000000.0,
-        "turnoverPct": 0.66,
-        "changePct": -2.13
-      },
-      "d3": -85960700.0,
-      "d3Pct": 17.48,
-      "d3Detail": {
-        "netAmount": -85960700.0,
-        "phaseChangePct": -4.5,
-        "continuousTurnoverPct": 1.77
-      },
-      "d5": -119000000.0,
-      "d5Pct": 16.33,
-      "d5Detail": {
-        "netAmount": -119000000.0,
-        "phaseChangePct": -4.83,
-        "continuousTurnoverPct": 2.64
-      },
-      "score": 17.0,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "601111": {
       "label": "中国国航",
       "today": 21008000.0,
@@ -8482,38 +4668,6 @@
       ],
       "missingWindows": []
     },
-    "601117": {
-      "label": "中国化学",
-      "today": -38085200.0,
-      "todayPct": 17.33,
-      "todayDetail": {
-        "netAmount": -38085200.0,
-        "amount": 214000000.0,
-        "turnoverPct": 0.49,
-        "changePct": -0.56
-      },
-      "d3": -137000000.0,
-      "d3Pct": 10.43,
-      "d3Detail": {
-        "netAmount": -137000000.0,
-        "phaseChangePct": -1.67,
-        "continuousTurnoverPct": 1.64
-      },
-      "d5": -234000000.0,
-      "d5Pct": 7.15,
-      "d5Detail": {
-        "netAmount": -234000000.0,
-        "phaseChangePct": -3.15,
-        "continuousTurnoverPct": 2.56
-      },
-      "score": 10.84,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "601127": {
       "label": "赛力斯",
       "today": -26951900.0,
@@ -8539,38 +4693,6 @@
         "continuousTurnoverPct": 3.86
       },
       "score": 10.84,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "601136": {
-      "label": "首创证券",
-      "today": -1884000.0,
-      "todayPct": 78.45,
-      "todayDetail": {
-        "netAmount": -1884000.0,
-        "amount": 66255300.0,
-        "turnoverPct": 0.19,
-        "changePct": -0.78
-      },
-      "d3": -33873700.0,
-      "d3Pct": 37.21,
-      "d3Detail": {
-        "netAmount": -33873700.0,
-        "phaseChangePct": -3.19,
-        "continuousTurnoverPct": 0.68
-      },
-      "d5": -58440600.0,
-      "d5Pct": 30.23,
-      "d5Detail": {
-        "netAmount": -58440600.0,
-        "phaseChangePct": -3.34,
-        "continuousTurnoverPct": 1.11
-      },
-      "score": 44.73,
       "usedWindows": [
         "today",
         "d3",
@@ -8802,38 +4924,6 @@
       ],
       "missingWindows": []
     },
-    "601228": {
-      "label": "广州港",
-      "today": -3862900.0,
-      "todayPct": 68.85,
-      "todayDetail": {
-        "netAmount": -3862900.0,
-        "amount": 42536200.0,
-        "turnoverPct": 0.18,
-        "changePct": 0.0
-      },
-      "d3": -10798800.0,
-      "d3Pct": 62.35,
-      "d3Detail": {
-        "netAmount": -10798800.0,
-        "phaseChangePct": -0.64,
-        "continuousTurnoverPct": 0.64
-      },
-      "d5": -20012400.0,
-      "d5Pct": 54.98,
-      "d5Detail": {
-        "netAmount": -20012400.0,
-        "phaseChangePct": -1.28,
-        "continuousTurnoverPct": 1.08
-      },
-      "score": 61.03,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "601229": {
       "label": "上海银行",
       "today": 148000000.0,
@@ -8859,38 +4949,6 @@
         "continuousTurnoverPct": 2.63
       },
       "score": 98.41,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "601236": {
-      "label": "红塔证券",
-      "today": -14200600.0,
-      "todayPct": 38.8,
-      "todayDetail": {
-        "netAmount": -14200600.0,
-        "amount": 67672300.0,
-        "turnoverPct": 0.22,
-        "changePct": -1.53
-      },
-      "d3": -37675500.0,
-      "d3Pct": 34.55,
-      "d3Detail": {
-        "netAmount": -37675500.0,
-        "phaseChangePct": -3.16,
-        "continuousTurnoverPct": 0.6
-      },
-      "d5": -53350400.0,
-      "d5Pct": 32.61,
-      "d5Detail": {
-        "netAmount": -53350400.0,
-        "phaseChangePct": -4.02,
-        "continuousTurnoverPct": 0.93
-      },
-      "score": 34.84,
       "usedWindows": [
         "today",
         "d3",
@@ -9026,38 +5084,6 @@
       ],
       "missingWindows": []
     },
-    "601326": {
-      "label": "秦港股份",
-      "today": -1511100.0,
-      "todayPct": 80.21,
-      "todayDetail": {
-        "netAmount": -1511100.0,
-        "amount": 76697400.0,
-        "turnoverPct": 0.47,
-        "changePct": 0.29
-      },
-      "d3": 7695800.0,
-      "d3Pct": 92.31,
-      "d3Detail": {
-        "netAmount": 7695800.0,
-        "phaseChangePct": 2.38,
-        "continuousTurnoverPct": 1.86
-      },
-      "d5": -17690800.0,
-      "d5Pct": 57.98,
-      "d5Detail": {
-        "netAmount": -17690800.0,
-        "phaseChangePct": 1.18,
-        "continuousTurnoverPct": 3.38
-      },
-      "score": 75.55,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "601328": {
       "label": "交通银行",
       "today": 173000000.0,
@@ -9122,70 +5148,6 @@
       ],
       "missingWindows": []
     },
-    "601360": {
-      "label": "三六零",
-      "today": -54624200.0,
-      "todayPct": 12.19,
-      "todayDetail": {
-        "netAmount": -54624200.0,
-        "amount": 385000000.0,
-        "turnoverPct": 0.68,
-        "changePct": -0.74
-      },
-      "d3": -165000000.0,
-      "d3Pct": 7.86,
-      "d3Detail": {
-        "netAmount": -165000000.0,
-        "phaseChangePct": -2.78,
-        "continuousTurnoverPct": 2.73
-      },
-      "d5": -286000000.0,
-      "d5Pct": 5.18,
-      "d5Detail": {
-        "netAmount": -286000000.0,
-        "phaseChangePct": -2.31,
-        "continuousTurnoverPct": 4.36
-      },
-      "score": 7.87,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "601377": {
-      "label": "兴业证券",
-      "today": -39682400.0,
-      "todayPct": 16.64,
-      "todayDetail": {
-        "netAmount": -39682400.0,
-        "amount": 213000000.0,
-        "turnoverPct": 0.46,
-        "changePct": -0.56
-      },
-      "d3": -127000000.0,
-      "d3Pct": 11.62,
-      "d3Detail": {
-        "netAmount": -127000000.0,
-        "phaseChangePct": -2.21,
-        "continuousTurnoverPct": 1.38
-      },
-      "d5": -216000000.0,
-      "d5Pct": 7.99,
-      "d5Detail": {
-        "netAmount": -216000000.0,
-        "phaseChangePct": -3.45,
-        "continuousTurnoverPct": 2.16
-      },
-      "score": 11.42,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "601390": {
       "label": "中国中铁",
       "today": 245600.0,
@@ -9243,38 +5205,6 @@
         "continuousTurnoverPct": 0.58
       },
       "score": 99.94,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "601456": {
-      "label": "国联民生",
-      "today": -13603700.0,
-      "todayPct": 39.88,
-      "todayDetail": {
-        "netAmount": -13603700.0,
-        "amount": 95583600.0,
-        "turnoverPct": 0.26,
-        "changePct": -0.6
-      },
-      "d3": -41618500.0,
-      "d3Pct": 32.23,
-      "d3Detail": {
-        "netAmount": -41618500.0,
-        "phaseChangePct": -1.78,
-        "continuousTurnoverPct": 0.85
-      },
-      "d5": -37201100.0,
-      "d5Pct": 41.43,
-      "d5Detail": {
-        "netAmount": -37201100.0,
-        "phaseChangePct": -1.08,
-        "continuousTurnoverPct": 1.46
-      },
-      "score": 37.82,
       "usedWindows": [
         "today",
         "d3",
@@ -9410,70 +5340,6 @@
       ],
       "missingWindows": []
     },
-    "601608": {
-      "label": "中信重工",
-      "today": -11648400.0,
-      "todayPct": 44.33,
-      "todayDetail": {
-        "netAmount": -11648400.0,
-        "amount": 129000000.0,
-        "turnoverPct": 0.64,
-        "changePct": -1.36
-      },
-      "d3": -82608700.0,
-      "d3Pct": 18.21,
-      "d3Detail": {
-        "netAmount": -82608700.0,
-        "phaseChangePct": -5.22,
-        "continuousTurnoverPct": 1.95
-      },
-      "d5": -92409400.0,
-      "d5Pct": 20.63,
-      "d5Detail": {
-        "netAmount": -92409400.0,
-        "phaseChangePct": -5.01,
-        "continuousTurnoverPct": 2.87
-      },
-      "score": 25.71,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "601611": {
-      "label": "中国核建",
-      "today": -31047900.0,
-      "todayPct": 20.92,
-      "todayDetail": {
-        "netAmount": -31047900.0,
-        "amount": 110000000.0,
-        "turnoverPct": 0.4,
-        "changePct": -1.54
-      },
-      "d3": -76130600.0,
-      "d3Pct": 19.59,
-      "d3Detail": {
-        "netAmount": -76130600.0,
-        "phaseChangePct": -3.96,
-        "continuousTurnoverPct": 1.19
-      },
-      "d5": -116000000.0,
-      "d5Pct": 16.7,
-      "d5Detail": {
-        "netAmount": -116000000.0,
-        "phaseChangePct": -4.68,
-        "continuousTurnoverPct": 2.46
-      },
-      "score": 18.77,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "601618": {
       "label": "中国中冶",
       "today": -41259100.0,
@@ -9531,38 +5397,6 @@
         "continuousTurnoverPct": 0.34
       },
       "score": 62.9,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "601633": {
-      "label": "长城汽车",
-      "today": -40521300.0,
-      "todayPct": 16.43,
-      "todayDetail": {
-        "netAmount": -40521300.0,
-        "amount": 219000000.0,
-        "turnoverPct": 0.27,
-        "changePct": -1.76
-      },
-      "d3": -220000000.0,
-      "d3Pct": 5.21,
-      "d3Detail": {
-        "netAmount": -220000000.0,
-        "phaseChangePct": -6.26,
-        "continuousTurnoverPct": 1.07
-      },
-      "d5": -308000000.0,
-      "d5Pct": 4.41,
-      "d5Detail": {
-        "netAmount": -308000000.0,
-        "phaseChangePct": -8.33,
-        "continuousTurnoverPct": 1.54
-      },
-      "score": 7.7,
       "usedWindows": [
         "today",
         "d3",
@@ -10082,38 +5916,6 @@
       ],
       "missingWindows": []
     },
-    "601866": {
-      "label": "中远海发",
-      "today": -51314200.0,
-      "todayPct": 13.06,
-      "todayDetail": {
-        "netAmount": -51314200.0,
-        "amount": 138000000.0,
-        "turnoverPct": 0.61,
-        "changePct": -1.7
-      },
-      "d3": -76448500.0,
-      "d3Pct": 19.48,
-      "d3Detail": {
-        "netAmount": -76448500.0,
-        "phaseChangePct": -2.12,
-        "continuousTurnoverPct": 1.6
-      },
-      "d5": -140000000.0,
-      "d5Pct": 13.5,
-      "d5Detail": {
-        "netAmount": -140000000.0,
-        "phaseChangePct": -3.35,
-        "continuousTurnoverPct": 2.65
-      },
-      "score": 15.48,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "601868": {
       "label": "中国能建",
       "today": -157000000.0,
@@ -10178,70 +5980,6 @@
       ],
       "missingWindows": []
     },
-    "601877": {
-      "label": "正泰电器",
-      "today": -29494200.0,
-      "todayPct": 22.07,
-      "todayDetail": {
-        "netAmount": -29494200.0,
-        "amount": 263000000.0,
-        "turnoverPct": 0.52,
-        "changePct": -1.01
-      },
-      "d3": -90528500.0,
-      "d3Pct": 16.33,
-      "d3Detail": {
-        "netAmount": -90528500.0,
-        "phaseChangePct": -3.01,
-        "continuousTurnoverPct": 1.4
-      },
-      "d5": -223000000.0,
-      "d5Pct": 7.53,
-      "d5Detail": {
-        "netAmount": -223000000.0,
-        "phaseChangePct": -4.85,
-        "continuousTurnoverPct": 2.42
-      },
-      "score": 14.24,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "601878": {
-      "label": "浙商证券",
-      "today": 6476200.0,
-      "todayPct": 92.27,
-      "todayDetail": {
-        "netAmount": 6476200.0,
-        "amount": 109000000.0,
-        "turnoverPct": 0.28,
-        "changePct": -0.23
-      },
-      "d3": -48971900.0,
-      "d3Pct": 28.37,
-      "d3Detail": {
-        "netAmount": -48971900.0,
-        "phaseChangePct": -1.93,
-        "continuousTurnoverPct": 0.92
-      },
-      "d5": -67795700.0,
-      "d5Pct": 26.63,
-      "d5Detail": {
-        "netAmount": -67795700.0,
-        "phaseChangePct": -2.48,
-        "continuousTurnoverPct": 1.46
-      },
-      "score": 43.65,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "601881": {
       "label": "中国银河",
       "today": 16972400.0,
@@ -10267,38 +6005,6 @@
         "continuousTurnoverPct": 1.12
       },
       "score": 37.67,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "601888": {
-      "label": "中国中免",
-      "today": -39914800.0,
-      "todayPct": 16.58,
-      "todayDetail": {
-        "netAmount": -39914800.0,
-        "amount": 751000000.0,
-        "turnoverPct": 0.74,
-        "changePct": 0.52
-      },
-      "d3": -423000000.0,
-      "d3Pct": 1.74,
-      "d3Detail": {
-        "netAmount": -423000000.0,
-        "phaseChangePct": -2.65,
-        "continuousTurnoverPct": 2.24
-      },
-      "d5": -576000000.0,
-      "d5Pct": 1.63,
-      "d5Detail": {
-        "netAmount": -576000000.0,
-        "phaseChangePct": -4.46,
-        "continuousTurnoverPct": 3.53
-      },
-      "score": 5.41,
       "usedWindows": [
         "today",
         "d3",
@@ -10562,38 +6268,6 @@
       ],
       "missingWindows": []
     },
-    "601995": {
-      "label": "中金公司",
-      "today": -9085400.0,
-      "todayPct": 50.19,
-      "todayDetail": {
-        "netAmount": -9085400.0,
-        "amount": 484000000.0,
-        "turnoverPct": 0.44,
-        "changePct": -0.73
-      },
-      "d3": -46394100.0,
-      "d3Pct": 29.68,
-      "d3Detail": {
-        "netAmount": -46394100.0,
-        "phaseChangePct": -2.3,
-        "continuousTurnoverPct": 1.44
-      },
-      "d5": -147000000.0,
-      "d5Pct": 12.81,
-      "d5Detail": {
-        "netAmount": -147000000.0,
-        "phaseChangePct": -2.71,
-        "continuousTurnoverPct": 2.38
-      },
-      "score": 28.06,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "601998": {
       "label": "中信银行",
       "today": 98239900.0,
@@ -10722,70 +6396,6 @@
       ],
       "missingWindows": []
     },
-    "603260": {
-      "label": "合盛硅业",
-      "today": -48956100.0,
-      "todayPct": 13.61,
-      "todayDetail": {
-        "netAmount": -48956100.0,
-        "amount": 185000000.0,
-        "turnoverPct": 0.55,
-        "changePct": -2.8
-      },
-      "d3": -96377500.0,
-      "d3Pct": 15.43,
-      "d3Detail": {
-        "netAmount": -96377500.0,
-        "phaseChangePct": -4.3,
-        "continuousTurnoverPct": 1.61
-      },
-      "d5": -197000000.0,
-      "d5Pct": 8.99,
-      "d5Detail": {
-        "netAmount": -197000000.0,
-        "phaseChangePct": -6.46,
-        "continuousTurnoverPct": 2.7
-      },
-      "score": 12.4,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "603288": {
-      "label": "海天味业",
-      "today": 10109700.0,
-      "todayPct": 93.35,
-      "todayDetail": {
-        "netAmount": 10109700.0,
-        "amount": 478000000.0,
-        "turnoverPct": 0.25,
-        "changePct": 0.61
-      },
-      "d3": -108000000.0,
-      "d3Pct": 13.94,
-      "d3Detail": {
-        "netAmount": -108000000.0,
-        "phaseChangePct": -1.61,
-        "continuousTurnoverPct": 0.91
-      },
-      "d5": -29572400.0,
-      "d5Pct": 46.84,
-      "d5Detail": {
-        "netAmount": -29572400.0,
-        "phaseChangePct": -2.49,
-        "continuousTurnoverPct": 1.38
-      },
-      "score": 46.95,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "603296": {
       "label": "华勤技术",
       "today": 75245800.0,
@@ -10818,102 +6428,6 @@
       ],
       "missingWindows": []
     },
-    "603369": {
-      "label": "今世缘",
-      "today": 89034200.0,
-      "todayPct": 98.16,
-      "todayDetail": {
-        "netAmount": 89034200.0,
-        "amount": 485000000.0,
-        "turnoverPct": 1.18,
-        "changePct": 2.46
-      },
-      "d3": 17864500.0,
-      "d3Pct": 94.57,
-      "d3Detail": {
-        "netAmount": 17864500.0,
-        "phaseChangePct": -3.0,
-        "continuousTurnoverPct": 3.84
-      },
-      "d5": 31614400.0,
-      "d5Pct": 94.8,
-      "d5Detail": {
-        "netAmount": 31614400.0,
-        "phaseChangePct": -2.72,
-        "continuousTurnoverPct": 5.15
-      },
-      "score": 95.56,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "603392": {
-      "label": "万泰生物",
-      "today": -33743600.0,
-      "todayPct": 19.31,
-      "todayDetail": {
-        "netAmount": -33743600.0,
-        "amount": 108000000.0,
-        "turnoverPct": 0.37,
-        "changePct": -2.81
-      },
-      "d3": -69334000.0,
-      "d3Pct": 21.45,
-      "d3Detail": {
-        "netAmount": -69334000.0,
-        "phaseChangePct": -6.35,
-        "continuousTurnoverPct": 0.99
-      },
-      "d5": -90684900.0,
-      "d5Pct": 21.13,
-      "d5Detail": {
-        "netAmount": -90684900.0,
-        "phaseChangePct": -8.23,
-        "continuousTurnoverPct": 1.45
-      },
-      "score": 20.79,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "603501": {
-      "label": "豪威集团",
-      "today": 119000000.0,
-      "todayPct": 98.68,
-      "todayDetail": {
-        "netAmount": 119000000.0,
-        "amount": 1311000000.0,
-        "turnoverPct": 1.24,
-        "changePct": 1.32
-      },
-      "d3": 63124000.0,
-      "d3Pct": 97.49,
-      "d3Detail": {
-        "netAmount": 63124000.0,
-        "phaseChangePct": -1.15,
-        "continuousTurnoverPct": 3.08
-      },
-      "d5": 49643500.0,
-      "d5Pct": 96.05,
-      "d5Detail": {
-        "netAmount": 49643500.0,
-        "phaseChangePct": 0.31,
-        "continuousTurnoverPct": 5.23
-      },
-      "score": 97.21,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "603799": {
       "label": "华友钴业",
       "today": -28176600.0,
@@ -10939,38 +6453,6 @@
         "continuousTurnoverPct": 8.68
       },
       "score": 8.98,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "603885": {
-      "label": "吉祥航空",
-      "today": 1560900.0,
-      "todayPct": 88.4,
-      "todayDetail": {
-        "netAmount": 1560900.0,
-        "amount": 78113700.0,
-        "turnoverPct": 0.34,
-        "changePct": -0.76
-      },
-      "d3": 17174000.0,
-      "d3Pct": 94.44,
-      "d3Detail": {
-        "netAmount": 17174000.0,
-        "phaseChangePct": -1.14,
-        "continuousTurnoverPct": 1.62
-      },
-      "d5": 53897000.0,
-      "d5Pct": 96.32,
-      "d5Detail": {
-        "netAmount": 53897000.0,
-        "phaseChangePct": -0.95,
-        "continuousTurnoverPct": 3.42
-      },
-      "score": 93.68,
       "usedWindows": [
         "today",
         "d3",
@@ -11106,38 +6588,6 @@
       ],
       "missingWindows": []
     },
-    "605499": {
-      "label": "东鹏饮料",
-      "today": -1535800.0,
-      "todayPct": 80.1,
-      "todayDetail": {
-        "netAmount": -1535800.0,
-        "amount": 282000000.0,
-        "turnoverPct": 0.38,
-        "changePct": -0.17
-      },
-      "d3": -154000000.0,
-      "d3Pct": 9.01,
-      "d3Detail": {
-        "netAmount": -154000000.0,
-        "phaseChangePct": -1.64,
-        "continuousTurnoverPct": 1.46
-      },
-      "d5": -139000000.0,
-      "d5Pct": 13.67,
-      "d5Detail": {
-        "netAmount": -139000000.0,
-        "phaseChangePct": -4.16,
-        "continuousTurnoverPct": 2.69
-      },
-      "score": 28.65,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "688008": {
       "label": "澜起科技",
       "today": -822000000.0,
@@ -11234,70 +6684,6 @@
       ],
       "missingWindows": []
     },
-    "688017": {
-      "label": "绿的谐波",
-      "today": -128000000.0,
-      "todayPct": 4.33,
-      "todayDetail": {
-        "netAmount": -128000000.0,
-        "amount": 2023000000.0,
-        "turnoverPct": 3.85,
-        "changePct": -0.75
-      },
-      "d3": -388000000.0,
-      "d3Pct": 2.01,
-      "d3Detail": {
-        "netAmount": -388000000.0,
-        "phaseChangePct": -6.92,
-        "continuousTurnoverPct": 14.16
-      },
-      "d5": -354000000.0,
-      "d5Pct": 3.7,
-      "d5Detail": {
-        "netAmount": -354000000.0,
-        "phaseChangePct": -1.14,
-        "continuousTurnoverPct": 24.24
-      },
-      "score": 3.27,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "688036": {
-      "label": "传音控股",
-      "today": -32513500.0,
-      "todayPct": 19.96,
-      "todayDetail": {
-        "netAmount": -32513500.0,
-        "amount": 606000000.0,
-        "turnoverPct": 0.85,
-        "changePct": -1.03
-      },
-      "d3": -120000000.0,
-      "d3Pct": 12.5,
-      "d3Detail": {
-        "netAmount": -120000000.0,
-        "phaseChangePct": -4.91,
-        "continuousTurnoverPct": 3.18
-      },
-      "d5": -83354600.0,
-      "d5Pct": 22.45,
-      "d5Detail": {
-        "netAmount": -83354600.0,
-        "phaseChangePct": -5.2,
-        "continuousTurnoverPct": 6.3
-      },
-      "score": 18.34,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "688041": {
       "label": "海光信息",
       "today": -141000000.0,
@@ -11323,38 +6709,6 @@
         "continuousTurnoverPct": 4.59
       },
       "score": 75.83,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "688047": {
-      "label": "龙芯中科",
-      "today": 27909200.0,
-      "todayPct": 96.18,
-      "todayDetail": {
-        "netAmount": 27909200.0,
-        "amount": 464000000.0,
-        "turnoverPct": 1.22,
-        "changePct": 0.92
-      },
-      "d3": 12826900.0,
-      "d3Pct": 93.71,
-      "d3Detail": {
-        "netAmount": 12826900.0,
-        "phaseChangePct": -0.13,
-        "continuousTurnoverPct": 2.77
-      },
-      "d5": 20981900.0,
-      "d5Pct": 93.58,
-      "d5Detail": {
-        "netAmount": 20981900.0,
-        "phaseChangePct": 1.28,
-        "continuousTurnoverPct": 3.92
-      },
-      "score": 94.28,
       "usedWindows": [
         "today",
         "d3",
@@ -11394,38 +6748,6 @@
       ],
       "missingWindows": []
     },
-    "688111": {
-      "label": "金山办公",
-      "today": -55397600.0,
-      "todayPct": 12.04,
-      "todayDetail": {
-        "netAmount": -55397600.0,
-        "amount": 775000000.0,
-        "turnoverPct": 0.77,
-        "changePct": -0.23
-      },
-      "d3": -251000000.0,
-      "d3Pct": 4.29,
-      "d3Detail": {
-        "netAmount": -251000000.0,
-        "phaseChangePct": -3.45,
-        "continuousTurnoverPct": 2.92
-      },
-      "d5": -405000000.0,
-      "d5Pct": 3.09,
-      "d5Detail": {
-        "netAmount": -405000000.0,
-        "phaseChangePct": -6.37,
-        "continuousTurnoverPct": 4.76
-      },
-      "score": 5.75,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
     "688146": {
       "label": "中船特气",
       "today": -288000000.0,
@@ -11451,38 +6773,6 @@
         "continuousTurnoverPct": 13.64
       },
       "score": 74.46,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "688169": {
-      "label": "石头科技",
-      "today": 22202100.0,
-      "todayPct": 95.57,
-      "todayDetail": {
-        "netAmount": 22202100.0,
-        "amount": 702000000.0,
-        "turnoverPct": 2.09,
-        "changePct": -1.25
-      },
-      "d3": -70685000.0,
-      "d3Pct": 20.97,
-      "d3Detail": {
-        "netAmount": -70685000.0,
-        "phaseChangePct": -5.58,
-        "continuousTurnoverPct": 6.53
-      },
-      "d5": -112000000.0,
-      "d5Pct": 17.12,
-      "d5Detail": {
-        "netAmount": -112000000.0,
-        "phaseChangePct": -4.98,
-        "continuousTurnoverPct": 10.44
-      },
-      "score": 38.08,
       "usedWindows": [
         "today",
         "d3",
@@ -11611,70 +6901,6 @@
         "continuousTurnoverPct": 4.34
       },
       "score": 17.33,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "688472": {
-      "label": "阿特斯",
-      "today": -82502700.0,
-      "todayPct": 7.84,
-      "todayDetail": {
-        "netAmount": -82502700.0,
-        "amount": 329000000.0,
-        "turnoverPct": 1.09,
-        "changePct": -3.33
-      },
-      "d3": -229000000.0,
-      "d3Pct": 4.95,
-      "d3Detail": {
-        "netAmount": -229000000.0,
-        "phaseChangePct": -9.25,
-        "continuousTurnoverPct": 3.44
-      },
-      "d5": -346000000.0,
-      "d5Pct": 3.83,
-      "d5Detail": {
-        "netAmount": -346000000.0,
-        "phaseChangePct": -9.86,
-        "continuousTurnoverPct": 6.43
-      },
-      "score": 5.22,
-      "usedWindows": [
-        "today",
-        "d3",
-        "d5"
-      ],
-      "missingWindows": []
-    },
-    "688521": {
-      "label": "芯原股份",
-      "today": -139000000.0,
-      "todayPct": 3.91,
-      "todayDetail": {
-        "netAmount": -139000000.0,
-        "amount": 2923000000.0,
-        "turnoverPct": 4.77,
-        "changePct": -4.28
-      },
-      "d3": -237000000.0,
-      "d3Pct": 4.7,
-      "d3Detail": {
-        "netAmount": -237000000.0,
-        "phaseChangePct": 0.64,
-        "continuousTurnoverPct": 12.79
-      },
-      "d5": -308000000.0,
-      "d5Pct": 4.41,
-      "d5Detail": {
-        "netAmount": -308000000.0,
-        "phaseChangePct": 5.84,
-        "continuousTurnoverPct": 19.41
-      },
-      "score": 4.39,
       "usedWindows": [
         "today",
         "d3",

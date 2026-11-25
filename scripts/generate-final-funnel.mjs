@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 第三段漏斗：30 只回放候选 → 样本外折 + 10bps → 15 只 → 135 资金流最终评分。
+// 第三段漏斗：21 只回放候选 → 样本外折 + 10bps → 10 只 → 135 资金流最终评分。
 
 import { spawnSync } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
@@ -16,6 +16,7 @@ import {
   summarizeAnalogs,
 } from '../src/domain/strategy-planning/analogAudit.js'
 import { computeFundFlowScore, fundFlowBand } from '../src/domain/strategy-planning/fundFlowScore.js'
+import { A_SHARE_FUNNEL } from '../src/domain/strategy-planning/funnelConfig.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
@@ -25,8 +26,8 @@ const INDEX_PATH = join(ROOT, 'src', 'data', 'stock-index.json')
 const DATA_DIR = join(ROOT, 'public', 'data')
 const OUT_DIR = join(ROOT, 'src', 'data', 'final-funnels')
 const LATEST_PATH = join(ROOT, 'src', 'data', 'final-funnel-latest.json')
-const FINAL_N = 15
-const STAGE2_N = 30
+const FINAL_N = A_SHARE_FUNNEL.finalStage
+const STAGE2_N = A_SHARE_FUNNEL.secondStage
 
 const analog = JSON.parse(await readFile(ANALOG_PATH, 'utf8'))
 const index = JSON.parse(await readFile(INDEX_PATH, 'utf8'))
@@ -69,7 +70,6 @@ for (const row of stage2Rows) {
       tier: row.tier,
       poolScore: row.poolScore,
       poolMaxScore: row.poolMaxScore,
-      northbound: row.northbound ?? null,
       stage2Rank: row.stage2Rank,
       stage2Score: row.audit?.auditScore ?? null,
       currentDate: rows.at(-1)?.date ?? null,
@@ -137,7 +137,12 @@ const payload = {
   schemaVersion: 'final-funnel.v1',
   generatedAt,
   sourceAnalogGeneratedAt: analog.generatedAt ?? null,
-  funnel: { stage1: analog.counts?.candidates ?? 50, stage2: stage2Rows.length, stage3: selected.length, final: selected.length },
+  funnel: {
+    stage1: analog.counts?.candidates ?? A_SHARE_FUNNEL.firstStage.total,
+    stage2: stage2Rows.length,
+    stage3: selected.length,
+    final: selected.length,
+  },
   weights: { stage2Path: '同股 10/40/10', oos: 0.6, cost10bps: 0.4, stage3: 0.7, flow135: 0.3 },
   flow: fundFlowPayload ? {
     available: true,
@@ -158,7 +163,10 @@ const body = `${JSON.stringify(payload, null, 2)}\n`
 await writeFile(datedPath, body, 'utf8')
 await writeFile(LATEST_PATH, body, 'utf8')
 
-console.log(`最终漏斗完成：50 → ${stage2Rows.length} → ${selected.length}；135资金流 ${flowScored}/${selected.length}`)
+console.log(
+  `最终漏斗完成：${A_SHARE_FUNNEL.firstStage.total} → ${stage2Rows.length} → ` +
+    `${selected.length}；135资金流 ${flowScored}/${selected.length}`,
+)
 console.log(`  ${datedPath}`)
 console.log(`  ${LATEST_PATH}`)
 

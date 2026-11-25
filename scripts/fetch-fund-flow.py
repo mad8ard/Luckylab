@@ -113,7 +113,7 @@ def main() -> int:
         "dataThrough": args.as_of or datetime.now().astimezone().strftime("%Y-%m-%d"),
         "priceDataThrough": latest_index_date or None,
         "source": "同花顺 stock_fund_flow_individual（即时 / 3日排行 / 5日排行）",
-        "semantics": "全单资金净额（流入-流出），不是北向 JINGE，也不是主力净流入；只做当前确认分，不进入历史回测。",
+        "semantics": "全单资金净额（流入-流出），不是主力净流入；只做当前确认分，不进入历史回测。",
         "weights": WEIGHTS,
         "periods": period_meta,
         "totalA": len(a_shares),

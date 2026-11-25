@@ -104,7 +104,7 @@ Source files should stay under 500 lines when possible. `pnpm run build` runs si
 
 ## Data and Formula Status
 
-The static data directory currently contains 338 indexed CSV samples (303 A-shares + 35 Hong Kong stocks). Datasets are exposed through `src/data/stock-index.json` and `src/domain/market-data/ohlcv.js`; the build checks that index entries and files stay consistent.
+The static data directory currently contains 259 indexed CSV samples (224 A-shares + 35 Hong Kong stocks). Datasets are exposed through `src/data/stock-index.json` and `src/domain/market-data/ohlcv.js`; the build checks that index entries and files stay consistent.
 
 Market data refresh is intentionally offline-first:
 
@@ -127,9 +127,9 @@ pnpm run refresh:market-data
 | 步骤 | 命令 | 结果 |
 | --- | --- | --- |
 | 1. 更新实时股票仓库 | `pnpm refresh` | `public/data/*.csv` + `src/data/stock-index.json` |
-| 2. 50 只候选 | `pnpm recommend` | `public/recommendation/` |
-| 3. 第二段回放 50→30 | `pnpm analog-audit` | `public/analog-audit/` |
-| 4. 最终 30→15 | `pnpm final-funnel` | `public/final-funnel/` |
+| 2. 35 只候选 | `pnpm recommend` | `public/recommendation/` |
+| 3. 第二段回放 35→21 | `pnpm analog-audit` | `public/analog-audit/` |
+| 4. 最终 21→10 | `pnpm final-funnel` | `public/final-funnel/` |
 
 第四步完成后会自动生成一份与最终排序解耦的历史路径旁注：
 
@@ -139,44 +139,32 @@ pnpm run refresh:market-data
 
 独立模块（手工执行，不进入选股评分）：
 
-- 135 资金流：`pnpm fund-flow`，完成后更新最终 15 的确认分
+- 135 资金流：`pnpm fund-flow`，完成后更新最终 10 的确认分
 - 大盘温度：`pnpm market` → `public/market-regime/`
 - 个股信息：`pnpm fetch:stock-news -- 600519 000425` → `public/stock-news/`
 - 港股独立推荐：`pnpm run generate:hk-recommendation` → `public/hong-kong-recommendation/`，只展示前三名
 
 ### 分层逻辑
 
-- **第一段 A 股 50 只**：只处理 A 股价量/推荐池/筛选逻辑，不读取资金流。
-- **第二段 A 股 50→30**：只做同股历史路径分（目标先于止损 10 / MAE 40 / 10日 10），不读取资金流。
-- **第三段 30→15**：对 30 只计算 80% 样本外路径 + 10bps 单边成本，按 60% OOS + 40% 10bps 取前 15。
-- **135 独立模块**：手工拉全局 A 股同花顺全单净额（5日 40% / 3日 35% / 今日 25%）；只把最终 15 的确认分并入最终分，最终分 = 70% 第三段路径 + 30% 135 资金流。
+- **第一段 A 股 35 只**：18 只观察档 + 17 只等待档，只处理 A 股价量/推荐池/筛选逻辑，不读取资金流。
+- **第二段 A 股 35→21**：只做同股历史路径分（目标先于止损 10 / MAE 40 / 10日 10），不读取资金流。
+- **第三段 21→10**：对 21 只计算 80% 样本外路径 + 10bps 单边成本，按 60% OOS + 40% 10bps 取前 10。
+- **135 独立模块**：手工拉全局 A 股同花顺全单净额（5日 40% / 3日 35% / 今日 25%）；只把最终 10 的确认分并入最终分，最终分 = 70% 第三段路径 + 30% 135 资金流。
 - **港股独立模块**：只使用复权日线 OHLCV，按低位程度、成本锚偏离、回撤修复、趋势、20 日动量、量能与数据质量评分，固定展示前三名；不进入 A 股四步漏斗。
 
-因此前四步完全不依赖 135；数据获取只有两个时点：刷新股票行情，以及手工执行 135 模块。北向只作参考，不参与任何评分：
+因此前四步完全不依赖 135；数据获取只有两个时点：刷新股票行情，以及手工执行 135 模块。
 
-- `+` = 股东名单含香港中央结算（有北向持仓）
-- `*` = 当期净买入
-- `+*` = 有持仓且净买入
-
-需要说明：同花顺资金流接口本身返回全市场排行，无法按 15 个代码单独请求，所以 135 模块按全局 A 股池处理；它独立手工运行，不会拖慢前四步。要真正减少网络请求，需要换支持单股查询的数据源。
+需要说明：同花顺资金流接口本身返回全市场排行，无法按 10 个代码单独请求，所以 135 模块按全局 A 股池处理；它独立手工运行，不会拖慢前四步。要真正减少网络请求，需要换支持单股查询的数据源。
 
 ### 当前路径验证
 
 同股路径分的设计/验证路径秩相关为 +0.267 / +0.206；目标单项在 80% 验证中为 -0.021，正信号主要来自 MAE。页面明确标注为“风险优先的路径研究，不是目标命中率或胜率承诺”。
 
-旧版策略历史回放仍在 `pnpm replay` → `public/replay/`，它是独立诊断，不参与上面的 50→30→15 漏斗。
+旧版策略历史回放仍在 `pnpm replay` → `public/replay/`，它是独立诊断，不参与上面的 35→21→10 漏斗。
 
 `pnpm replay` 默认使用 `--min-z 2.13 --target 0.032`，成交约 17 笔；报告页同时包含 walk-forward 样本外折和 10bps 滑点变体。其他 `generate:*` / `fetch:*` 脚本保留为维护用途，不需要日常记忆。
 
 报告只写入本地 `public/` 目录，不再推送企业微信。
-
-北向标记来自客户端导出的 `data/northbound/沪股通.xls` 与 `深股通.xls`（GBK 制表符，只有“名称”一列）。更新名单后运行：
-
-```bash
-python3 scripts/build-northbound-marks.py
-```
-
-它会按名称匹配当前 A 股池，写出 `src/data/northbound-marks.json`；名单里没有的股票不会保留旧标记。导出表的 `JINGE` 列是净额（元），主应用右侧列表用 `*` 标 `JINGE > 0`（净买入）、`†` 标 `JINGE < 0`（净卖出），悬停显示具体净额；名单里没有的股票不打标记。客户端会截断部分名称（如 `XD中国人`、`XD大秦铁`），脚本会去掉 XD/DR/XR/ST 前缀后做前缀匹配。大盘模块不包含北向指标。
 
 Formula surfaces are split into two categories:
 

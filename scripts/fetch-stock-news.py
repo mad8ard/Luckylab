@@ -68,14 +68,6 @@ SOURCES = [
         "why": "正式公告。业绩预告、减持、回购、诉讼这类硬事件都在这里。",
     },
     {
-        "id": "hsgt",
-        "label": "北向持股（个股明细）",
-        "endpoint": "stock_hsgt_individual_em",
-        "params": lambda s: {"symbol": s},
-        "dateColumn": "持股日期",
-        "why": "外资持股逐日明细。注意该口径在 2024-08 之后停止披露，看数据末尾日期。",
-    },
-    {
         "id": "gdhs",
         "label": "股东户数",
         "endpoint": "stock_zh_a_gdhs_detail_em",
@@ -319,17 +311,6 @@ def derive(sources) -> dict:
                 {"date": row.get("公告日期"), "title": row.get("公告标题"), "url": row.get("网址")}
                 for row in tail[-8:][::-1]
             ],
-        }
-
-    hsgt = by_id.get("hsgt")
-    if hsgt and hsgt["recent"]:
-        tail = hsgt["recent"]
-        derived["hsgt"] = {
-            "total": hsgt["totalRows"],
-            "latestDate": tail[-1].get("持股日期"),
-            "latestHoldPct": tail[-1].get("持股数量占A股百分比"),
-            "latestHoldValue": tail[-1].get("持股市值"),
-            "note": "北向个股明细口径在 2024-08 之后停止披露，最新一行日期即为该口径的终点。",
         }
 
     gdhs = by_id.get("gdhs")
